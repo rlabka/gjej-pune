@@ -6,8 +6,8 @@ import {
   Briefcase,
   ChevronRight,
   Crown,
-  Eye,
   FileText,
+  Eye,
   Globe,
   LogOut,
   Mail,
@@ -16,7 +16,6 @@ import {
   Shield,
   User as UserIcon,
   UserCog,
-  Users,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -80,64 +79,46 @@ export default function ProfileScreen() {
                   </Text>
                 </View>
               </View>
-              <View className="mt-3 flex-row flex-wrap">
-                <Badge label={session.role.toUpperCase()} />
-                {isEmployer && session.isPremium ? (
-                  <View className="ml-2 flex-row items-center rounded-full bg-accent px-3 py-1">
+              {isEmployer && session.isPremium ? (
+                <View className="mt-3 flex-row flex-wrap">
+                  <View className="flex-row items-center rounded-full bg-accent px-3 py-1">
                     <Crown color="#FFFFFF" size={12} />
                     <Text className="ml-1 text-xs font-bold text-white">
                       {t('Mobile.profile.premiumActive')}
                     </Text>
                   </View>
-                ) : null}
-              </View>
+                </View>
+              ) : null}
             </View>
           )}
 
           {/* My content */}
           <View className="mt-5 overflow-hidden rounded-2xl border border-border bg-white">
             {isEmployer ? (
-              <Row
-                icon={<Briefcase color="#162C66" size={18} />}
-                label={t('Mobile.profile.myJobs')}
-                onPress={() => router.push('/my-jobs' as any)}
-              />
+              <>
+                <Row
+                  icon={<Briefcase color="#162C66" size={18} />}
+                  label={t('Mobile.profile.myJobs')}
+                  onPress={() => router.push('/my-jobs' as any)}
+                />
+                <Divider />
+                <Row
+                  icon={<SearchIcon color="#162C66" size={18} />}
+                  label={t('Mobile.menu.browseCandidates')}
+                  onPress={() => router.push('/(tabs)/search' as any)}
+                />
+                <Divider />
+              </>
             ) : (
-              <Row
-                icon={<UserIcon color="#162C66" size={18} />}
-                label={t('Mobile.profile.myAds')}
-                onPress={() => router.push('/my-ads' as any)}
-              />
+              <>
+                <Row
+                  icon={<UserCog color="#162C66" size={18} />}
+                  label={t('Mobile.menu.editProfile')}
+                  onPress={() => router.push('/profile-edit' as any)}
+                />
+                <Divider />
+              </>
             )}
-            <Divider />
-            {isEmployer ? (
-              <Row
-                icon={<Users color="#162C66" size={18} />}
-                label={t('Mobile.menu.applications')}
-                onPress={() => router.push('/applications' as any)}
-              />
-            ) : (
-              <Row
-                icon={<FileText color="#162C66" size={18} />}
-                label={t('Mobile.menu.myApplications')}
-                onPress={() => router.push('/applications' as any)}
-              />
-            )}
-            <Divider />
-            {isEmployer ? (
-              <Row
-                icon={<SearchIcon color="#162C66" size={18} />}
-                label={t('Mobile.menu.browseCandidates')}
-                onPress={() => router.push('/(tabs)/search' as any)}
-              />
-            ) : (
-              <Row
-                icon={<UserCog color="#162C66" size={18} />}
-                label={t('Mobile.menu.editProfile')}
-                onPress={() => router.push('/profile-edit' as any)}
-              />
-            )}
-            <Divider />
             <Row
               icon={<Bookmark color="#162C66" size={18} />}
               label={t('Mobile.profile.favorites')}
