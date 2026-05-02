@@ -38,6 +38,7 @@ import { resolveMediaUrl } from '@/lib/useApi';
 import { JobCard, type JobItem } from '@/components/JobCard';
 import { AdCard, type AdItem } from '@/components/AdCard';
 import { MyJobRow } from '@/components/MyJobRow';
+import { ProfileCompletion } from '@/components/ProfileCompletion';
 import { getNotifTitle, getNotifBody } from '@/lib/notificationLocale';
 
 type Notification = {
@@ -312,8 +313,8 @@ export default function HomeScreen() {
               ))
             : null}
 
-          {/* Recommended jobs (jobseeker) */}
-          {!isEmployer && recommendedJobs.length > 0 ? (
+          {/* Recommended jobs (jobseeker) — always shown so user understands the section exists */}
+          {!isEmployer ? (
             <>
               <SectionHeader
                 icon={Zap}
@@ -325,9 +326,20 @@ export default function HomeScreen() {
                 viewAllLabel={t('Mobile.home.viewAllShort')}
               />
               <View className="px-6">
-                {recommendedJobs.map((j) => (
-                  <JobCard key={j.id} item={j} />
-                ))}
+                {recommendedJobs.length > 0 ? (
+                  recommendedJobs.map((j) => <JobCard key={j.id} item={j} />)
+                ) : (
+                  <View className="items-center rounded-2xl border border-slate-200/60 bg-white/60 px-4 py-8">
+                    <Text className="text-center text-[13px] font-medium text-slate-400">
+                      {t('Mobile.home.noRecommendations')}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Profile completion — encourages job-seekers to fill profile */}
+              <View className="mt-4">
+                <ProfileCompletion />
               </View>
             </>
           ) : null}

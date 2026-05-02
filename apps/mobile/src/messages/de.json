@@ -1755,7 +1755,8 @@
       "notifPremiumActivated": "Premium aktiviert!",
       "notifPremiumCancelled": "Abo gekündigt",
       "notifBoostActive": "Boost aktiv!",
-      "notifAdOnline": "Anzeige online!"
+      "notifAdOnline": "Anzeige online!",
+      "noRecommendations": "Keine Empfehlungen verfügbar."
     },
     "inbox": {
       "title": "Posteingang",

@@ -1755,7 +1755,8 @@
       "notifPremiumActivated": "Premium attivato!",
       "notifPremiumCancelled": "Abbonamento annullato",
       "notifBoostActive": "Boost attivo!",
-      "notifAdOnline": "Annuncio online!"
+      "notifAdOnline": "Annuncio online!",
+      "noRecommendations": "Nessuna raccomandazione disponibile."
     },
     "browse": {
       "jobs": "Lavori",

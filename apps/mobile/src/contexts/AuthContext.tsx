@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   getSession,
+  getToken,
   login as apiLogin,
   logout as apiLogout,
   refreshSession,
@@ -16,6 +17,27 @@ import {
   type AuthRole,
   type StoredSession,
 } from '@/lib/auth';
+import { api } from '@/lib/api';
+import { i18n } from '@/i18n';
+
+/**
+ * Push the mobile-side locale to the backend so that server-issued
+ * notifications (push, email) come in the user's chosen language.
+ * Without this sync, the DB locale stays at whatever was set during
+ * registration (typically the build-time default), so a user who later
+ * switches the app to German still gets Albanian pushes.
+ */
+async function syncLocaleToBackend() {
+  try {
+    const token = await getToken();
+    if (!token) return;
+    const locale = i18n.locale;
+    if (!locale) return;
+    await api.patch('/api/auth/locale', { locale }, token);
+  } catch {
+    /* non-fatal */
+  }
+}
 
 type AuthState = {
   session: StoredSession | null;
@@ -52,6 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         // null (network error) → keep cached session
       });
+      // Push the current mobile locale to the backend on every app start.
+      // This recovers users whose DB locale is stale from before this fix
+      // shipped (e.g. registered in 'sq' default but switched UI to 'de').
+      void syncLocaleToBackend();
     } else {
       setSession(null);
     }
@@ -67,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (result.ok) {
       const s = await getSession();
       setSession(s);
+      void syncLocaleToBackend();
     }
     return result.ok
       ? { ok: true }

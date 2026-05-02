@@ -14,6 +14,8 @@ import {
   SUPPORTED_LOCALES,
   type Locale,
 } from '@/i18n';
+import { api } from '@/lib/api';
+import { getToken } from '@/lib/auth';
 
 type I18nState = {
   locale: Locale;
@@ -39,6 +41,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback(async (next: Locale) => {
     await persistLocale(next);
     setLocaleState(next);
+    // Sync to backend so server-side notifications (push, email) use the
+    // user's chosen language. Fire-and-forget — UI must not block on network.
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        await api.patch('/api/auth/locale', { locale: next }, token);
+      } catch {
+        /* network or auth issue — local locale still applies */
+      }
+    })();
   }, []);
 
   const t = useCallback(

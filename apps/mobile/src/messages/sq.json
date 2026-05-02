@@ -1755,7 +1755,8 @@
       "notifPremiumActivated": "Premium i aktivizuar!",
       "notifPremiumCancelled": "Abonimi u anulua",
       "notifBoostActive": "Boost aktiv!",
-      "notifAdOnline": "Shpallja online!"
+      "notifAdOnline": "Shpallja online!",
+      "noRecommendations": "Asnjë rekomandim i disponueshëm."
     },
     "browse": {
       "jobs": "Punë",

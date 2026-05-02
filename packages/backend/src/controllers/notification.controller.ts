@@ -37,12 +37,14 @@ function maskNotificationForNonPremium(notification: any) {
 export async function listNotifications(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id;
-    const isPremium = !!req.user!.isPremium;
+    // Job-seekers always see full notifications (no paid subscription tier).
+    // Only non-premium employers get the masked viewer info.
+    const unlocked = req.user!.role === 'job-seeker' || !!req.user!.isPremium;
     const cursor = req.query.cursor as string | undefined;
     const limit = req.query.limit ? Number(req.query.limit) : 15;
     const { notifications, nextCursor } = await getNotifications(userId, limit, cursor);
 
-    const filtered = isPremium
+    const filtered = unlocked
       ? notifications
       : notifications.map(maskNotificationForNonPremium);
 

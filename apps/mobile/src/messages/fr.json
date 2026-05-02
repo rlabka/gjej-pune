@@ -1755,7 +1755,8 @@
       "notifPremiumActivated": "Premium activé !",
       "notifPremiumCancelled": "Abonnement résilié",
       "notifBoostActive": "Boost actif !",
-      "notifAdOnline": "Annonce en ligne !"
+      "notifAdOnline": "Annonce en ligne !",
+      "noRecommendations": "Aucune recommandation disponible."
     },
     "browse": {
       "jobs": "Emplois",

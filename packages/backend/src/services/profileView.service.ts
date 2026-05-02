@@ -80,7 +80,7 @@ export async function recordProfileView(
       try {
         const owner = await prisma.user.findUnique({
           where: { id: viewedId },
-          select: { isPremium: true, locale: true, pushTokens: true },
+          select: { isPremium: true, role: true, locale: true, pushTokens: true },
         });
         if (!owner || !owner.pushTokens || owner.pushTokens === '[]') return;
 
@@ -91,7 +91,10 @@ export async function recordProfileView(
           : 'de';
         const t = PROFILE_VIEW_PUSH[locale];
 
-        const body = owner.isPremium
+        // Job-seekers always see the viewer's name (they have no paid subscription).
+        // Only employers see the masked "locked" body when not premium.
+        const unlocked = owner.role === 'job-seeker' || owner.isPremium;
+        const body = unlocked
           ? targetType === 'job'
             ? t.bodyJob(viewerName)
             : t.bodyAd(viewerName)
