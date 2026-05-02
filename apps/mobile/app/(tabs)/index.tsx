@@ -39,6 +39,8 @@ import { JobCard, type JobItem } from '@/components/JobCard';
 import { AdCard, type AdItem } from '@/components/AdCard';
 import { MyJobRow } from '@/components/MyJobRow';
 import { ProfileCompletion } from '@/components/ProfileCompletion';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 import { getNotifTitle, getNotifBody } from '@/lib/notificationLocale';
 
 type Notification = {
@@ -497,6 +499,7 @@ function CandidateCard({
   candidate: MatchCandidate;
   onPress: () => void;
 }) {
+  const { locale } = useI18n();
   const pct = Math.min(100, Math.round(candidate.score ?? 0));
   const badgeBg =
     pct >= 80
@@ -551,7 +554,7 @@ function CandidateCard({
           {candidate.age ? `, ${candidate.age}` : ''}
         </Text>
         <Text className="mt-0.5 text-[12px] text-slate-500" numberOfLines={1}>
-          {candidate.category}
+          {translateJobTitle(candidate.category, locale as Locale)}
         </Text>
         <View className="mt-2 flex-row flex-wrap" style={{ gap: 6 }}>
           {candidate.experience ? (

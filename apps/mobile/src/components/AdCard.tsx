@@ -14,6 +14,8 @@ import { useI18n } from '@/contexts/I18nContext';
 import { resolveMediaUrl } from '@/lib/useApi';
 import { config } from '@/lib/config';
 import { useFavorites } from '@/lib/useFavorites';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 
 const LANG_FLAGS: Record<string, string> = {
   sq: '🇦🇱',
@@ -84,11 +86,12 @@ function formatExperience(value: string | null | undefined, t: (k: string, o?: a
 
 export function AdCard({ item }: { item: AdItem }) {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { isFavorited, toggleFavorite } = useFavorites();
   const isSaved = isFavorited('ad', item.id);
   const photo = resolveMediaUrl(config.apiUrl, item.photoUrl);
   const firstName = item.firstName || 'Candidate';
+  const title = translateJobTitle(item.category, locale as Locale);
   const skills = parseSkills(item.skills).slice(0, 3);
   const languages = parseLanguages(item.spokenLanguages);
   const experience = formatExperience(item.experience, t);
@@ -97,7 +100,7 @@ export function AdCard({ item }: { item: AdItem }) {
     try {
       const url = `${config.apiUrl.replace(/\/api$/, '')}/ad/${item.id}`;
       await Share.share({
-        message: `${item.category} — ${firstName}${item.age ? `, ${item.age}` : ''}\n${url}`,
+        message: `${title} — ${firstName}${item.age ? `, ${item.age}` : ''}\n${url}`,
         url,
       });
     } catch {
@@ -139,7 +142,7 @@ export function AdCard({ item }: { item: AdItem }) {
                 className="flex-1 pr-2 text-[17px] font-extrabold leading-6 text-[#0B1F44]"
                 numberOfLines={2}
               >
-                {item.category}
+                {title}
               </Text>
               <Pressable
                 onPress={(e) => {

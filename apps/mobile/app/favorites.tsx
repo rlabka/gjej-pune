@@ -29,6 +29,8 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
@@ -107,7 +109,7 @@ function parseArray(value: unknown): string[] {
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const dialog = useDialog();
   const { session } = useAuth();
   const isEmployer = session?.role === 'employer';
@@ -273,7 +275,7 @@ export default function FavoritesScreen() {
                       shareTarget(
                         'ad',
                         ad.id,
-                        `${ad.firstName}${ad.age ? `, ${ad.age}` : ''} — ${ad.category}`
+                        `${ad.firstName}${ad.age ? `, ${ad.age}` : ''} — ${translateJobTitle(ad.category, locale as Locale)}`
                       )
                     }
                     onRemove={() => removeFavorite('ad', ad.id)}
@@ -360,6 +362,7 @@ function CandidateCard({
   onContact: () => void;
   t: (k: string, o?: any) => string;
 }) {
+  const { locale } = useI18n();
   const photo = resolveMediaUrl(config.apiUrl, ad.photoUrl);
   const skills = parseArray(ad.skills).slice(0, 4);
   const languages = parseArray(ad.spokenLanguages);
@@ -409,7 +412,7 @@ function CandidateCard({
                     className="ml-1 text-[14px] font-bold text-[#162C66]/70"
                     numberOfLines={1}
                   >
-                    {ad.category}
+                    {translateJobTitle(ad.category, locale as Locale)}
                   </Text>
                 </View>
               </View>

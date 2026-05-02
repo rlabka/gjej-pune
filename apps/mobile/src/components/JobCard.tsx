@@ -15,6 +15,9 @@ import {
 } from 'lucide-react-native';
 import { config } from '@/lib/config';
 import { useFavorites } from '@/lib/useFavorites';
+import { useI18n } from '@/contexts/I18nContext';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 
 export type JobItem = {
   id: string;
@@ -48,8 +51,10 @@ function formatSalary(item: JobItem): string {
 export function JobCard({ item }: { item: JobItem }) {
   const router = useRouter();
   const { isFavorited, toggleFavorite } = useFavorites();
+  const { locale } = useI18n();
   const isSaved = isFavorited('job', item.id);
   const salary = formatSalary(item);
+  const title = translateJobTitle(item.category, locale as Locale);
   const location = [item.locationCity, item.locationState].filter(Boolean).join(', ');
   const urgent = item.when?.toLowerCase().includes('urgent');
   const matchPct =
@@ -62,7 +67,7 @@ export function JobCard({ item }: { item: JobItem }) {
     try {
       const url = `${config.apiUrl.replace(/\/api$/, '')}/job/${item.id}`;
       await Share.share({
-        message: `${item.category}${item.user?.displayName ? ` — ${item.user.displayName}` : ''}\n${url}`,
+        message: `${title}${item.user?.displayName ? ` — ${item.user.displayName}` : ''}\n${url}`,
         url,
       });
     } catch {
@@ -126,7 +131,7 @@ export function JobCard({ item }: { item: JobItem }) {
         <View className="flex-row items-start justify-between">
           <View className="flex-1 pr-3">
             <Text className="text-lg font-extrabold text-[#0B1F44]" numberOfLines={2}>
-              {item.category}
+              {title}
             </Text>
             {item.user?.displayName ? (
               <View className="mt-1 flex-row items-center">

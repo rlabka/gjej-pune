@@ -29,6 +29,8 @@ import {
 } from 'lucide-react-native';
 import { api } from '@/lib/api';
 import { useI18n } from '@/contexts/I18nContext';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 import { useDialog } from '@/contexts/DialogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
@@ -162,8 +164,9 @@ export default function JobDetailScreen() {
 
   async function onShare() {
     if (!job) return;
+    const localizedCategory = translateJobTitle(job.category, locale as Locale);
     await Share.share({
-      message: `${job.category}${job.companyName ? ` — ${job.companyName}` : ''}`,
+      message: `${localizedCategory}${job.companyName ? ` — ${job.companyName}` : ''}`,
     });
   }
 
@@ -287,7 +290,7 @@ export default function JobDetailScreen() {
               </View>
               <View className="flex-1 pt-0.5">
                 <Text className="text-[22px] font-extrabold leading-tight tracking-tight text-[#0B1F44]">
-                  {job.category}
+                  {translateJobTitle(job.category, locale as Locale)}
                 </Text>
                 {job.companyName ?? job.user?.displayName ? (
                   <View

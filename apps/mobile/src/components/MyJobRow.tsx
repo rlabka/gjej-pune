@@ -6,6 +6,8 @@ import {
   Pencil,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { translateJobTitle } from '@/lib/jobTitle';
+import type { Locale } from '@jmp/shared';
 import type { JobItem } from '@/components/JobCard';
 
 function formatSalary(item: JobItem): string {
@@ -57,7 +59,8 @@ export function MyJobRow({
   onCloseMenu,
   showMore = true,
 }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const title = translateJobTitle(item.category, locale as Locale);
   const status = (item.status ?? 'Active') as 'Active' | 'Paused' | 'Closed';
   const statusLabel =
     status === 'Paused'
@@ -106,7 +109,7 @@ export function MyJobRow({
           className="flex-1 pr-2 text-[15px] font-extrabold text-[#0B1F44]"
           numberOfLines={2}
         >
-          {item.category}
+          {title}
         </Text>
         <View
           className={`flex-row items-center rounded-full ${statusBg} px-2.5 py-1`}

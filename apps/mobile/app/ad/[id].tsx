@@ -31,6 +31,7 @@ import {
 } from 'lucide-react-native';
 import { api } from '@/lib/api';
 import { useI18n } from '@/contexts/I18nContext';
+import { translateJobTitle } from '@/lib/jobTitle';
 import { useDialog } from '@/contexts/DialogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
@@ -283,7 +284,7 @@ export default function AdDetailScreen() {
   async function onShare() {
     if (!ad) return;
     const name = [ad.firstName, ad.surname].filter(Boolean).join(' ');
-    await Share.share({ message: `${name} – ${ad.category}` });
+    await Share.share({ message: `${name} – ${translateJobTitle(ad.category, l)}` });
   }
 
   async function onContact() {
@@ -501,7 +502,7 @@ export default function AdDetailScreen() {
             </View>
 
             <Text className="mt-1 text-center text-[14px] font-semibold text-slate-500">
-              {ad.category}
+              {translateJobTitle(ad.category, l)}
             </Text>
 
             {ad.livingPlace ? (
