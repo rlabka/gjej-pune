@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <!-- Yellow tilted banner shape — brand signature element -->
+  <rect x="3" y="8" width="34" height="24" rx="6" fill="#F5C400" transform="rotate(-3 20 20)"/>
+  <!-- Subtle highlight on top -->
+  <rect x="5" y="9" width="30" height="10" rx="4" fill="white" opacity="0.15" transform="rotate(-3 20 20)"/>
+  <!-- "gp" letters -->
+  <text x="20" y="26" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="800" fill="#0B1A3B" letter-spacing="-0.5">gp</text>
+</svg>

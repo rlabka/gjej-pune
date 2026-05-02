@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #333333;
+  --primary: #F5C400;
+  --secondary: #162C66;
+  --accent: #F5C400;
+  --neutral-bg: #F7F7F7;
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-neutral-bg: var(--neutral-bg);
+}
+
+html {
+  font-size: 17px;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+  font-optical-sizing: auto;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    @apply font-bold tracking-tight text-secondary;
+    letter-spacing: -0.025em;
+  }
+  h1 {
+    @apply text-4xl lg:text-5xl font-extrabold;
+    letter-spacing: -0.03em;
+  }
+  h2 {
+    @apply text-2xl lg:text-4xl font-bold;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Footer links use theme primary on hover */
+.theme-footer a:hover {
+  color: var(--primary);
+}
+
+/* Visible thin scrollbar for horizontal-scroll areas on mobile */
+.scroll-hint {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,0.4) transparent;
+}
+.scroll-hint::-webkit-scrollbar {
+  height: 4px;
+}
+.scroll-hint::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-hint::-webkit-scrollbar-thumb {
+  background: rgba(148,163,184,0.4);
+  border-radius: 999px;
+}
+
+/* Override Next.js portal positioning */
+nextjs-portal.dark {
+  left: unset !important;
+  top: unset !important;
+}

@@ -1,0 +1,48 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_PATH": "/ws",
+        "EXPO_PUBLIC_DEFAULT_LOCALE": "sq",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBFm1-yEULR5_HUYvf6iYzOnMXGBtgY51g",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "921043784034-jq6d8vl2055u5b41jfm1b0935hm468m9.apps.googleusercontent.com"
+      }
+    },
+    "preview": {
+      "distribution": "store",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_PATH": "/ws",
+        "EXPO_PUBLIC_DEFAULT_LOCALE": "sq",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBFm1-yEULR5_HUYvf6iYzOnMXGBtgY51g",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "921043784034-jq6d8vl2055u5b41jfm1b0935hm468m9.apps.googleusercontent.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_URL": "https://gjej-pune.com",
+        "EXPO_PUBLIC_WS_PATH": "/ws",
+        "EXPO_PUBLIC_DEFAULT_LOCALE": "sq",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBFm1-yEULR5_HUYvf6iYzOnMXGBtgY51g",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "921043784034-jq6d8vl2055u5b41jfm1b0935hm468m9.apps.googleusercontent.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

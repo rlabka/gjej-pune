@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Firebase config (never commit)
+GoogleService-Info.plist
+google-services.json
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
