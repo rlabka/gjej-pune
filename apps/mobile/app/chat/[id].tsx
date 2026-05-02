@@ -381,7 +381,7 @@ export default function ChatDetailScreen() {
                 )}
                 onContentSizeChange={() => scrollToBottom(false)}
                 ListFooterComponent={
-                  hasAnyPreview && !isPremium ? (
+                  hasAnyPreview && !isPremium && !isJobSeeker ? (
                     <View className="my-3 items-center">
                       <Pressable
                         onPress={() => router.push('/premium' as any)}

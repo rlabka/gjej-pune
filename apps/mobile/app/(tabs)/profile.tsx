@@ -145,14 +145,18 @@ export default function ProfileScreen() {
             />
           </View>
 
-          {/* Premium & Profile Views */}
+          {/* Premium (employer only — job-seekers have no paid tier) & Profile Views */}
           <View className="mt-5 overflow-hidden rounded-2xl border border-border bg-white">
-            <Row
-              icon={<Crown color="#F5C400" size={18} />}
-              label={t('Mobile.profile.premium')}
-              onPress={() => router.push('/premium' as any)}
-            />
-            <Divider />
+            {isEmployer ? (
+              <>
+                <Row
+                  icon={<Crown color="#F5C400" size={18} />}
+                  label={t('Mobile.profile.premium')}
+                  onPress={() => router.push('/premium' as any)}
+                />
+                <Divider />
+              </>
+            ) : null}
             <Row
               icon={<Eye color="#162C66" size={18} />}
               label={t('Mobile.profileViews.title')}
