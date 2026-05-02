@@ -32,6 +32,7 @@ import { JobCategoryPicker } from '@/components/JobCategoryPicker';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import type { LocationSuggestion } from '@/lib/useLocationAutocomplete';
 import { CurrencySelect } from '@/components/CurrencySelect';
+import { PhoneInput } from '@/components/PhoneInput';
 
 const SALARY_TYPES = ['Hour', 'Month', 'Year', 'Provision'] as const;
 type SalaryType = (typeof SALARY_TYPES)[number];
@@ -222,20 +223,27 @@ export default function NewJobScreen() {
                   placeholder={t('Mobile.jobForm.surnamePh')}
                   hasError={!!errors.contactSurname}
                 />
-                <Field
-                  label={t('Mobile.jobForm.telNr')}
-                  icon={<Phone color="#94A3B8" size={11} />}
-                  required
-                  hint={t('Mobile.jobForm.hidden')}
-                  value={contactPhone}
-                  onChangeText={(v) => {
-                    setContactPhone(v);
-                    clearError('contactPhone');
-                  }}
-                  placeholder={t('Mobile.jobForm.phonePh')}
-                  keyboardType="phone-pad"
-                  hasError={!!errors.contactPhone}
-                />
+                <View>
+                  <View className="mb-1.5 flex-row items-center" style={{ gap: 4 }}>
+                    <Phone color="#94A3B8" size={11} />
+                    <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      {t('Mobile.jobForm.telNr')}
+                      <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <Text className="text-[10px] font-medium text-slate-400">
+                      {t('Mobile.jobForm.hidden')}
+                    </Text>
+                  </View>
+                  <PhoneInput
+                    value={contactPhone}
+                    onChange={(v) => {
+                      setContactPhone(v);
+                      clearError('contactPhone');
+                    }}
+                    placeholder={t('Mobile.jobForm.phonePh')}
+                    hasError={!!errors.contactPhone}
+                  />
+                </View>
                 <Field
                   label={t('Mobile.jobForm.companyName')}
                   icon={<Building2 color="#94A3B8" size={11} />}
