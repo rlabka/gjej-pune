@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -9,9 +10,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import {
+  ArrowLeft,
   Briefcase,
   Eye,
   EyeOff,
@@ -21,6 +24,8 @@ import {
   ShieldCheck,
   User as UserIcon,
 } from 'lucide-react-native';
+
+const LOGO_IMAGE = require('../../assets/images/logo.png');
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useDialog } from '@/contexts/DialogContext';
@@ -421,6 +426,33 @@ export default function RegisterScreen() {
 
   return (
     <View className="flex-1 bg-[#F7F9FC]">
+      {/* Top bar — matches login */}
+      <SafeAreaView edges={['top']} className="bg-white">
+        <View
+          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-3"
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.04,
+            shadowRadius: 3,
+            elevation: 1,
+          }}
+        >
+          <Pressable
+            onPress={() => router.back()}
+            className="h-10 w-10 items-center justify-center rounded-full active:bg-slate-50"
+          >
+            <ArrowLeft color="#64748B" size={20} />
+          </Pressable>
+          <Image
+            source={LOGO_IMAGE}
+            style={{ height: 28, width: 110 }}
+            resizeMode="contain"
+          />
+          <View style={{ width: 40 }} />
+        </View>
+      </SafeAreaView>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1"
