@@ -1756,7 +1756,8 @@
       "notifPremiumCancelled": "Subscription Cancelled",
       "notifBoostActive": "Boost Active!",
       "notifAdOnline": "Ad Online!",
-      "noRecommendations": "No recommendations available."
+      "noRecommendations": "No recommendations available.",
+      "noMatchingCandidates": "No matching candidates yet. They will appear here once applicants register."
     },
     "inbox": {
       "title": "Inbox",

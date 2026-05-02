@@ -286,8 +286,9 @@ export default function HomeScreen() {
           </View>
 
           {/* Matching candidates per active job (employer) */}
-          {isEmployer
-            ? matchingByJob.map((group) => (
+          {isEmployer ? (
+            matchingByJob.length > 0 ? (
+              matchingByJob.map((group) => (
                 <View key={group.jobId}>
                   <SectionHeader
                     icon={Zap}
@@ -313,7 +314,27 @@ export default function HomeScreen() {
                   </ScrollView>
                 </View>
               ))
-            : null}
+            ) : (
+              <>
+                <SectionHeader
+                  icon={Zap}
+                  iconColor="#F5C400"
+                  iconBg="#FEF3C7"
+                  title={t('Mobile.home.suggestedCandidates')}
+                  count={0}
+                  onViewAll={() => router.push('/(tabs)/search')}
+                  viewAllLabel={t('Mobile.home.viewAllShort')}
+                />
+                <View className="px-6">
+                  <View className="items-center rounded-2xl border border-slate-200/60 bg-white/60 px-4 py-8">
+                    <Text className="text-center text-[13px] font-medium text-slate-400">
+                      {t('Mobile.home.noMatchingCandidates')}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )
+          ) : null}
 
           {/* Recommended jobs (jobseeker) — always shown so user understands the section exists */}
           {!isEmployer ? (

@@ -1756,7 +1756,8 @@
       "notifPremiumCancelled": "Abonnement résilié",
       "notifBoostActive": "Boost actif !",
       "notifAdOnline": "Annonce en ligne !",
-      "noRecommendations": "Aucune recommandation disponible."
+      "noRecommendations": "Aucune recommandation disponible.",
+      "noMatchingCandidates": "Aucun candidat correspondant pour le moment. Ils apparaîtront ici dès leur inscription."
     },
     "browse": {
       "jobs": "Emplois",

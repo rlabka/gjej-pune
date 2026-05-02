@@ -1756,7 +1756,8 @@
       "notifPremiumCancelled": "Abonimi u anulua",
       "notifBoostActive": "Boost aktiv!",
       "notifAdOnline": "Shpallja online!",
-      "noRecommendations": "Asnjë rekomandim i disponueshëm."
+      "noRecommendations": "Asnjë rekomandim i disponueshëm.",
+      "noMatchingCandidates": "Ende asnjë kandidat i përshtatshëm. Do të shfaqen këtu sapo të regjistrohen aplikantët."
     },
     "browse": {
       "jobs": "Punë",

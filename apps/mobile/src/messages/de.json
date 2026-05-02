@@ -1756,7 +1756,8 @@
       "notifPremiumCancelled": "Abo gekündigt",
       "notifBoostActive": "Boost aktiv!",
       "notifAdOnline": "Anzeige online!",
-      "noRecommendations": "Keine Empfehlungen verfügbar."
+      "noRecommendations": "Keine Empfehlungen verfügbar.",
+      "noMatchingCandidates": "Noch keine passenden Kandidaten. Sobald sich Bewerber registrieren, erscheinen sie hier."
     },
     "inbox": {
       "title": "Posteingang",
