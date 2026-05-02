@@ -82,7 +82,7 @@ export default function ProfileScreen() {
               </View>
               <View className="mt-3 flex-row flex-wrap">
                 <Badge label={session.role.toUpperCase()} />
-                {session.isPremium ? (
+                {isEmployer && session.isPremium ? (
                   <View className="ml-2 flex-row items-center rounded-full bg-accent px-3 py-1">
                     <Crown color="#FFFFFF" size={12} />
                     <Text className="ml-1 text-xs font-bold text-white">
