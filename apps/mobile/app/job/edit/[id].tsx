@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -27,6 +26,7 @@ import {
   User,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { JobCategoryPicker } from '@/components/JobCategoryPicker';
@@ -41,6 +41,7 @@ export default function EditJobScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -165,10 +166,10 @@ export default function EditJobScreen() {
         for (const d of res.details) serverErrors[d.field] = d.message;
         setErrors(serverErrors);
       } else {
-        Alert.alert(t('Mobile.jobForm.errorToast'));
+        dialog.showError(t('Mobile.jobForm.errorToast'));
       }
     } catch {
-      Alert.alert(t('Mobile.jobForm.errorToast'));
+      dialog.showError(t('Mobile.jobForm.errorToast'));
     } finally {
       setSubmitting(false);
     }

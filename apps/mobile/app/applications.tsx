@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  Alert,
   FlatList,
   Image,
   Pressable,
@@ -35,6 +34,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 
 /* ─── Types ─────────────────────────────────────────────── */
 
@@ -174,6 +174,7 @@ const JS_STATUS_COLOR: Record<JobSeekerStatus, { dot: string; bg: string; text: 
 export default function ApplicationsScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const { session } = useAuth();
   const isEmployer = session?.role === 'employer';
 
@@ -196,6 +197,7 @@ function EmployerView({
   t: (key: string, opts?: any) => string;
   onBack: () => void;
 }) {
+  const dialog = useDialog();
   const [items, setItems] = useState<EmployerApplicant[]>(EMPLOYER_INITIAL);
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<EmployerStatus | 'ALL'>('ALL');
@@ -247,7 +249,7 @@ function EmployerView({
     setOpenMenuFor(null);
   };
 
-  const handleAction = (id: number, action: string) => {
+  const handleAction = async (id: number, action: string) => {
     setOpenMenuFor(null);
     const a = items.find((x) => x.id === id);
     if (!a) return;
@@ -259,30 +261,27 @@ function EmployerView({
         return moveTo(id, 'INTERVIEW');
       case 'restore':
         return moveTo(id, 'IN_REVIEW');
-      case 'hire':
-        Alert.alert(
-          t('Mobile.applications.confirmHireTitle'),
-          t('Mobile.applications.confirmHireDesc', { name: a.name }),
-          [
-            { text: t('Mobile.common.cancel'), style: 'cancel' },
-            { text: t('Mobile.common.confirm'), onPress: () => moveTo(id, 'HIRED') },
-          ]
-        );
+      case 'hire': {
+        const okHire = await dialog.confirm({
+          title: t('Mobile.applications.confirmHireTitle'),
+          message: t('Mobile.applications.confirmHireDesc', { name: a.name }),
+          confirmLabel: t('Mobile.common.confirm'),
+          cancelLabel: t('Mobile.common.cancel'),
+        });
+        if (okHire) moveTo(id, 'HIRED');
         return;
-      case 'reject':
-        Alert.alert(
-          t('Mobile.applications.confirmRejectTitle'),
-          t('Mobile.applications.confirmRejectDesc', { name: a.name }),
-          [
-            { text: t('Mobile.common.cancel'), style: 'cancel' },
-            {
-              text: t('Mobile.common.confirm'),
-              style: 'destructive',
-              onPress: () => moveTo(id, 'REJECTED'),
-            },
-          ]
-        );
+      }
+      case 'reject': {
+        const okReject = await dialog.confirm({
+          title: t('Mobile.applications.confirmRejectTitle'),
+          message: t('Mobile.applications.confirmRejectDesc', { name: a.name }),
+          confirmLabel: t('Mobile.common.confirm'),
+          cancelLabel: t('Mobile.common.cancel'),
+          destructive: true,
+        });
+        if (okReject) moveTo(id, 'REJECTED');
         return;
+      }
     }
   };
 

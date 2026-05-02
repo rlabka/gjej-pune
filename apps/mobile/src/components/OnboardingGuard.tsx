@@ -158,6 +158,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     checkOnboarding();
   }, [checkOnboarding]);
 
+  // Re-check on every navigation. Without this, navigating from /ad/new (after
+  // a successful create) to a non-tab route like /ad/[id] keeps the stale
+  // needsOnboarding=true state and shows the overlay over the new screen.
+  useEffect(() => {
+    checkOnboarding();
+  }, [pathname, checkOnboarding]);
+
   // No session, admin, or still checking → render children normally (no overlay)
   // CRITICAL: never unmount children, otherwise router.replace() to nested
   // routes like /(tabs) fails because the navigator hasn't registered them yet.

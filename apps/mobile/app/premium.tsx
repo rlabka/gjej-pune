@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Pressable,
   ScrollView,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 
@@ -110,6 +110,7 @@ function formatPrice(amountCents: number, currency: string = 'eur'): string {
 export default function PremiumScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const { locale } = useI18n();
   const { session, refresh } = useAuth();
 
@@ -179,53 +180,48 @@ export default function PremiumScreen() {
       if (res?.ok && res.url) {
         await Linking.openURL(res.url);
       } else {
-        Alert.alert(res?.error ?? t('Mobile.common.error'));
+        dialog.showError(res?.error ?? t('Mobile.common.error'));
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleCancel() {
-    Alert.alert(
-      t('Mobile.premium.cancelSub'),
-      t('Mobile.premium.cancelConfirm'),
-      [
-        { text: t('Mobile.common.cancel'), style: 'cancel' },
-        {
-          text: t('Mobile.premium.cancelYes'),
-          style: 'destructive',
-          onPress: async () => {
-            setCancelLoading(true);
-            const token = (await getToken()) ?? undefined;
-            try {
-              const res = await api.post<{ ok: boolean; endDate?: string; error?: string }>(
-                '/api/stripe/cancel',
-                {},
-                token
-              );
-              if (res?.ok && res.endDate) {
-                Alert.alert(
-                  t('Mobile.premium.canceledUntil') +
-                    ' ' +
-                    new Date(res.endDate).toLocaleDateString(locale)
-                );
-                loadData();
-                await refresh();
-              } else {
-                Alert.alert(res?.error ?? t('Mobile.common.error'));
-              }
-            } catch {
-              Alert.alert(t('Mobile.common.error'));
-            } finally {
-              setCancelLoading(false);
-            }
-          },
-        },
-      ]
-    );
+    const ok = await dialog.confirm({
+      title: t('Mobile.premium.cancelSub'),
+      message: t('Mobile.premium.cancelConfirm'),
+      confirmLabel: t('Mobile.premium.cancelYes'),
+      cancelLabel: t('Mobile.common.cancel'),
+      destructive: true,
+    });
+    if (!ok) return;
+    setCancelLoading(true);
+    const token = (await getToken()) ?? undefined;
+    try {
+      const res = await api.post<{ ok: boolean; endDate?: string; error?: string }>(
+        '/api/stripe/cancel',
+        {},
+        token
+      );
+      if (res?.ok && res.endDate) {
+        dialog.showSuccess(
+          t('Mobile.premium.canceledUntil') +
+            ' ' +
+            new Date(res.endDate).toLocaleDateString(locale)
+        );
+        loadData();
+        await refresh();
+      } else {
+        dialog.showError(res?.error ?? t('Mobile.common.error'));
+      }
+    } catch {
+      dialog.showError(t('Mobile.common.error'));
+    } finally {
+      setCancelLoading(false);
+    }
   }
 
   async function handleReactivate() {
@@ -238,14 +234,14 @@ export default function PremiumScreen() {
         token
       );
       if (res?.ok) {
-        Alert.alert(t('Mobile.common.done'));
+        dialog.showSuccess(t('Mobile.common.done'));
         loadData();
         await refresh();
       } else {
-        Alert.alert(res?.error ?? t('Mobile.common.error'));
+        dialog.showError(res?.error ?? t('Mobile.common.error'));
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setCancelLoading(false);
     }
@@ -264,7 +260,7 @@ export default function PremiumScreen() {
         await Linking.openURL(res.url);
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     }
   }
 

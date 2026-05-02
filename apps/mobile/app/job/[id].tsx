@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Share,
@@ -30,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { api } from '@/lib/api';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
 
@@ -66,6 +66,7 @@ export default function JobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t, locale } = useI18n();
+  const dialog = useDialog();
   const { session } = useAuth();
 
   const [job, setJob] = useState<JobDetail | null>(null);
@@ -123,7 +124,7 @@ export default function JobDetailScreen() {
       await api.post('/api/favorites/toggle', { targetType: 'job', targetId: id }, token);
       setSaved((s) => !s);
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setSavingFav(false);
     }
@@ -150,10 +151,10 @@ export default function JobDetailScreen() {
       if (res?.ok && res.conversation?.id) {
         router.push(`/chat/${res.conversation.id}` as any);
       } else {
-        Alert.alert(t('Mobile.common.error'));
+        dialog.showError(t('Mobile.common.error'));
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setStartingChat(false);
     }

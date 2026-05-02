@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
@@ -50,6 +50,7 @@ type Profile = {
 export default function SettingsScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const { session, refresh, logout } = useAuth();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -137,9 +138,9 @@ export default function SettingsScreen() {
 
       // Refresh auth session so displayName etc. update everywhere
       await refresh();
-      Alert.alert(t('Mobile.common.done'));
+      dialog.showSuccess(t('Mobile.common.done'));
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setSaving(false);
     }
@@ -178,7 +179,7 @@ export default function SettingsScreen() {
         await refresh();
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     }
   }
 
@@ -336,7 +337,7 @@ export default function SettingsScreen() {
             <Pressable
               onPress={async () => {
                 if (!currentPw || newPw.length < 6) {
-                  Alert.alert(t('Mobile.common.error'));
+                  dialog.showError(t('Mobile.common.error'));
                   return;
                 }
                 setChangingPw(true);
@@ -348,14 +349,14 @@ export default function SettingsScreen() {
                     token
                   );
                   if (res?.ok) {
-                    Alert.alert(t('Mobile.common.done'));
+                    dialog.showSuccess(t('Mobile.common.done'));
                     setCurrentPw('');
                     setNewPw('');
                   } else {
-                    Alert.alert(res?.error ?? t('Mobile.common.error'));
+                    dialog.showError(res?.error ?? t('Mobile.common.error'));
                   }
                 } catch {
-                  Alert.alert(t('Mobile.common.error'));
+                  dialog.showError(t('Mobile.common.error'));
                 } finally {
                   setChangingPw(false);
                 }
@@ -388,43 +389,35 @@ export default function SettingsScreen() {
               />
             </View>
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 if (!deletePw) return;
-                Alert.alert(
-                  t('Mobile.profile.deleteAccount'),
-                  t('Mobile.adForm.deleteConfirm'),
-                  [
-                    { text: t('Mobile.common.cancel'), style: 'cancel' },
-                    {
-                      text: t('Mobile.common.confirm'),
-                      style: 'destructive',
-                      onPress: async () => {
-                        setDeleting(true);
-                        const token = (await getToken()) ?? undefined;
-                        try {
-                          const res = await api.post<{
-                            ok?: boolean;
-                            error?: string;
-                          }>(
-                            '/api/settings/delete-account',
-                            { password: deletePw },
-                            token
-                          );
-                          if (res?.ok) {
-                            await logout();
-                            router.replace('/welcome' as any);
-                          } else {
-                            Alert.alert(res?.error ?? t('Mobile.common.error'));
-                          }
-                        } catch {
-                          Alert.alert(t('Mobile.common.error'));
-                        } finally {
-                          setDeleting(false);
-                        }
-                      },
-                    },
-                  ]
-                );
+                const ok = await dialog.confirm({
+                  title: t('Mobile.profile.deleteAccount'),
+                  message: t('Mobile.adForm.deleteConfirm'),
+                  confirmLabel: t('Mobile.common.confirm'),
+                  cancelLabel: t('Mobile.common.cancel'),
+                  destructive: true,
+                });
+                if (!ok) return;
+                setDeleting(true);
+                const token = (await getToken()) ?? undefined;
+                try {
+                  const res = await api.post<{ ok?: boolean; error?: string }>(
+                    '/api/settings/delete-account',
+                    { password: deletePw },
+                    token
+                  );
+                  if (res?.ok) {
+                    await logout();
+                    router.replace('/welcome' as any);
+                  } else {
+                    dialog.showError(res?.error ?? t('Mobile.common.error'));
+                  }
+                } catch {
+                  dialog.showError(t('Mobile.common.error'));
+                } finally {
+                  setDeleting(false);
+                }
               }}
               disabled={deleting || !deletePw}
               className="mt-3 flex-row items-center justify-center rounded-xl border border-red-300 bg-white py-3 active:opacity-80 disabled:opacity-50"

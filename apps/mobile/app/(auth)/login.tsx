@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import {
   exchangeGoogleTokenForFirebase,
   isGoogleAuthConfigured,
@@ -216,6 +216,7 @@ const ERR_TEXT: Record<string, Record<Locale, string>> = {
 export default function LoginScreen() {
   const { login, refresh } = useAuth();
   const { locale } = useI18n();
+  const dialog = useDialog();
   const router = useRouter();
 
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(
@@ -258,10 +259,12 @@ export default function LoginScreen() {
 
   async function handleGoogleLogin() {
     if (!isGoogleAuthConfigured) {
-      Alert.alert(
-        'Google Sign-In',
-        'Google login ist noch nicht konfiguriert. Setze EXPO_PUBLIC_FIREBASE_API_KEY und EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in apps/mobile/.env'
-      );
+      dialog.show({
+        variant: 'info',
+        title: 'Google Sign-In',
+        message:
+          'Google login ist noch nicht konfiguriert. Setze EXPO_PUBLIC_FIREBASE_API_KEY und EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in apps/mobile/.env',
+      });
       return;
     }
     if (!googleRequest) return;

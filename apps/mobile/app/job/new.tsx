@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -26,6 +25,7 @@ import {
   User,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { JobCategoryPicker } from '@/components/JobCategoryPicker';
@@ -40,6 +40,7 @@ type SalaryType = (typeof SALARY_TYPES)[number];
 export default function NewJobScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
 
   const [category, setCategory] = useState('');
   const [contactName, setContactName] = useState('');
@@ -117,16 +118,16 @@ export default function NewJobScreen() {
       }>('/api/jobs', payload, token);
 
       if (res.ok && res.job) {
-        router.replace(`/job/${res.job.id}` as any);
+        router.replace('/(tabs)' as any);
       } else if (res.error === 'validationError' && res.details) {
         const serverErrors: Record<string, string> = {};
         for (const d of res.details) serverErrors[d.field] = d.message;
         setErrors(serverErrors);
       } else {
-        Alert.alert(t('Mobile.jobForm.errorToast'));
+        dialog.showError(t('Mobile.jobForm.errorToast'));
       }
     } catch {
-      Alert.alert(t('Mobile.jobForm.errorToast'));
+      dialog.showError(t('Mobile.jobForm.errorToast'));
     } finally {
       setSubmitting(false);
     }

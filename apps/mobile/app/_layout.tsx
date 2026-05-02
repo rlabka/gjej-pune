@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { I18nProvider } from '@/contexts/I18nContext';
+import { DialogProvider } from '@/contexts/DialogContext';
 import { initI18n } from '@/i18n';
 import { OnboardingGuard } from '@/components/OnboardingGuard';
 
@@ -35,8 +36,9 @@ export default function RootLayout() {
         <I18nProvider>
           <AuthProvider>
             <ChatProvider>
-              <StatusBar style="auto" />
-              <OnboardingGuard>
+              <DialogProvider>
+                <StatusBar style="auto" />
+                <OnboardingGuard>
                 <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" />
                 <Stack.Screen name="welcome" />
@@ -58,7 +60,8 @@ export default function RootLayout() {
                 <Stack.Screen name="contact" />
                 <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
               </Stack>
-              </OnboardingGuard>
+                </OnboardingGuard>
+              </DialogProvider>
             </ChatProvider>
           </AuthProvider>
         </I18nProvider>

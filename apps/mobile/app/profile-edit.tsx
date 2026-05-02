@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
@@ -58,6 +58,7 @@ const PHONE_PREFIXES = [
 export default function ProfileEditScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const { refresh } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -139,9 +140,9 @@ export default function ProfileEditScreen() {
         token
       );
       await refresh();
-      Alert.alert(t('Mobile.profileEdit.saved'));
+      dialog.showSuccess(t('Mobile.profileEdit.saved'));
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setSaving(false);
     }
@@ -191,7 +192,7 @@ export default function ProfileEditScreen() {
         await refresh();
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     } finally {
       setImageUploading(false);
     }

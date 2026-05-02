@@ -1,4 +1,4 @@
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { getDisplayName } from '@/lib/auth';
 import { useState } from 'react';
 
@@ -34,23 +35,23 @@ const LOCALE_LABELS: Record<string, string> = {
 export default function ProfileScreen() {
   const { session, logout } = useAuth();
   const { t, locale, setLocale, locales } = useI18n();
+  const dialog = useDialog();
   const router = useRouter();
   const [langOpen, setLangOpen] = useState(false);
 
   const isEmployer = session?.role === 'employer';
 
   async function onLogout() {
-    Alert.alert(t('Mobile.profile.logout'), '', [
-      { text: t('Mobile.common.cancel'), style: 'cancel' },
-      {
-        text: t('Mobile.profile.logout'),
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/welcome' as any);
-        },
-      },
-    ]);
+    const ok = await dialog.confirm({
+      title: t('Mobile.profile.logout'),
+      confirmLabel: t('Mobile.profile.logout'),
+      cancelLabel: t('Mobile.common.cancel'),
+      destructive: true,
+    });
+    if (ok) {
+      await logout();
+      router.replace('/welcome' as any);
+    }
   }
 
   return (

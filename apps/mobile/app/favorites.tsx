@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   Pressable,
@@ -30,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
@@ -108,6 +108,7 @@ function parseArray(value: unknown): string[] {
 export default function FavoritesScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const { session } = useAuth();
   const isEmployer = session?.role === 'employer';
 
@@ -205,7 +206,7 @@ export default function FavoritesScreen() {
         router.push(`/chat/${res.conversation.id}` as any);
       }
     } catch {
-      Alert.alert(t('Mobile.common.error'));
+      dialog.showError(t('Mobile.common.error'));
     }
   }
 

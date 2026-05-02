@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -18,6 +17,7 @@ import {
   Search as SearchIcon,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import type { JobItem } from '@/components/JobCard';
@@ -28,6 +28,7 @@ type Tab = 'all' | 'active' | 'paused';
 export default function MyJobsScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const dialog = useDialog();
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -91,27 +92,22 @@ export default function MyJobsScreen() {
   }
 
   async function deleteJob(job: JobItem) {
-    Alert.alert(
-      job.category,
-      t('Mobile.myJobs.delete') + '?',
-      [
-        { text: t('Mobile.common.cancel') || 'Cancel', style: 'cancel' },
-        {
-          text: t('Mobile.myJobs.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const token = (await getToken()) ?? undefined;
-              await api.delete<{ ok: boolean }>(`/api/jobs/${job.id}`, token);
-              setJobs((prev) => prev.filter((j) => j.id !== job.id));
-            } catch {
-              /* ignore */
-            }
-          },
-        },
-      ]
-    );
     setActionFor(null);
+    const ok = await dialog.confirm({
+      title: job.category,
+      message: t('Mobile.myJobs.delete') + '?',
+      confirmLabel: t('Mobile.myJobs.delete'),
+      cancelLabel: t('Mobile.common.cancel') || 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      const token = (await getToken()) ?? undefined;
+      await api.delete<{ ok: boolean }>(`/api/jobs/${job.id}`, token);
+      setJobs((prev) => prev.filter((j) => j.id !== job.id));
+    } catch {
+      /* ignore */
+    }
   }
 
   return (

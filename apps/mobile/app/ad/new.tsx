@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -33,6 +32,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { JobCategoryPicker } from '@/components/JobCategoryPicker';
@@ -280,6 +280,7 @@ const COPY: Record<Locale, CopyShape> = {
 export default function NewAdScreen() {
   const router = useRouter();
   const { locale } = useI18n();
+  const dialog = useDialog();
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(locale as Locale)
     ? (locale as Locale)
     : 'sq';
@@ -401,7 +402,7 @@ export default function NewAdScreen() {
           for (const d of res.details) se[d.field] = d.message;
           setErrors(se);
         } else {
-          Alert.alert(c.publishTitle, 'Error');
+          dialog.showError(undefined, c.publishTitle);
         }
         return;
       }
@@ -421,10 +422,10 @@ export default function NewAdScreen() {
         }
       }
 
-      Alert.alert(c.successToast);
-      router.replace(`/ad/${res.ad.id}` as any);
+      dialog.showSuccess(c.successToast);
+      router.replace('/(tabs)' as any);
     } catch {
-      Alert.alert(c.publishTitle, 'Error');
+      dialog.showError(undefined, c.publishTitle);
     } finally {
       setSubmitting(false);
     }

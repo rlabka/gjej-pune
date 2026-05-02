@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -32,6 +31,7 @@ import {
   User as UserIcon,
 } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
@@ -271,6 +271,7 @@ export default function EditAdScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { locale } = useI18n();
+  const dialog = useDialog();
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(
     locale as Locale
   )
@@ -376,15 +377,15 @@ export default function EditAdScreen() {
 
   async function onSubmit() {
     if (!firstName || !surname || !phone || !category) {
-      Alert.alert(c.title, 'Bitte alle Pflichtfelder ausfüllen.');
+      dialog.showError('Bitte alle Pflichtfelder ausfüllen.', c.title);
       return;
     }
     if (languages.length < 1) {
-      Alert.alert(c.languages, c.errLanguages);
+      dialog.showError(c.errLanguages, c.languages);
       return;
     }
     if (skills.length !== 3) {
-      Alert.alert(c.skills, c.errSkills);
+      dialog.showError(c.errSkills, c.skills);
       return;
     }
     setSubmitting(true);
@@ -420,7 +421,7 @@ export default function EditAdScreen() {
 
       router.back();
     } catch {
-      Alert.alert(c.title, 'Fehler beim Speichern.');
+      dialog.showError('Fehler beim Speichern.', c.title);
     } finally {
       setSubmitting(false);
     }

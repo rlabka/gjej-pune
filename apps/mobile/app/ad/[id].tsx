@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -32,6 +31,7 @@ import {
 } from 'lucide-react-native';
 import { api } from '@/lib/api';
 import { useI18n } from '@/contexts/I18nContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
 import { config } from '@/lib/config';
@@ -208,6 +208,7 @@ export default function AdDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { locale } = useI18n();
+  const dialog = useDialog();
   const { session } = useAuth();
 
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(
@@ -273,7 +274,7 @@ export default function AdDetailScreen() {
       await api.post('/api/favorites/toggle', { targetType: 'ad', targetId: id }, token);
       setSaved((s) => !s);
     } catch {
-      Alert.alert('Error');
+      dialog.showError();
     } finally {
       setSavingFav(false);
     }
@@ -307,10 +308,10 @@ export default function AdDetailScreen() {
       if (res?.ok && res.conversation?.id) {
         router.push(`/chat/${res.conversation.id}` as any);
       } else {
-        Alert.alert('Error');
+        dialog.showError();
       }
     } catch {
-      Alert.alert('Error');
+      dialog.showError();
     } finally {
       setStartingChat(false);
     }
