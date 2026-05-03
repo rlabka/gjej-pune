@@ -355,17 +355,6 @@ export default function NotificationsScreen() {
                 {subtitle}
               </Text>
             </View>
-            {unreadCount > 0 ? (
-              <Pressable
-                onPress={markAllRead}
-                className="flex-row items-center rounded-xl border border-slate-200 bg-white px-3 py-2 active:opacity-80"
-              >
-                <CheckCheck color="#162C66" size={14} />
-                <Text className="ml-1.5 text-[11px] font-bold text-[#0B1F44]">
-                  {t('Mobile.inbox.markAllRead')}
-                </Text>
-              </Pressable>
-            ) : null}
           </View>
 
           {/* Filter chips — horizontally scrollable so they don't get cramped */}
@@ -400,6 +389,19 @@ export default function NotificationsScreen() {
               onPress={() => setFilter('activity')}
             />
           </ScrollView>
+
+          {/* Mark-all-read — subtle inline action, only when relevant */}
+          {unreadCount > 0 ? (
+            <Pressable
+              onPress={markAllRead}
+              className="mt-3 flex-row items-center self-start active:opacity-60"
+            >
+              <CheckCheck color="#162C66" size={14} />
+              <Text className="ml-1.5 text-[12px] font-bold text-[#162C66]">
+                {t('Mobile.inbox.markAllRead')}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <FlatList
