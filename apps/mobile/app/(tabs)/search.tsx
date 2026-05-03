@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
   Text,
@@ -9,6 +10,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const LOGO_IMAGE = require('../../assets/images/logo.png');
 import {
   Calendar,
   Search as SearchIcon,
@@ -22,6 +25,7 @@ import { JobCard, type JobItem } from '@/components/JobCard';
 import { AdCard, type AdItem } from '@/components/AdCard';
 import { FilterModal, type FilterValues } from '@/components/FilterModal';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
+import { JOB_CATEGORIES, type Locale } from '@jmp/shared';
 
 type Mode = 'jobs' | 'ads';
 type JobsResponse = { ok: boolean; jobs: JobItem[]; total: number; totalPages: number };
@@ -30,12 +34,36 @@ type AdsResponse = { ok: boolean; ads: AdItem[]; total: number; totalPages: numb
 const PAGE_SIZE = 20;
 
 export default function BrowseScreen() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { session } = useAuth();
   const isEmployer = session?.role === 'employer';
   const mode: Mode = isEmployer ? 'ads' : 'jobs';
 
   const [query, setQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Live category-title autocomplete (mirrors web JobsContent.mobileCatSuggestions)
+  const suggestions = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q || q.length < 1) return [];
+    const l = (locale as Locale) || 'sq';
+    const out: { key: string; label: string; groupLabel: string; groupIcon: string }[] = [];
+    for (const group of JOB_CATEGORIES) {
+      for (const title of group.titles) {
+        const label = title.labels[l] || title.labels.sq;
+        if (label.toLowerCase().includes(q) || title.key.toLowerCase().includes(q)) {
+          out.push({
+            key: title.key,
+            label,
+            groupLabel: group.labels[l] || group.labels.sq,
+            groupIcon: group.icon,
+          });
+          if (out.length >= 8) return out;
+        }
+      }
+    }
+    return out;
+  }, [query, locale]);
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [ads, setAds] = useState<AdItem[]>([]);
   const [page, setPage] = useState(1);
@@ -141,7 +169,26 @@ export default function BrowseScreen() {
 
   return (
     <View className="flex-1 bg-[#F8FAFC]">
-      <SafeAreaView edges={['top']} className="flex-1">
+      {/* Top bar with logo — matches login/register/profile */}
+      <SafeAreaView edges={['top']} className="bg-white">
+        <View
+          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.04,
+            shadowRadius: 3,
+            elevation: 1,
+          }}
+        >
+          <Image
+            source={LOGO_IMAGE}
+            style={{ height: 28, width: 110 }}
+            resizeMode="contain"
+          />
+        </View>
+      </SafeAreaView>
+      <View className="flex-1">
         <FlatList
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 100 }}
@@ -177,13 +224,65 @@ export default function BrowseScreen() {
                     <SearchIcon color="rgba(255,255,255,0.5)" size={16} />
                     <TextInput
                       value={query}
-                      onChangeText={setQuery}
+                      onChangeText={(v) => {
+                        setQuery(v);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
                       placeholder={t('Mobile.browse.searchTitlePlaceholder')}
                       placeholderTextColor="rgba(255,255,255,0.45)"
                       className="ml-2 flex-1 py-3.5 text-[14px] text-white"
                       returnKeyType="search"
+                      onSubmitEditing={() => {
+                        setShowSuggestions(false);
+                        setPage(1);
+                        fetchPage(1, false);
+                      }}
                     />
                   </View>
+
+                  {/* Live suggestions — matches web 1:1 */}
+                  {showSuggestions && suggestions.length > 0 ? (
+                    <View
+                      className="mb-2.5 overflow-hidden rounded-xl bg-white"
+                      style={{
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 6 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 14,
+                        elevation: 8,
+                      }}
+                    >
+                      {suggestions.map((s, i) => (
+                        <Pressable
+                          key={s.key}
+                          onPress={() => {
+                            setQuery(s.label);
+                            setShowSuggestions(false);
+                            setPage(1);
+                            // small delay so state propagates before fetch reads `query`
+                            setTimeout(() => fetchPage(1, false), 0);
+                          }}
+                          className={`flex-row items-center px-4 py-3 ${
+                            i < suggestions.length - 1 ? 'border-b border-slate-100' : ''
+                          } active:bg-slate-50`}
+                        >
+                          <Text className="mr-3 text-[20px]">{s.groupIcon}</Text>
+                          <View className="flex-1">
+                            <Text
+                              className="text-[14px] font-bold text-[#0B1F44]"
+                              numberOfLines={1}
+                            >
+                              {s.label}
+                            </Text>
+                            <Text className="text-[12px] font-medium text-slate-400" numberOfLines={1}>
+                              {s.groupLabel}
+                            </Text>
+                          </View>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : null}
 
                   <View className="mb-3">
                     <LocationAutocomplete
@@ -305,7 +404,7 @@ export default function BrowseScreen() {
             ) : null
           }
         />
-      </SafeAreaView>
+      </View>
 
       <FilterModal
         visible={showFilters}
