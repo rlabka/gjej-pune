@@ -2,12 +2,16 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
+  ScrollView,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const LOGO_IMAGE = require('../../assets/images/logo.png');
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Bell,
@@ -307,28 +311,47 @@ export default function NotificationsScreen() {
         : t('Mobile.inbox.unreadSubtitleMany', { count: unreadCount });
 
   return (
-    <View className="flex-1 bg-[#F8FAFC]">
-      <SafeAreaView edges={['top']} className="flex-1">
-        {/* Header */}
-        <View className="px-5 pb-4 pt-3">
-          <View className="mb-4 flex-row items-start">
-            <View className="relative mr-3">
+    <View className="flex-1 bg-[#F7F9FC]">
+      {/* Top bar with logo — consistent across tabs */}
+      <SafeAreaView edges={['top']} className="bg-white">
+        <View
+          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.04,
+            shadowRadius: 3,
+            elevation: 1,
+          }}
+        >
+          <Image
+            source={LOGO_IMAGE}
+            style={{ height: 28, width: 110 }}
+            resizeMode="contain"
+          />
+        </View>
+      </SafeAreaView>
+      <View className="flex-1">
+        {/* Section header — title row + filter pills */}
+        <View className="bg-white px-5 pb-4 pt-5">
+          <View className="mb-4 flex-row items-center" style={{ gap: 12 }}>
+            <View className="relative">
               <View className="h-11 w-11 items-center justify-center rounded-2xl bg-[#162C66]">
                 <Bell color="#F5C400" size={20} />
               </View>
               {unreadCount > 0 ? (
-                <View className="absolute -right-1 -top-1 h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-[#F8FAFC] bg-rose-500 px-1">
+                <View className="absolute -right-1 -top-1 h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-white bg-rose-500 px-1">
                   <Text className="text-[10px] font-extrabold text-white">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </Text>
                 </View>
               ) : null}
             </View>
-            <View className="flex-1 pt-0.5">
-              <Text className="text-2xl font-extrabold text-[#0B1F44]">
+            <View className="flex-1">
+              <Text className="text-[22px] font-extrabold leading-tight tracking-tight text-[#0B1F44]">
                 {t('Mobile.inbox.title')}
               </Text>
-              <Text className="mt-0.5 text-[13px] text-slate-500">
+              <Text className="mt-0.5 text-[12px] font-medium text-slate-400">
                 {subtitle}
               </Text>
             </View>
@@ -345,8 +368,12 @@ export default function NotificationsScreen() {
             ) : null}
           </View>
 
-          {/* Filter chips */}
-          <View className="flex-row" style={{ gap: 6 }}>
+          {/* Filter chips — horizontally scrollable so they don't get cramped */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
             <FilterChip
               label={t('Mobile.inbox.filterAll')}
               count={items.length}
@@ -372,7 +399,7 @@ export default function NotificationsScreen() {
               active={filter === 'activity'}
               onPress={() => setFilter('activity')}
             />
-          </View>
+          </ScrollView>
         </View>
 
         <FlatList
@@ -447,7 +474,7 @@ export default function NotificationsScreen() {
             )
           }
         />
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
