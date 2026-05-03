@@ -2038,7 +2038,9 @@
       "hoursAgo": "vor {n} Std",
       "daysAgo": "vor {n} T",
       "unreadBadge": "{count} ungelesen",
-      "locked": "Upgrade, um vollständige Nachrichten zu lesen"
+      "locked": "Upgrade, um vollständige Nachrichten zu lesen",
+      "conversation": "Konversation",
+      "conversations": "Konversationen"
     },
     "applications": {
       "titleEmployer": "Bewerbungen",

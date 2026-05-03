@@ -2038,7 +2038,9 @@
       "hoursAgo": "{n} h ago",
       "daysAgo": "{n} d ago",
       "unreadBadge": "{count} unread",
-      "locked": "Upgrade to read full messages"
+      "locked": "Upgrade to read full messages",
+      "conversation": "conversation",
+      "conversations": "conversations"
     },
     "applications": {
       "titleEmployer": "Applications",

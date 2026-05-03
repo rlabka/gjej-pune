@@ -1957,7 +1957,9 @@
       "yesterday": "Gestern",
       "justNowShort": "Jetzt",
       "premiumCta": "Premium freischalten, um vollständige Nachrichten zu lesen",
-      "premiumBtn": "Premium aktivieren"
+      "premiumBtn": "Premium aktivieren",
+      "conversation": "conversation",
+      "conversations": "conversations"
     },
     "applications": {
       "titleEmployer": "Candidatures",

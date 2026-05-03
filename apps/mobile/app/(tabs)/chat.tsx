@@ -13,9 +13,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Briefcase,
+  Inbox as InboxIcon,
   MessageCircle,
   Search,
 } from 'lucide-react-native';
+
+const LOGO_IMAGE = require('../../assets/images/logo.png');
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -147,38 +150,103 @@ export default function ChatListScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <SafeAreaView edges={['top']} className="flex-1">
-        {/* Header */}
-        <View className="border-b border-slate-100 px-4 pb-3 pt-5">
-          <Text className="mb-3 text-lg font-semibold text-[#0B1F44]">
-            {t('Mobile.chat.title')}
-          </Text>
+    <View className="flex-1 bg-[#F7F9FC]">
+      {/* Top bar with logo — consistent with login/register/search */}
+      <SafeAreaView edges={['top']} className="bg-white">
+        <View
+          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.04,
+            shadowRadius: 3,
+            elevation: 1,
+          }}
+        >
+          <Image
+            source={LOGO_IMAGE}
+            style={{ height: 28, width: 110 }}
+            resizeMode="contain"
+          />
+        </View>
+      </SafeAreaView>
+      <View className="flex-1">
+        {/* Section header — title + count + search + filters */}
+        <View className="bg-white px-5 pb-4 pt-5">
+          {/* Title row */}
+          <View className="mb-4 flex-row items-center" style={{ gap: 12 }}>
+            <View className="h-11 w-11 items-center justify-center rounded-2xl bg-[#162C66]/[0.06]">
+              <InboxIcon color="#162C66" size={22} strokeWidth={2.2} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-[22px] font-extrabold leading-tight tracking-tight text-[#0B1F44]">
+                {t('Mobile.chat.title')}
+              </Text>
+              <Text className="mt-0.5 text-[12px] font-medium text-slate-400">
+                {filtered.length} {filtered.length === 1 ? t('Mobile.chat.conversation') : t('Mobile.chat.conversations')}
+              </Text>
+            </View>
+            {totalUnread > 0 ? (
+              <View
+                className="h-7 min-w-[28px] items-center justify-center rounded-full bg-[#F5C400] px-2"
+                style={{
+                  shadowColor: '#F5C400',
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  elevation: 3,
+                }}
+              >
+                <Text className="text-[12px] font-extrabold text-[#0B1F44]">
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </Text>
+              </View>
+            ) : null}
+          </View>
 
-          {/* Search */}
-          <View className="mb-2.5 flex-row items-center rounded-lg border border-slate-200 bg-slate-50 px-3">
-            <Search color="#94A3B8" size={16} />
+          {/* Search input */}
+          <View
+            className="mb-3 h-[48px] flex-row items-center rounded-xl border border-slate-200 bg-slate-50/80"
+            style={{ paddingHorizontal: 14 }}
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-lg border border-slate-200/80 bg-white">
+              <Search color="#64748B" size={14} />
+            </View>
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder={t('Mobile.chat.searchPlaceholder')}
               placeholderTextColor="#94A3B8"
-              className="ml-2 flex-1 py-2 text-[14px] text-[#0B1F44]"
+              className="ml-3 flex-1 text-[14px] font-medium text-[#0B1F44]"
+              style={{ height: '100%' }}
               returnKeyType="search"
             />
           </View>
 
           {/* Filter pills */}
-          <View className="flex-row" style={{ gap: 6 }}>
+          <View className="flex-row" style={{ gap: 8 }}>
             <Pressable
               onPress={() => setFilter('all')}
-              className={`rounded-full px-3 py-1 ${
-                filter === 'all' ? 'bg-[#162C66]' : 'bg-slate-100'
+              className={`rounded-xl px-4 py-2 ${
+                filter === 'all'
+                  ? 'bg-[#162C66]'
+                  : 'border border-slate-200 bg-white'
               }`}
+              style={
+                filter === 'all'
+                  ? {
+                      shadowColor: '#162C66',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.18,
+                      shadowRadius: 8,
+                      elevation: 3,
+                    }
+                  : undefined
+              }
             >
               <Text
-                className={`text-[12px] font-medium ${
-                  filter === 'all' ? 'text-white' : 'text-slate-500'
+                className={`text-[13px] font-bold ${
+                  filter === 'all' ? 'text-white' : 'text-slate-600'
                 }`}
               >
                 {t('Mobile.chat.filterAll')}
@@ -186,26 +254,39 @@ export default function ChatListScreen() {
             </Pressable>
             <Pressable
               onPress={() => setFilter('unread')}
-              className={`flex-row items-center rounded-full px-3 py-1 ${
-                filter === 'unread' ? 'bg-[#162C66]' : 'bg-slate-100'
+              className={`flex-row items-center rounded-xl px-4 py-2 ${
+                filter === 'unread'
+                  ? 'bg-[#162C66]'
+                  : 'border border-slate-200 bg-white'
               }`}
+              style={
+                filter === 'unread'
+                  ? {
+                      shadowColor: '#162C66',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.18,
+                      shadowRadius: 8,
+                      elevation: 3,
+                    }
+                  : undefined
+              }
             >
               <Text
-                className={`text-[12px] font-medium ${
-                  filter === 'unread' ? 'text-white' : 'text-slate-500'
+                className={`text-[13px] font-bold ${
+                  filter === 'unread' ? 'text-white' : 'text-slate-600'
                 }`}
               >
                 {t('Mobile.chat.filterUnread')}
               </Text>
               {totalUnread > 0 ? (
                 <View
-                  className={`ml-1.5 h-4 min-w-[16px] items-center justify-center rounded-full px-1 ${
-                    filter === 'unread' ? 'bg-white' : 'bg-[#162C66]'
+                  className={`ml-2 h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 ${
+                    filter === 'unread' ? 'bg-[#F5C400]' : 'bg-[#162C66]'
                   }`}
                 >
                   <Text
-                    className={`text-[9px] font-bold ${
-                      filter === 'unread' ? 'text-[#162C66]' : 'text-white'
+                    className={`text-[10px] font-extrabold ${
+                      filter === 'unread' ? 'text-[#0B1F44]' : 'text-white'
                     }`}
                   >
                     {totalUnread}
@@ -258,7 +339,7 @@ export default function ChatListScreen() {
             )
           }
         />
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
