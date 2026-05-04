@@ -237,6 +237,146 @@ export async function googleAuthUser(
   return { ok: true, data: { user, token: generateToken(user), isNew: true } };
 }
 
+// ─── Apple Auth (Sign in with Apple) ──────────────────────
+
+interface AppleAuthInput {
+  identityToken: string;
+  /** Apple gives the user's name only on first login. Pass it through. */
+  fullName?: { givenName?: string | null; familyName?: string | null } | null;
+  role?: string;
+  locale?: string;
+}
+
+const APPLE_BUNDLE_ID = 'com.gjp.app';
+const APPLE_ISSUER = 'https://appleid.apple.com';
+const APPLE_JWKS_URL = 'https://appleid.apple.com/auth/keys';
+
+let appleKeysCache: { keys: any[]; fetchedAt: number } | null = null;
+const APPLE_KEYS_TTL_MS = 60 * 60 * 1000; // 1h
+
+async function getAppleSigningKey(kid: string) {
+  const fresh =
+    appleKeysCache && Date.now() - appleKeysCache.fetchedAt < APPLE_KEYS_TTL_MS;
+  if (!fresh) {
+    const res = await fetch(APPLE_JWKS_URL);
+    if (!res.ok) throw new Error(`Apple JWKS fetch failed: ${res.status}`);
+    const json = (await res.json()) as { keys: any[] };
+    appleKeysCache = { keys: json.keys || [], fetchedAt: Date.now() };
+  }
+  const key = appleKeysCache!.keys.find((k) => k.kid === kid);
+  if (!key) throw new Error(`Apple signing key not found: ${kid}`);
+  return key;
+}
+
+function jwkToPem(jwk: { n: string; e: string }): string {
+  // Convert RSA JWK (n, e) into PEM the `jsonwebtoken` lib understands.
+  // Uses Node's built-in crypto (no extra deps).
+  const crypto = require('crypto');
+  const keyObject = crypto.createPublicKey({
+    key: { kty: 'RSA', n: jwk.n, e: jwk.e },
+    format: 'jwk',
+  });
+  return keyObject.export({ format: 'pem', type: 'spki' }) as string;
+}
+
+export async function appleAuthUser(
+  input: AppleAuthInput
+): Promise<ServiceResult<{ user: AuthUser; token: string; isNew: boolean }>> {
+  if (!input.identityToken) {
+    return { ok: false, code: 'missingToken', status: 400 };
+  }
+
+  // Decode header to find which Apple key signed this token
+  let header: { kid?: string; alg?: string };
+  try {
+    header = jwt.decode(input.identityToken, { complete: true })?.header as any;
+    if (!header?.kid) throw new Error('no kid');
+  } catch {
+    return { ok: false, code: 'invalidAppleToken', status: 401 };
+  }
+
+  // Fetch Apple's public keys + verify signature + standard claims
+  let decoded: any;
+  try {
+    const jwk = await getAppleSigningKey(header.kid!);
+    const pem = jwkToPem({ n: jwk.n, e: jwk.e });
+    decoded = jwt.verify(input.identityToken, pem, {
+      algorithms: ['RS256'],
+      issuer: APPLE_ISSUER,
+      audience: APPLE_BUNDLE_ID,
+    });
+  } catch (err) {
+    console.error('Apple token verification failed:', err);
+    return { ok: false, code: 'invalidAppleToken', status: 401 };
+  }
+
+  const email = (decoded.email || '').toString().toLowerCase().trim();
+  if (!email) {
+    // Apple gives email only on first sign-in; if the user later revokes, it's
+    // gone. We require an email to keep the flow simple.
+    return { ok: false, code: 'missingEmail', status: 400 };
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+
+  if (existing) {
+    const user: AuthUser = {
+      id: existing.id,
+      email: existing.email,
+      displayName: existing.displayName,
+      role: existing.role as AuthRole,
+      isPremium: existing.isPremium,
+    };
+    return { ok: true, data: { user, token: generateToken(user), isNew: false } };
+  }
+
+  // New user — derive display name from Apple's payload, fall back to email
+  const userRole: AuthRole = VALID_ROLES.includes(input.role as AuthRole)
+    ? (input.role as AuthRole)
+    : 'job-seeker';
+
+  const fromAppleName = [
+    input.fullName?.givenName,
+    input.fullName?.familyName,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+
+  const name =
+    fromAppleName ||
+    email
+      .split('@')[0]
+      .replace(/[._]/g, ' ')
+      .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+  const randomPw = require('crypto').randomBytes(32).toString('hex');
+  const hashedPassword = await bcrypt.hash(randomPw, BCRYPT_ROUNDS);
+
+  const validLocales = ['de', 'en', 'fr', 'it', 'sq'];
+  const userLocale =
+    input.locale && validLocales.includes(input.locale) ? input.locale : 'de';
+
+  const dbUser = await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      displayName: name,
+      role: userRole,
+      locale: userLocale,
+    } as any,
+  });
+
+  const user: AuthUser = {
+    id: dbUser.id,
+    email: dbUser.email,
+    displayName: dbUser.displayName,
+    role: dbUser.role as AuthRole,
+    isPremium: dbUser.isPremium,
+  };
+  return { ok: true, data: { user, token: generateToken(user), isNew: true } };
+}
+
 // ─── Update Role ─────────────────────────────────────────
 
 export async function updateUserRole(

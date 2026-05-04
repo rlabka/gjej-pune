@@ -175,6 +175,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         case 'boost_active':
           router.push('/premium' as any);
           break;
+        case 'new_match':
+          // Deep-link straight to the matched job/ad detail
+          if (data.targetType === 'ad' && data.targetId) {
+            router.push(`/ad/${data.targetId}` as any);
+          } else if (data.targetType === 'job' && data.targetId) {
+            router.push(`/job/${data.targetId}` as any);
+          }
+          break;
       }
     });
     return () => sub.remove();

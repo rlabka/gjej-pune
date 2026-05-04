@@ -1797,7 +1797,8 @@
       "filterAvailUrgent": "Urgente",
       "filterAvailNegotiation": "Negoziabile",
       "filterDistanceUnlimited": "Illimitato",
-      "filterReset": "Reimposta"
+      "filterReset": "Reimposta",
+      "resetFilters": "Reimposta filtri"
     },
     "job": {
       "salary": "Stipendio",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -22,6 +22,7 @@ import {
   MapPin,
   ShieldCheck,
 } from 'lucide-react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useDialog } from '@/contexts/DialogContext';
@@ -30,7 +31,7 @@ import {
   isGoogleAuthConfigured,
   useGoogleAuthRequest,
 } from '@/lib/firebase';
-import { loginWithGoogle } from '@/lib/auth';
+import { loginWithApple, loginWithGoogle } from '@/lib/auth';
 
 const LOGO_IMAGE = require('../../assets/images/logo.png');
 
@@ -92,6 +93,7 @@ const UI: Record<Locale, {
   submit: string;
   or: string;
   googleBtn: string;
+  appleBtn: string;
   privacy: string;
   terms: string;
 }> = {
@@ -109,6 +111,7 @@ const UI: Record<Locale, {
     submit: 'Anmelden',
     or: 'oder',
     googleBtn: 'Mit Google fortfahren',
+    appleBtn: 'Mit Apple fortfahren',
     privacy: 'Datenschutz',
     terms: 'AGB',
   },
@@ -126,6 +129,7 @@ const UI: Record<Locale, {
     submit: 'Log in',
     or: 'or',
     googleBtn: 'Continue with Google',
+    appleBtn: 'Continue with Apple',
     privacy: 'Privacy',
     terms: 'Terms',
   },
@@ -143,6 +147,7 @@ const UI: Record<Locale, {
     submit: 'Se connecter',
     or: 'ou',
     googleBtn: 'Continuer avec Google',
+    appleBtn: 'Continuer avec Apple',
     privacy: 'Confidentialité',
     terms: 'Conditions',
   },
@@ -160,6 +165,7 @@ const UI: Record<Locale, {
     submit: 'Accedi',
     or: 'oppure',
     googleBtn: 'Continua con Google',
+    appleBtn: 'Continua con Apple',
     privacy: 'Privacy',
     terms: 'Termini',
   },
@@ -177,6 +183,7 @@ const UI: Record<Locale, {
     submit: 'Hyni',
     or: 'ose',
     googleBtn: 'Vazhdo me Google',
+    appleBtn: 'Vazhdo me Apple',
     privacy: 'Privatësia',
     terms: 'Kushtet',
   },
@@ -211,6 +218,13 @@ const ERR_TEXT: Record<string, Record<Locale, string>> = {
     it: 'Accesso Google fallito. Riprovare.',
     sq: 'Hyrja me Google dështoi. Provoni përsëri.',
   },
+  appleAuthFailed: {
+    de: 'Apple-Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+    en: 'Apple sign-in failed. Please try again.',
+    fr: 'Connexion Apple échouée. Veuillez réessayer.',
+    it: 'Accesso Apple fallito. Riprovare.',
+    sq: 'Hyrja me Apple dështoi. Provoni përsëri.',
+  },
 };
 
 export default function LoginScreen() {
@@ -232,6 +246,12 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAppleAvailable).catch(() => {});
+  }, []);
   const [error, setError] = useState<string | null>(null);
 
   // Google OAuth — useAuthRequest must be called at the top level
@@ -301,6 +321,42 @@ export default function LoginScreen() {
       setError('googleAuthFailed');
     } finally {
       setGoogleLoading(false);
+    }
+  }
+
+  async function handleAppleLogin() {
+    setAppleLoading(true);
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (!credential.identityToken) {
+        setError('appleAuthFailed');
+        return;
+      }
+      const res = await loginWithApple(
+        credential.identityToken,
+        credential.fullName ?? null,
+        'job-seeker',
+        l
+      );
+      if (res.ok) {
+        await refresh();
+        router.replace('/(tabs)');
+      } else {
+        setError((res as any).error ?? 'appleAuthFailed');
+      }
+    } catch (err: any) {
+      // ERR_CANCELED (user dismissed sheet) is silent — no error toast
+      if (err?.code !== 'ERR_CANCELED' && err?.code !== 'ERR_REQUEST_CANCELED') {
+        console.error('[AppleAuth] failed:', err);
+        setError('appleAuthFailed');
+      }
+    } finally {
+      setAppleLoading(false);
     }
   }
 
@@ -546,6 +602,27 @@ export default function LoginScreen() {
               </Text>
               <View className="h-px flex-1 bg-slate-200" />
             </View>
+
+            {/* Apple Sign-In — required by App Store guideline 4.8 when Google is offered */}
+            {appleAvailable ? (
+              <Pressable
+                onPress={handleAppleLogin}
+                disabled={appleLoading}
+                className="mb-3 h-[52px] flex-row items-center justify-center rounded-xl bg-black active:opacity-90 disabled:opacity-60"
+                style={{ gap: 8 }}
+              >
+                {appleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text className="text-[18px]" style={{ color: '#FFFFFF', marginTop: -2 }}>
+                    {''}
+                  </Text>
+                )}
+                <Text className="text-[14px] font-bold text-white">
+                  {ui.appleBtn}
+                </Text>
+              </Pressable>
+            ) : null}
 
             {/* Google */}
             <Pressable

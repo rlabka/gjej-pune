@@ -3,6 +3,7 @@ import { createAd, getAdsByUser, getAds, getAdById, updateAd, deleteAd, getAdCat
 import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { recordProfileView } from '../services/profileView.service';
 import { createNotification } from '../services/notification.service';
+import { notifyEmployersOfNewAd } from '../services/matchNotify.service';
 
 export async function create(req: AuthenticatedRequest, res: Response) {
   try {
@@ -16,6 +17,13 @@ export async function create(req: AuthenticatedRequest, res: Response) {
       '',
       { adTitle: (ad as any).title || (ad as any).category || '', targetType: 'ad', targetId: (ad as any).id }
     ).catch(() => {});
+
+    // Push to employers whose jobs match this new ad (fire-and-forget)
+    notifyEmployersOfNewAd({
+      id: (ad as any).id,
+      userId: req.user.id,
+      category: (ad as any).category,
+    }).catch(() => {});
 
     return res.status(201).json({ ok: true, ad });
   } catch (error) {

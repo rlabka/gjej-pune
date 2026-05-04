@@ -13,7 +13,6 @@ import {
   ArrowLeft,
   Briefcase,
   Calendar,
-  Crown,
   Eye,
   Lock,
   MessageCircle,
@@ -180,7 +179,7 @@ export default function ProfileViewsScreen() {
     try {
       const res = await api.post<{ ok: boolean; conversation?: { id: string } }>(
         '/api/messages/conversations',
-        { recipientId: viewerId },
+        { targetUserId: viewerId },
         token
       );
       if (res?.ok && res.conversation?.id) {
@@ -229,16 +228,20 @@ export default function ProfileViewsScreen() {
               </View>
             </View>
 
-            {/* Stat-Pill */}
-            {!loading && count > 0 ? (
-              <View className="mt-5 flex-row self-start rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                <Sparkles color="#F5C400" size={12} />
-                <Text className="ml-1.5 text-[12px] font-extrabold text-white">
-                  {count}
-                </Text>
-                <Text className="ml-1.5 text-[12px] font-medium text-white/60">
-                  {c.totalLabel}
-                </Text>
+            {/* Stat tile — prominent count of total visitors */}
+            {!loading ? (
+              <View className="mt-5 flex-row items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
+                <View className="h-11 w-11 items-center justify-center rounded-xl bg-[#F5C400]">
+                  <Eye color="#0B1F44" size={20} strokeWidth={2.4} />
+                </View>
+                <View className="ml-3 flex-1">
+                  <Text className="text-[28px] font-extrabold leading-tight text-white">
+                    {count}
+                  </Text>
+                  <Text className="text-[12px] font-semibold uppercase tracking-wider text-white/50">
+                    {c.totalLabel}
+                  </Text>
+                </View>
               </View>
             ) : null}
           </View>
@@ -246,8 +249,8 @@ export default function ProfileViewsScreen() {
       </View>
 
       <ScrollView
-        className="flex-1 -mt-7"
-        contentContainerStyle={{ paddingBottom: 60 }}
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 60, paddingTop: 16 }}
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
@@ -260,6 +263,16 @@ export default function ProfileViewsScreen() {
           <EmptyState c={c} />
         ) : (
           <View className="mx-4">
+            {/* Result count above the list */}
+            <View className="mb-3 flex-row items-center justify-between px-1">
+              <Text className="text-[13px] font-bold uppercase tracking-wider text-slate-500">
+                {c.totalLabel}
+              </Text>
+              <Text className="text-[16px] font-extrabold text-[#0B1F44]">
+                {viewers.length}
+              </Text>
+            </View>
+
             {viewers.map((v) => (
               <ViewerRow
                 key={v.id}
@@ -388,72 +401,68 @@ function LockedView({
   onUpgrade: () => void;
 }) {
   return (
-    <View
-      className="mx-4 overflow-hidden rounded-2xl border border-slate-200 bg-white"
-      style={{
-        shadowColor: '#0B1F44',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.06,
-        shadowRadius: 14,
-        elevation: 3,
-      }}
-    >
-      <View className="items-center px-6 py-8">
-        <View className="mb-5 h-16 w-16 items-center justify-center rounded-2xl bg-amber-50">
-          <Lock color="#D97706" size={28} />
-        </View>
-        <Text className="text-[18px] font-extrabold tracking-tight text-[#0B1F44]">
-          {c.lockedTitle}
-        </Text>
-        <Text className="mt-2 max-w-[280px] text-center text-[13px] font-medium leading-relaxed text-slate-500">
-          {c.lockedDesc}
-        </Text>
-
-        {count > 0 ? (
-          <View className="mt-4 flex-row items-center rounded-full bg-[#162C66]/[0.06] px-4 py-2">
-            <Eye color="#162C66" size={13} />
-            <Text className="ml-1.5 text-[13px] font-extrabold text-[#162C66]">
-              {count}
-            </Text>
-            <Text className="ml-1.5 text-[12px] font-semibold text-[#162C66]/70">
+    <View>
+      {/* Stat bar — count of visitors */}
+      {count > 0 ? (
+        <View className="mx-4 mb-3 flex-row items-center rounded-xl border border-slate-200 bg-white px-4 py-3">
+          <View className="h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+            <Eye color="#0B1F44" size={14} />
+          </View>
+          <View className="ml-3 flex-1">
+            <Text className="text-[13px] font-medium text-slate-500">
               {c.visitorsBadge}
             </Text>
           </View>
-        ) : null}
+          <Text className="text-[18px] font-extrabold text-[#0B1F44]">
+            {count}
+          </Text>
+        </View>
+      ) : null}
 
-        {/* Blurred placeholder rows */}
-        <View className="mt-6 w-full" style={{ gap: 8 }}>
-          {Array.from({ length: Math.max(1, Math.min(count, 4)) }).map((_, i) => (
+      {/* Premium upgrade card — calm, classifieds-style */}
+      <View className="mx-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <View className="px-5 py-6">
+          <View className="mb-4 flex-row items-center" style={{ gap: 12 }}>
+            <View className="h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
+              <Lock color="#D97706" size={18} />
+            </View>
+            <Text className="flex-1 text-[16px] font-bold text-[#0B1F44]">
+              {c.lockedTitle}
+            </Text>
+          </View>
+          <Text className="text-[14px] leading-[20px] text-slate-600">
+            {c.lockedDesc}
+          </Text>
+        </View>
+
+        {/* Three masked viewer rows — no opacity tricks, just clean placeholders */}
+        <View className="border-t border-slate-100">
+          {[0, 1, 2].slice(0, Math.max(1, Math.min(count, 3))).map((i) => (
             <View
               key={i}
-              className="flex-row items-center rounded-xl border border-slate-100 bg-slate-50/70 p-3"
-              style={{ opacity: 0.4 - i * 0.08 }}
+              className="flex-row items-center border-b border-slate-100 px-5 py-3 last:border-b-0"
             >
-              <View className="h-10 w-10 rounded-full bg-slate-200" />
+              <View className="h-9 w-9 rounded-full bg-slate-200" />
               <View className="ml-3 flex-1">
-                <View className="mb-1.5 h-3 w-2/3 rounded-md bg-slate-200" />
-                <View className="h-2.5 w-1/2 rounded-md bg-slate-100" />
+                <View className="mb-1.5 h-3 w-1/2 rounded bg-slate-200" />
+                <View className="h-2.5 w-1/3 rounded bg-slate-100" />
               </View>
+              <Lock color="#94A3B8" size={14} />
             </View>
           ))}
         </View>
 
-        <Pressable
-          onPress={onUpgrade}
-          className="mt-7 flex-row items-center rounded-xl bg-[#F5C400] px-7 py-3.5 active:opacity-90"
-          style={{
-            shadowColor: '#F5C400',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 4,
-          }}
-        >
-          <Crown color="#162C66" size={16} />
-          <Text className="ml-2 text-[14px] font-extrabold text-[#162C66]">
-            {c.upgrade}
-          </Text>
-        </Pressable>
+        {/* CTA */}
+        <View className="border-t border-slate-100 bg-slate-50/60 px-5 py-4">
+          <Pressable
+            onPress={onUpgrade}
+            className="h-[44px] flex-row items-center justify-center rounded-lg bg-[#162C66] active:opacity-90"
+          >
+            <Text className="text-[14px] font-bold text-white">
+              {c.upgrade}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

@@ -17,6 +17,7 @@ const translations = {
       premium_cancelled: 'Abo gekündigt',
       ad_online: 'Anzeige online!',
       new_message: 'Neue Nachricht',
+      new_match: 'Neuer passender Treffer',
     },
     bodies: {
       profile_view: (m: NotifMeta) =>
@@ -27,6 +28,12 @@ const translations = {
           : `Jemand hat dein ${
               m.targetType === 'job' ? 'Stellenangebot' : 'Jobprofil'
             } angesehen. 🔒 Premium freischalten, um zu sehen wer.`,
+      new_match: (m: NotifMeta, locale: string) => {
+        const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
+        return m.adId
+          ? `Ein neuer Kandidat passt zu deinem Job: ${cat}`
+          : `Eine neue Stelle passt zu deinem Profil: ${cat}`;
+      },
       premium_activated: () =>
         'Dein Premium-Abo ist jetzt aktiv. Geniesse alle Vorteile!',
       boost_active: () =>
@@ -49,6 +56,7 @@ const translations = {
       premium_cancelled: 'Subscription Cancelled',
       ad_online: 'Ad Online!',
       new_message: 'New Message',
+      new_match: 'New matching result',
     },
     bodies: {
       profile_view: (m: NotifMeta) =>
@@ -59,6 +67,12 @@ const translations = {
           : `Someone viewed your ${
               m.targetType === 'job' ? 'job listing' : 'job profile'
             }. 🔒 Unlock Premium to see who.`,
+      new_match: (m: NotifMeta, locale: string) => {
+        const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
+        return m.adId
+          ? `A new candidate matches your job: ${cat}`
+          : `A new job matches your profile: ${cat}`;
+      },
       premium_activated: () =>
         'Your Premium subscription is now active. Enjoy all benefits!',
       boost_active: () => 'Your listings are now boosted in search results.',
@@ -80,6 +94,7 @@ const translations = {
       premium_cancelled: 'Abonnement résilié',
       ad_online: 'Annonce en ligne !',
       new_message: 'Nouveau message',
+      new_match: 'Nouveau résultat correspondant',
     },
     bodies: {
       profile_view: (m: NotifMeta) =>
@@ -90,6 +105,12 @@ const translations = {
           : `Quelqu'un a consulté votre ${
               m.targetType === 'job' ? "offre d'emploi" : 'profil'
             }. 🔒 Débloquez Premium pour voir qui.`,
+      new_match: (m: NotifMeta, locale: string) => {
+        const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
+        return m.adId
+          ? `Un nouveau candidat correspond à votre offre : ${cat}`
+          : `Un nouveau poste correspond à votre profil : ${cat}`;
+      },
       premium_activated: () =>
         'Votre abonnement Premium est maintenant actif. Profitez de tous les avantages !',
       boost_active: () =>
@@ -112,6 +133,7 @@ const translations = {
       premium_cancelled: 'Abbonamento annullato',
       ad_online: 'Annuncio online!',
       new_message: 'Nuovo messaggio',
+      new_match: 'Nuovo abbinamento',
     },
     bodies: {
       profile_view: (m: NotifMeta) =>
@@ -122,6 +144,12 @@ const translations = {
           : `Qualcuno ha visualizzato il tuo ${
               m.targetType === 'job' ? 'annuncio di lavoro' : 'profilo'
             }. 🔒 Sblocca Premium per vedere chi.`,
+      new_match: (m: NotifMeta, locale: string) => {
+        const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
+        return m.adId
+          ? `Un nuovo candidato corrisponde al tuo annuncio: ${cat}`
+          : `Un nuovo lavoro corrisponde al tuo profilo: ${cat}`;
+      },
       premium_activated: () =>
         'Il tuo abbonamento Premium è ora attivo. Goditi tutti i vantaggi!',
       boost_active: () =>
@@ -144,6 +172,7 @@ const translations = {
       premium_cancelled: 'Abonimi u anulua',
       ad_online: 'Shpallja online!',
       new_message: 'Mesazh i ri',
+      new_match: 'Përputhje e re',
     },
     bodies: {
       profile_view: (m: NotifMeta) =>
@@ -154,6 +183,12 @@ const translations = {
           : `Dikush ka parë ${
               m.targetType === 'job' ? 'njoftimin e punës' : 'profilin'
             } tënd. 🔒 Aktivizo Premium për të parë kush.`,
+      new_match: (m: NotifMeta, locale: string) => {
+        const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
+        return m.adId
+          ? `Një kandidat i ri përputhet me punën tënde: ${cat}`
+          : `Një punë e re përputhet me profilin tënd: ${cat}`;
+      },
       premium_activated: () =>
         'Abonimi yt Premium është tani aktiv. Shijo të gjitha përfitimet!',
       boost_active: () =>

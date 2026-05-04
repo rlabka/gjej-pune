@@ -1797,7 +1797,8 @@
       "filterAvailUrgent": "Urgjente",
       "filterAvailNegotiation": "Negocion",
       "filterDistanceUnlimited": "Pa kufizim",
-      "filterReset": "Rivendos"
+      "filterReset": "Rivendos",
+      "resetFilters": "Rivendos filtrat"
     },
     "job": {
       "salary": "Paga",

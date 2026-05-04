@@ -212,6 +212,40 @@ export async function loginWithGoogle(
   }
 }
 
+// ─── Apple Login (Sign in with Apple) ─────────────────────────
+
+export async function loginWithApple(
+  identityToken: string,
+  fullName: { givenName?: string | null; familyName?: string | null } | null,
+  role: AuthRole,
+  locale?: string
+): Promise<
+  | { ok: true; role: AuthRole; isNew: boolean }
+  | { ok: false; error: string }
+> {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/apple`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identityToken, fullName, role, locale }),
+    });
+
+    const data = await safeJson(res);
+    if (!data) return { ok: false, error: 'serverError' };
+    if (!res.ok) return { ok: false, error: data.error || 'appleAuthFailed' };
+
+    if (data.token) await saveToken(data.token);
+    const user = data.user;
+    const userRole = (user?.role || role) as AuthRole;
+    const name = user?.displayName || displayNameFromEmail(user?.email || '');
+    await saveSession(userRole, user?.email || '', name, user?.id, user?.isPremium);
+
+    return { ok: true, role: userRole, isNew: !!data.isNew };
+  } catch (err) {
+    return { ok: false, error: classifyError(err) };
+  }
+}
+
 // ─── Session refresh ───────────────────────────────────────────
 
 /**

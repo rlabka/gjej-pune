@@ -46,10 +46,22 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="job/[id]" options={{ presentation: 'card' }} />
                 <Stack.Screen name="ad/[id]" options={{ presentation: 'card' }} />
-                <Stack.Screen name="ad/new" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="ad/edit/[id]" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="job/new" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="job/edit/[id]" options={{ presentation: 'modal' }} />
+                <Stack.Screen
+                  name="ad/new"
+                  options={{ presentation: 'modal', gestureEnabled: false }}
+                />
+                <Stack.Screen
+                  name="ad/edit/[id]"
+                  options={{ presentation: 'modal', gestureEnabled: false }}
+                />
+                <Stack.Screen
+                  name="job/new"
+                  options={{ presentation: 'modal', gestureEnabled: false }}
+                />
+                <Stack.Screen
+                  name="job/edit/[id]"
+                  options={{ presentation: 'modal', gestureEnabled: false }}
+                />
                 <Stack.Screen name="favorites" />
                 <Stack.Screen name="settings" />
                 <Stack.Screen name="premium" />

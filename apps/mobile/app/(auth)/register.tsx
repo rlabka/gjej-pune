@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import {
   ArrowLeft,
@@ -34,7 +34,8 @@ import {
   isGoogleAuthConfigured,
   useGoogleAuthRequest,
 } from '@/lib/firebase';
-import { loginWithGoogle, type AuthRole } from '@/lib/auth';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { loginWithApple, loginWithGoogle, type AuthRole } from '@/lib/auth';
 
 type Locale = 'de' | 'en' | 'fr' | 'it' | 'sq';
 
@@ -91,17 +92,20 @@ const UI: Record<
     jobSeekerDesc: string;
     employerTitle: string;
     employerDesc: string;
-    nameLabel: string;
-    namePh: string;
     emailLabel: string;
     emailPh: string;
     passwordLabel: string;
     passwordPh: string;
     passwordHint: string;
+    confirmPasswordLabel: string;
+    confirmPasswordPh: string;
+    agreeToTermsPart1: string;
+    agreeToTermsPart2: string;
     submit: string;
     submitting: string;
     or: string;
     googleBtn: string;
+    appleBtn: string;
     hasAccount: string;
     signIn: string;
     privacy: string;
@@ -117,21 +121,24 @@ const UI: Record<
     registerSubtitle:
       'Wähle deine Rolle und erstelle in wenigen Sekunden ein Konto.',
     rolePrompt: 'Ich möchte...',
-    jobSeekerTitle: 'Jobs finden',
-    jobSeekerDesc: 'Bewerbungen verwalten',
-    employerTitle: 'Talente einstellen',
-    employerDesc: 'Stellen ausschreiben',
-    nameLabel: 'Name',
-    namePh: 'Max Mustermann',
+    jobSeekerTitle: 'Jobsuchende',
+    jobSeekerDesc: 'Jobs finden und bewerben',
+    employerTitle: 'Arbeitgeber',
+    employerDesc: 'Jobs veröffentlichen & Bewerbungen verwalten',
     emailLabel: 'E-Mail-Adresse',
     emailPh: 'du@beispiel.com',
     passwordLabel: 'Passwort',
     passwordPh: 'Mind. 6 Zeichen',
     passwordHint: 'Mind. 6 Zeichen',
+    confirmPasswordLabel: 'Passwort bestätigen',
+    confirmPasswordPh: 'Passwort wiederholen',
+    agreeToTermsPart1: 'Ich akzeptiere die',
+    agreeToTermsPart2: 'und',
     submit: 'Konto erstellen',
     submitting: 'Konto wird erstellt…',
     or: 'oder',
     googleBtn: 'Mit Google fortfahren',
+    appleBtn: 'Mit Apple fortfahren',
     hasAccount: 'Schon ein Konto?',
     signIn: 'Jetzt anmelden',
     privacy: 'Datenschutz',
@@ -145,21 +152,24 @@ const UI: Record<
     registerTab: 'Register',
     registerSubtitle: 'Choose your role and create an account in seconds.',
     rolePrompt: 'I want to...',
-    jobSeekerTitle: 'Find jobs',
-    jobSeekerDesc: 'Manage applications',
-    employerTitle: 'Hire talent',
-    employerDesc: 'Post job listings',
-    nameLabel: 'Name',
-    namePh: 'John Smith',
+    jobSeekerTitle: 'Job Seeker',
+    jobSeekerDesc: 'Find and apply for jobs',
+    employerTitle: 'Employer',
+    employerDesc: 'Post jobs & manage applications',
     emailLabel: 'Email address',
     emailPh: 'you@example.com',
     passwordLabel: 'Password',
     passwordPh: 'Min. 6 characters',
     passwordHint: 'Min. 6 characters',
+    confirmPasswordLabel: 'Confirm password',
+    confirmPasswordPh: 'Repeat password',
+    agreeToTermsPart1: 'I accept the',
+    agreeToTermsPart2: 'and',
     submit: 'Create account',
     submitting: 'Creating account…',
     or: 'or',
     googleBtn: 'Continue with Google',
+    appleBtn: 'Continue with Apple',
     hasAccount: 'Already have an account?',
     signIn: 'Sign in',
     privacy: 'Privacy',
@@ -174,21 +184,24 @@ const UI: Record<
     registerSubtitle:
       'Choisissez votre rôle et créez un compte en quelques secondes.',
     rolePrompt: 'Je souhaite...',
-    jobSeekerTitle: 'Trouver un emploi',
-    jobSeekerDesc: 'Gérer les candidatures',
-    employerTitle: 'Recruter',
-    employerDesc: 'Publier des offres',
-    nameLabel: 'Nom',
-    namePh: 'Jean Dupont',
+    jobSeekerTitle: 'Candidat',
+    jobSeekerDesc: "Trouver et postuler à des emplois",
+    employerTitle: 'Employeur',
+    employerDesc: 'Publier des offres & gérer les candidatures',
     emailLabel: 'Adresse e-mail',
     emailPh: 'vous@exemple.fr',
     passwordLabel: 'Mot de passe',
     passwordPh: 'Min. 6 caractères',
     passwordHint: 'Min. 6 caractères',
+    confirmPasswordLabel: 'Confirmer le mot de passe',
+    confirmPasswordPh: 'Répétez le mot de passe',
+    agreeToTermsPart1: 'J’accepte les',
+    agreeToTermsPart2: 'et la',
     submit: 'Créer le compte',
     submitting: 'Création du compte…',
     or: 'ou',
     googleBtn: 'Continuer avec Google',
+    appleBtn: 'Continuer avec Apple',
     hasAccount: 'Vous avez déjà un compte ?',
     signIn: 'Se connecter',
     privacy: 'Confidentialité',
@@ -203,21 +216,24 @@ const UI: Record<
     registerSubtitle:
       'Scegli il tuo ruolo e crea un account in pochi secondi.',
     rolePrompt: 'Voglio...',
-    jobSeekerTitle: 'Trovare lavoro',
-    jobSeekerDesc: 'Gestire le candidature',
-    employerTitle: 'Assumere talenti',
-    employerDesc: 'Pubblicare annunci',
-    nameLabel: 'Nome',
-    namePh: 'Mario Rossi',
+    jobSeekerTitle: 'Candidato',
+    jobSeekerDesc: 'Trova e candidati per lavori',
+    employerTitle: 'Datore di lavoro',
+    employerDesc: 'Pubblica annunci & gestisci candidature',
     emailLabel: 'Indirizzo e-mail',
     emailPh: 'tu@esempio.com',
     passwordLabel: 'Password',
     passwordPh: 'Min. 6 caratteri',
     passwordHint: 'Min. 6 caratteri',
+    confirmPasswordLabel: 'Conferma password',
+    confirmPasswordPh: 'Ripeti la password',
+    agreeToTermsPart1: 'Accetto i',
+    agreeToTermsPart2: 'e la',
     submit: 'Crea account',
     submitting: 'Creazione account…',
     or: 'oppure',
     googleBtn: 'Continua con Google',
+    appleBtn: 'Continua con Apple',
     hasAccount: 'Hai già un account?',
     signIn: 'Accedi',
     privacy: 'Privacy',
@@ -232,21 +248,24 @@ const UI: Record<
     registerSubtitle:
       'Zgjidh rolin tënd dhe krijo një llogari në pak sekonda.',
     rolePrompt: 'Dua të...',
-    jobSeekerTitle: 'Gjej punë',
-    jobSeekerDesc: 'Menaxho aplikimet',
-    employerTitle: 'Punësoj talente',
-    employerDesc: 'Publikoj shpallje',
-    nameLabel: 'Emri',
-    namePh: 'Filan Fisteku',
+    jobSeekerTitle: 'Kërkues pune',
+    jobSeekerDesc: 'Gjeni dhe aplikoni për punë',
+    employerTitle: 'Punëdhënës',
+    employerDesc: 'Publikoni punë & menaxhoni aplikimet',
     emailLabel: 'Adresa e emailit',
     emailPh: 'ti@shembull.com',
     passwordLabel: 'Fjalëkalimi',
     passwordPh: 'Min. 6 karaktere',
     passwordHint: 'Min. 6 karaktere',
+    confirmPasswordLabel: 'Konfirmo fjalëkalimin',
+    confirmPasswordPh: 'Përsërit fjalëkalimin',
+    agreeToTermsPart1: 'Pranoj',
+    agreeToTermsPart2: 'dhe',
     submit: 'Krijo llogarinë',
     submitting: 'Po krijohet…',
     or: 'ose',
     googleBtn: 'Vazhdo me Google',
+    appleBtn: 'Vazhdo me Apple',
     hasAccount: 'Ke tashmë një llogari?',
     signIn: 'Hyni',
     privacy: 'Privatësia',
@@ -299,12 +318,26 @@ const ERR_TEXT: Record<string, Record<Locale, string>> = {
     it: 'Registrazione fallita. Riprova.',
     sq: 'Regjistrimi dështoi. Provoni përsëri.',
   },
+  passwordMismatch: {
+    de: 'Passwörter stimmen nicht überein.',
+    en: 'Passwords do not match.',
+    fr: 'Les mots de passe ne correspondent pas.',
+    it: 'Le password non coincidono.',
+    sq: 'Fjalëkalimet nuk përputhen.',
+  },
   googleAuthFailed: {
     de: 'Google-Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
     en: 'Google sign-in failed. Please try again.',
     fr: 'Connexion Google échouée. Veuillez réessayer.',
     it: 'Accesso Google fallito. Riprovare.',
     sq: 'Hyrja me Google dështoi. Provoni përsëri.',
+  },
+  appleAuthFailed: {
+    de: 'Apple-Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+    en: 'Apple sign-in failed. Please try again.',
+    fr: 'Connexion Apple échouée. Veuillez réessayer.',
+    it: 'Accesso Apple fallito. Riprovare.',
+    sq: 'Hyrja me Apple dështoi. Provoni përsëri.',
   },
 };
 
@@ -314,6 +347,18 @@ export default function RegisterScreen() {
   const dialog = useDialog();
   const router = useRouter();
 
+  // Honour the role param the welcome-screen "Search" CTA passes (mirrors web's
+  // /auth/register?role=...). When the role is preset, the role picker is
+  // hidden so the user doesn't get asked something they already answered.
+  const params = useLocalSearchParams<{ role?: string }>();
+  const presetRole: AuthRole | null =
+    params.role === 'employer'
+      ? 'employer'
+      : params.role === 'job-seeker'
+        ? 'job-seeker'
+        : null;
+  const initialRole: AuthRole = presetRole ?? 'job-seeker';
+
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(
     locale as Locale
   )
@@ -322,14 +367,22 @@ export default function RegisterScreen() {
   const m = MARKETING[l];
   const ui = UI[l];
 
-  const [role, setRole] = useState<AuthRole>('job-seeker');
-  const [displayName, setDisplayName] = useState('');
+  const [role, setRole] = useState<AuthRole>(initialRole);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAppleAvailable).catch(() => {});
+  }, []);
 
   const [googleRequest, , promptGoogle] = useGoogleAuthRequest();
 
@@ -340,17 +393,23 @@ export default function RegisterScreen() {
   const canSubmit =
     email.trim().length > 0 &&
     password.length >= 6 &&
+    confirmPassword.length >= 6 &&
+    agreedToTerms &&
     !submitting;
 
   async function onSubmit() {
     if (!canSubmit) return;
+    if (password !== confirmPassword) {
+      setError('passwordMismatch');
+      return;
+    }
     setError(null);
     setSubmitting(true);
     const result = await register(
       email.trim().toLowerCase(),
       password,
       role,
-      displayName.trim() || undefined,
+      undefined,
       l
     );
     setSubmitting(false);
@@ -401,6 +460,39 @@ export default function RegisterScreen() {
       setError('googleAuthFailed');
     } finally {
       setGoogleLoading(false);
+    }
+  }
+
+  async function handleAppleSignUp() {
+    setAppleLoading(true);
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (!credential.identityToken) {
+        setError('appleAuthFailed');
+        return;
+      }
+      const res = await loginWithApple(
+        credential.identityToken,
+        credential.fullName ?? null,
+        role,
+        l
+      );
+      if (res.ok) {
+        router.replace('/(tabs)' as any);
+      } else {
+        setError((res as any).error ?? 'appleAuthFailed');
+      }
+    } catch (err: any) {
+      if (err?.code !== 'ERR_CANCELED' && err?.code !== 'ERR_REQUEST_CANCELED') {
+        setError('appleAuthFailed');
+      }
+    } finally {
+      setAppleLoading(false);
     }
   }
 
@@ -547,89 +639,68 @@ export default function RegisterScreen() {
               </View>
             ) : null}
 
-            {/* Role selector */}
-            <Text className="mb-2 text-[12px] font-extrabold uppercase tracking-wider text-slate-500">
-              {ui.rolePrompt}
-            </Text>
-            <View className="mb-5 flex-row" style={{ gap: 10 }}>
-              {ROLES.map((r) => {
-                const active = role === r.value;
-                const Icon = r.icon;
-                return (
-                  <Pressable
-                    key={r.value}
-                    onPress={() => setRole(r.value)}
-                    className={`flex-1 rounded-xl border-2 p-3 ${
-                      active
-                        ? 'border-[#162C66] bg-[#162C66]'
-                        : 'border-slate-200 bg-white'
-                    }`}
-                    style={
-                      active
-                        ? {
-                            shadowColor: '#162C66',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.18,
-                            shadowRadius: 10,
-                            elevation: 3,
-                          }
-                        : undefined
-                    }
-                  >
-                    <View
-                      className={`mb-2 h-8 w-8 items-center justify-center rounded-lg ${
-                        active ? 'bg-[#F5C400]' : 'bg-slate-100'
-                      }`}
-                    >
-                      <Icon
-                        color={active ? '#162C66' : '#64748B'}
-                        size={16}
-                        strokeWidth={2.4}
-                      />
-                    </View>
-                    <Text
-                      className={`text-[13px] font-bold ${
-                        active ? 'text-white' : 'text-[#0B1F44]'
-                      }`}
-                    >
-                      {r.title}
-                    </Text>
-                    <Text
-                      className={`mt-0.5 text-[11px] font-medium ${
-                        active ? 'text-blue-100/80' : 'text-slate-500'
-                      }`}
-                    >
-                      {r.desc}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Name */}
-            <View className="mb-4">
-              <Text className="mb-2 text-[12px] font-extrabold uppercase tracking-wider text-slate-500">
-                {ui.nameLabel}
-              </Text>
-              <View
-                className="h-[56px] flex-row items-center rounded-xl border border-slate-200 bg-slate-50/80"
-                style={{ paddingHorizontal: 14 }}
-              >
-                <View className="h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white">
-                  <UserIcon color="#64748B" size={16} />
+            {/* Role selector — hidden when role is preset via URL param */}
+            {presetRole === null ? (
+              <>
+                <Text className="mb-2 text-[12px] font-extrabold uppercase tracking-wider text-slate-500">
+                  {ui.rolePrompt}
+                </Text>
+                <View className="mb-5 flex-row" style={{ gap: 10 }}>
+                  {ROLES.map((r) => {
+                    const active = role === r.value;
+                    const Icon = r.icon;
+                    return (
+                      <Pressable
+                        key={r.value}
+                        onPress={() => setRole(r.value)}
+                        className={`flex-1 rounded-xl border-2 p-3 ${
+                          active
+                            ? 'border-[#162C66] bg-[#162C66]'
+                            : 'border-slate-200 bg-white'
+                        }`}
+                        style={
+                          active
+                            ? {
+                                shadowColor: '#162C66',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.18,
+                                shadowRadius: 10,
+                                elevation: 3,
+                              }
+                            : undefined
+                        }
+                      >
+                        <View
+                          className={`mb-2 h-8 w-8 items-center justify-center rounded-lg ${
+                            active ? 'bg-[#F5C400]' : 'bg-slate-100'
+                          }`}
+                        >
+                          <Icon
+                            color={active ? '#162C66' : '#64748B'}
+                            size={16}
+                            strokeWidth={2.4}
+                          />
+                        </View>
+                        <Text
+                          className={`text-[13px] font-bold ${
+                            active ? 'text-white' : 'text-[#0B1F44]'
+                          }`}
+                        >
+                          {r.title}
+                        </Text>
+                        <Text
+                          className={`mt-0.5 text-[11px] font-medium ${
+                            active ? 'text-blue-100/80' : 'text-slate-500'
+                          }`}
+                        >
+                          {r.desc}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
                 </View>
-                <TextInput
-                  value={displayName}
-                  onChangeText={setDisplayName}
-                  placeholder={ui.namePh}
-                  placeholderTextColor="#94A3B8"
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  className="ml-3 flex-1 text-[15px] font-medium text-[#0B1F44]"
-                  style={{ height: '100%' }}
-                />
-              </View>
-            </View>
+              </>
+            ) : null}
 
             {/* Email */}
             <View className="mb-4">
@@ -697,27 +768,79 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Terms hint */}
-            <Text
-              className="mt-4 text-[11px] font-medium leading-snug text-slate-500"
-              style={{ lineHeight: 16 }}
-            >
-              {ui.termsAccept}{' '}
-              <Text
-                className="font-bold text-[#162C66]"
-                onPress={() => router.push('/legal/agb' as any)}
-              >
-                {ui.terms}
-              </Text>{' '}
-              {ui.termsAnd}{' '}
-              <Text
-                className="font-bold text-[#162C66]"
-                onPress={() => router.push('/legal/privacy' as any)}
-              >
-                {ui.privacy}
+            {/* Confirm Password */}
+            <View className="mt-4 mb-2">
+              <Text className="mb-2 text-[12px] font-extrabold uppercase tracking-wider text-slate-500">
+                {ui.confirmPasswordLabel} <Text className="text-red-500">*</Text>
               </Text>
-              .
-            </Text>
+              <View
+                className="h-[56px] flex-row items-center rounded-xl border border-slate-200 bg-slate-50/80"
+                style={{ paddingHorizontal: 14 }}
+              >
+                <View className="h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white">
+                  <Lock color="#64748B" size={16} />
+                </View>
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder={ui.confirmPasswordPh}
+                  placeholderTextColor="#94A3B8"
+                  secureTextEntry={!showConfirmPassword}
+                  autoComplete={Platform.OS === 'ios' ? 'password-new' : 'password-new'}
+                  className="ml-3 flex-1 text-[15px] font-medium text-[#0B1F44]"
+                  style={{ height: '100%' }}
+                />
+                <Pressable
+                  onPress={() => setShowConfirmPassword((v) => !v)}
+                  className="h-9 w-9 items-center justify-center rounded-lg active:bg-white"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff color="#64748B" size={18} />
+                  ) : (
+                    <Eye color="#64748B" size={18} />
+                  )}
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Terms checkbox — required for registration (matches web) */}
+            <Pressable
+              onPress={() => setAgreedToTerms((v) => !v)}
+              className="mt-5 flex-row items-start active:opacity-80"
+              style={{ gap: 10 }}
+            >
+              <View
+                className={`mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 ${
+                  agreedToTerms
+                    ? 'border-[#162C66] bg-[#162C66]'
+                    : 'border-slate-300 bg-white'
+                }`}
+              >
+                {agreedToTerms ? (
+                  <Text className="text-[12px] font-extrabold text-white">✓</Text>
+                ) : null}
+              </View>
+              <Text
+                className="flex-1 text-[12px] font-medium text-slate-600"
+                style={{ lineHeight: 17 }}
+              >
+                {ui.agreeToTermsPart1}{' '}
+                <Text
+                  className="font-bold text-[#162C66]"
+                  onPress={() => router.push('/legal/agb' as any)}
+                >
+                  {ui.terms}
+                </Text>{' '}
+                {ui.agreeToTermsPart2}{' '}
+                <Text
+                  className="font-bold text-[#162C66]"
+                  onPress={() => router.push('/legal/privacy' as any)}
+                >
+                  {ui.privacy}
+                </Text>
+                .
+              </Text>
+            </Pressable>
 
             {/* Submit */}
             <Pressable
@@ -762,6 +885,27 @@ export default function RegisterScreen() {
               </Text>
               <View className="h-px flex-1 bg-slate-200" />
             </View>
+
+            {/* Apple Sign-In — required by App Store guideline 4.8 */}
+            {appleAvailable ? (
+              <Pressable
+                onPress={handleAppleSignUp}
+                disabled={appleLoading}
+                className="mb-3 h-[52px] flex-row items-center justify-center rounded-xl bg-black active:opacity-90 disabled:opacity-60"
+                style={{ gap: 8 }}
+              >
+                {appleLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text className="text-[18px]" style={{ color: '#FFFFFF', marginTop: -2 }}>
+                    {''}
+                  </Text>
+                )}
+                <Text className="text-[14px] font-bold text-white">
+                  {ui.appleBtn}
+                </Text>
+              </Pressable>
+            ) : null}
 
             {/* Google */}
             <Pressable

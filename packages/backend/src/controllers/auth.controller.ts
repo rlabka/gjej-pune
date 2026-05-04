@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, googleAuthUser, updateUserRole, togglePremium, getUserById, generateToken, forgotPassword as forgotPw, resetPassword as resetPw } from '../services/auth.service';
+import { registerUser, loginUser, googleAuthUser, appleAuthUser, updateUserRole, togglePremium, getUserById, generateToken, forgotPassword as forgotPw, resetPassword as resetPw } from '../services/auth.service';
 import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { createNotification } from '../services/notification.service';
 import { prisma } from '../config/prisma';
@@ -70,6 +70,33 @@ export async function googleLogin(req: Request, res: Response) {
     });
   } catch (error) {
     console.error('Google auth error:', error);
+    return res.status(500).json({ error: 'internalError' });
+  }
+}
+
+/**
+ * POST /api/auth/apple
+ * Verifies Apple identityToken and signs the user in (creates if new).
+ * Required for App Store approval — Apple Guideline 4.8 mandates Sign in with
+ * Apple whenever third-party sign-in (Google) is offered.
+ */
+export async function appleLogin(req: Request, res: Response) {
+  try {
+    const { identityToken, fullName, role, locale } = req.body;
+    const result = await appleAuthUser({ identityToken, fullName, role, locale });
+
+    if (!result.ok) {
+      return res.status(result.status).json({ error: result.code });
+    }
+
+    return res.status(result.data.isNew ? 201 : 200).json({
+      ok: true,
+      token: result.data.token,
+      user: result.data.user,
+      isNew: result.data.isNew,
+    });
+  } catch (error) {
+    console.error('Apple auth error:', error);
     return res.status(500).json({ error: 'internalError' });
   }
 }

@@ -3,6 +3,7 @@ import { createJob, getJobs, getJobsByUser, getJobById, updateJob, deleteJob, ge
 import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { recordProfileView } from '../services/profileView.service';
 import { createNotification } from '../services/notification.service';
+import { notifyJobSeekersOfNewJob } from '../services/matchNotify.service';
 
 export async function create(req: AuthenticatedRequest, res: Response) {
   try {
@@ -16,6 +17,13 @@ export async function create(req: AuthenticatedRequest, res: Response) {
       '',
       { adTitle: (job as any).title || (job as any).category || '', targetType: 'job', targetId: (job as any).id }
     ).catch(() => {});
+
+    // Push to job-seekers whose ads match this new job (fire-and-forget)
+    notifyJobSeekersOfNewJob({
+      id: (job as any).id,
+      userId: req.user.id,
+      category: (job as any).category,
+    }).catch(() => {});
 
     return res.status(201).json({ ok: true, job });
   } catch (error) {

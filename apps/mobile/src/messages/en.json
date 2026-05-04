@@ -1818,7 +1818,8 @@
       "filterAvailUrgent": "Urgent",
       "filterAvailNegotiation": "Negotiable",
       "filterDistanceUnlimited": "Unlimited",
-      "filterReset": "Reset"
+      "filterReset": "Reset",
+      "resetFilters": "Reset filters"
     },
     "job": {
       "salary": "Salary",

@@ -110,7 +110,7 @@ export function TabBar({
                     fill={isFocused ? 'rgba(22,44,102,0.10)' : 'transparent'}
                   />
 
-                  {/* Badge */}
+                  {/* Badge — red dot/count like classifieds platforms */}
                   {badge !== undefined ? (
                     <View
                       style={{
@@ -123,7 +123,7 @@ export function TabBar({
                         borderRadius: 9,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: '#F5C400',
+                        backgroundColor: '#EF4444',
                         borderWidth: 2,
                         borderColor: '#FFFFFF',
                       }}
@@ -132,7 +132,7 @@ export function TabBar({
                         style={{
                           fontSize: 10,
                           fontWeight: '800',
-                          color: '#0B1F44',
+                          color: '#FFFFFF',
                           lineHeight: 11,
                         }}
                       >

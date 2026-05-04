@@ -10,6 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gjp.app",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "GJP needs access to your photos so you can upload a profile picture or attach images to messages.",
@@ -19,6 +20,13 @@
           "mailto",
           "tel",
           "sms"
+        ],
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.921043784034-24cuijgm7r0h1it42v3tb4rdt5kd0i24"
+            ]
+          }
         ]
       },
       "associatedDomains": [
@@ -28,10 +36,11 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#F5C400"
+        "backgroundColor": "#FFCC00"
       },
       "package": "com.gjp.app",
       "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -48,13 +57,14 @@
       "expo-router",
       "expo-secure-store",
       "expo-localization",
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "imageWidth": 320,
+          "imageWidth": 360,
           "resizeMode": "contain",
-          "backgroundColor": "#FFFFFF"
+          "backgroundColor": "#FFCC00"
         }
       ],
       "expo-font",

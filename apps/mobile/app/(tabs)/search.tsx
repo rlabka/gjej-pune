@@ -5,6 +5,7 @@ import {
   Image,
   Pressable,
   RefreshControl,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -17,6 +18,7 @@ import {
   Search as SearchIcon,
   SlidersHorizontal,
   Sparkles,
+  XCircle,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -257,10 +259,19 @@ export default function BrowseScreen() {
                         <Pressable
                           key={s.key}
                           onPress={() => {
-                            setQuery(s.label);
+                            // Same behaviour as web: add the Albanian category key
+                            // to the filter (DB stores AL keys) and clear the
+                            // keyword. Otherwise the backend tries to match
+                            // "Nanny" against AL strings like "Babysiter" and
+                            // returns nothing.
+                            setFilters((f) =>
+                              f.categories.includes(s.key)
+                                ? f
+                                : { ...f, categories: [...f.categories, s.key] }
+                            );
+                            setQuery('');
                             setShowSuggestions(false);
                             setPage(1);
-                            // small delay so state propagates before fetch reads `query`
                             setTimeout(() => fetchPage(1, false), 0);
                           }}
                           className={`flex-row items-center px-4 py-3 ${
@@ -320,8 +331,13 @@ export default function BrowseScreen() {
                 </Text>
               </View>
 
-              {/* Filter chips */}
-              <View className="mt-3 flex-row px-6">
+              {/* Filter chips — horizontally scrollable so reset/sort chips fit */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 24 }}
+                className="mt-3"
+              >
                 <Pressable
                   onPress={() => setShowFilters(true)}
                   className="mr-2 flex-row items-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 active:opacity-80"
@@ -364,7 +380,7 @@ export default function BrowseScreen() {
 
                 <Pressable
                   onPress={() => setFilters((f) => ({ ...f, sort: 'date' }))}
-                  className={`flex-row items-center rounded-xl px-3.5 py-2 active:opacity-80 ${
+                  className={`mr-2 flex-row items-center rounded-xl px-3.5 py-2 active:opacity-80 ${
                     filters.sort === 'date'
                       ? 'bg-[#0B1F44]'
                       : 'border border-slate-200 bg-white'
@@ -382,7 +398,34 @@ export default function BrowseScreen() {
                     {t('Mobile.browse.date')}
                   </Text>
                 </Pressable>
-              </View>
+              </ScrollView>
+
+              {/* Reset filters — own row so user sees it without scrolling */}
+              {activeFilterCount > 0 ? (
+                <View className="mt-2 flex-row px-6">
+                  <Pressable
+                    onPress={() => {
+                      setFilters({
+                        categories: [],
+                        location: '',
+                        radius: 100,
+                        sort: 'relevance',
+                        experience: '',
+                        when: '',
+                      });
+                      setQuery('');
+                      setPage(1);
+                      setTimeout(() => fetchPage(1, false), 0);
+                    }}
+                    className="flex-row items-center rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 active:opacity-80"
+                  >
+                    <XCircle color="#DC2626" size={13} />
+                    <Text className="ml-1.5 text-[13px] font-bold text-red-600">
+                      {t('Mobile.browse.resetFilters')}
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : null}
 
               <View className="h-4" />
             </View>

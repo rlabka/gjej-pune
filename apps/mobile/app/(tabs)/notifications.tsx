@@ -266,6 +266,13 @@ export default function NotificationsScreen() {
       router.push(`/ad/${meta.targetId}` as any);
     } else if (item.type === 'ad_online' && meta.targetType === 'job' && meta.targetId) {
       router.push(`/job/${meta.targetId}` as any);
+    } else if (item.type === 'new_match') {
+      // Match notifications carry adId or jobId in meta depending on direction
+      if ((meta as any).adId) {
+        router.push(`/ad/${(meta as any).adId}` as any);
+      } else if ((meta as any).jobId) {
+        router.push(`/job/${(meta as any).jobId}` as any);
+      }
     } else if (
       (item.type === 'premium_activated' || item.type === 'premium_cancelled' || item.type === 'boost_active')
     ) {

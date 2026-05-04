@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import {
   ArrowRight,
   Bell,
@@ -191,9 +191,15 @@ export default function HomeScreen() {
     }
   }, [isEmployer]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Reload data every time the home tab regains focus — without this, after
+  // creating a job/ad the user lands on a stale home with no data ("Standbild")
+  // until they restart the app. useFocusEffect runs on initial mount AND on
+  // every subsequent focus.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const messagesLabel =
     unreadCount === 0
