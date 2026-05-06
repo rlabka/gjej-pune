@@ -15,6 +15,7 @@ import {
   CheckCircle,
   Crown,
   Eye,
+  ExternalLink,
   Globe,
   Reply,
   Shield,
@@ -28,16 +29,17 @@ import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 
-type PlanItem = {
-  id: string;
-  label: string;
-  intervalType: 'day' | 'week' | 'month';
-  intervalCount: number;
-  amountCents: number;
-  oldPriceCents: number | null;
-  currency: string;
-  isBestOffer: boolean;
-};
+/**
+ * Premium screen — App Store-compliant (Apple Guideline 3.1.1).
+ *
+ * iOS apps may not display purchase pricing or in-app checkout for digital
+ * subscriptions outside of StoreKit. We follow the LinkedIn / Patreon /
+ * Reddit pattern: the app shows feature benefits but no prices and no plan
+ * picker; a single CTA links to gjej-pune.com where the user picks a plan
+ * and pays via Stripe (web). Existing subscribers see status + management
+ * controls (cancel, reactivate, payment portal) — these are allowed because
+ * they manage an existing subscription rather than create a new one.
+ */
 
 type SubscriptionDetails = {
   active: boolean;
@@ -71,77 +73,21 @@ const BENEFIT_ICONS: Record<string, typeof Globe> = {
   eye: Eye,
 };
 
-const DURATION_LABELS: Record<string, Record<string, [string, string]>> = {
-  month: {
-    de: ['Monat', 'Monate'],
-    en: ['month', 'months'],
-    fr: ['mois', 'mois'],
-    it: ['mese', 'mesi'],
-    sq: ['muaj', 'muaj'],
-  },
-  week: {
-    de: ['Woche', 'Wochen'],
-    en: ['week', 'weeks'],
-    fr: ['semaine', 'semaines'],
-    it: ['settimana', 'settimane'],
-    sq: ['javë', 'javë'],
-  },
-  day: {
-    de: ['Tag', 'Tage'],
-    en: ['day', 'days'],
-    fr: ['jour', 'jours'],
-    it: ['giorno', 'giorni'],
-    sq: ['ditë', 'ditë'],
-  },
-};
-
-function formatDuration(count: number, type: string, locale: string): string {
-  const labels = DURATION_LABELS[type]?.[locale] ?? DURATION_LABELS[type]?.de ?? ['', ''];
-  return `${count} ${count === 1 ? labels[0] : labels[1]}`;
-}
-
-function formatPrice(amountCents: number, currency: string = 'eur'): string {
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-  }).format(amountCents / 100);
-}
+const WEB_PREMIUM_BASE = 'https://gjej-pune.com';
 
 export default function PremiumScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const dialog = useDialog();
-  const { locale } = useI18n();
   const { session, refresh } = useAuth();
 
-  const [plans, setPlans] = useState<PlanItem[]>([]);
-  const [plansLoading, setPlansLoading] = useState(true);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [sub, setSub] = useState<SubscriptionDetails | null>(null);
-  const [loading, setLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
   const isPremium = session?.isPremium ?? false;
+  const dashboardPath = session?.role === 'employer' ? 'employer' : 'job-seeker';
 
-  const loadData = useCallback(async () => {
-    try {
-      // Fetch plans (public endpoint)
-      const plansRes = await api.get<{ ok: boolean; plans: PlanItem[] }>(
-        `/api/stripe/plans?role=${session?.role === 'employer' ? 'employer' : 'job_seeker'}`
-      );
-      if (plansRes?.ok && plansRes.plans) {
-        setPlans(plansRes.plans);
-        const bestIdx = plansRes.plans.findIndex((p) => p.isBestOffer);
-        if (bestIdx >= 0) setSelectedIndex(bestIdx);
-        else if (plansRes.plans.length > 1) setSelectedIndex(1);
-      }
-    } catch {
-      /* ignore */
-    } finally {
-      setPlansLoading(false);
-    }
-
-    // Fetch subscription details
+  const loadSubscription = useCallback(async () => {
     const token = (await getToken()) ?? undefined;
     if (!token) return;
     try {
@@ -155,37 +101,18 @@ export default function PremiumScreen() {
     } catch {
       /* ignore */
     }
-  }, [session?.role]);
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadSubscription();
+  }, [loadSubscription]);
 
-  const selectedPlan = plans[selectedIndex] as PlanItem | undefined;
-
-  async function handleCheckout() {
-    if (!selectedPlan) return;
-    setLoading(true);
-    const token = (await getToken()) ?? undefined;
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  async function handleOpenWeb() {
+    const url = `${WEB_PREMIUM_BASE}/${locale}/dashboard/${dashboardPath}/premium`;
     try {
-      const res = await api.post<{ ok: boolean; url?: string; error?: string }>(
-        '/api/stripe/checkout',
-        { planId: selectedPlan.id, locale },
-        token
-      );
-      if (res?.ok && res.url) {
-        await Linking.openURL(res.url);
-      } else {
-        dialog.showError(res?.error ?? t('Mobile.common.error'));
-      }
+      await Linking.openURL(url);
     } catch {
       dialog.showError(t('Mobile.common.error'));
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -212,7 +139,7 @@ export default function PremiumScreen() {
             ' ' +
             new Date(res.endDate).toLocaleDateString(locale)
         );
-        loadData();
+        loadSubscription();
         await refresh();
       } else {
         dialog.showError(res?.error ?? t('Mobile.common.error'));
@@ -235,7 +162,7 @@ export default function PremiumScreen() {
       );
       if (res?.ok) {
         dialog.showSuccess(t('Mobile.common.done'));
-        loadData();
+        loadSubscription();
         await refresh();
       } else {
         dialog.showError(res?.error ?? t('Mobile.common.error'));
@@ -318,10 +245,9 @@ export default function PremiumScreen() {
           })}
         </View>
 
-        {/* Active subscription info */}
         {isPremium && sub?.active ? (
+          // ── Active subscriber: status + management ──────────────
           <View className="mt-4">
-            {/* Status badge */}
             <View className="mb-4 flex-row items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 py-3">
               <CheckCircle color="#0B8A5A" size={18} />
               <Text className="ml-2 text-sm font-bold text-emerald-700">
@@ -329,7 +255,6 @@ export default function PremiumScreen() {
               </Text>
             </View>
 
-            {/* Sub details */}
             <View className="rounded-2xl border border-slate-200 bg-white p-4">
               <DetailRow
                 label={t('Mobile.premium.plan')}
@@ -344,7 +269,7 @@ export default function PremiumScreen() {
                 value={
                   sub.cancelAtPeriodEnd
                     ? '—'
-                    : `${formatPrice(sub.amountCents, sub.currency)} · ${new Date(sub.currentPeriodEnd).toLocaleDateString(locale)}`
+                    : new Date(sub.currentPeriodEnd).toLocaleDateString(locale)
                 }
               />
               {sub.paymentMethod && (
@@ -355,7 +280,6 @@ export default function PremiumScreen() {
               )}
             </View>
 
-            {/* Manage / Cancel / Reactivate */}
             <Pressable
               onPress={handlePortal}
               className="mt-3 rounded-xl border border-slate-200 bg-white py-3 active:opacity-80"
@@ -399,105 +323,29 @@ export default function PremiumScreen() {
             )}
           </View>
         ) : (
-          <>
-            {/* Plan cards */}
-            <Text className="mb-2 mt-4 text-[13px] font-extrabold uppercase tracking-wider text-slate-400">
-              {t('Mobile.premium.choosePlan')}
-            </Text>
-
-            {plansLoading ? (
-              <View className="items-center py-8">
-                <ActivityIndicator color="#162C66" />
-                <Text className="mt-2 text-sm text-slate-400">
-                  {t('Mobile.premium.loadingPlans')}
-                </Text>
-              </View>
-            ) : plans.length === 0 ? (
-              <Text className="py-8 text-center text-sm text-slate-400">
-                {t('Mobile.premium.noPlans')}
+          // ── Non-premium: web CTA only (no prices, no plan picker) ──
+          <View className="mt-4">
+            <Pressable
+              onPress={handleOpenWeb}
+              className="flex-row items-center justify-center rounded-2xl bg-[#F5C400] py-4 active:opacity-90"
+              style={{
+                shadowColor: '#F5C400',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 12,
+                elevation: 6,
+              }}
+            >
+              <ExternalLink color="#162C66" size={18} />
+              <Text className="ml-2 text-base font-extrabold text-[#162C66]">
+                {t('Mobile.premium.activateOnWeb')}
               </Text>
-            ) : (
-              <View>
-                {plans.map((plan, i) => {
-                  const isSelected = selectedIndex === i;
-                  const price = plan.amountCents / 100;
-                  const oldPrice = plan.oldPriceCents ? plan.oldPriceCents / 100 : null;
-                  const perMonth =
-                    plan.intervalCount > 1
-                      ? Math.round((price / plan.intervalCount) * 100) / 100
-                      : null;
+            </Pressable>
 
-                  return (
-                    <Pressable
-                      key={plan.id}
-                      onPress={() => setSelectedIndex(i)}
-                      className={`mb-3 rounded-2xl border-2 p-5 ${
-                        isSelected
-                          ? 'border-[#F5C400] bg-[#F5C400]/5'
-                          : 'border-slate-200 bg-white'
-                      }`}
-                    >
-                      {plan.isBestOffer && (
-                        <View className="mb-2 self-start flex-row items-center rounded-full bg-[#F5C400] px-3 py-1">
-                          <Sparkles color="#162C66" size={10} />
-                          <Text className="ml-1 text-[10px] font-extrabold uppercase text-[#162C66]">
-                            {t('Mobile.premium.bestOffer')}
-                          </Text>
-                        </View>
-                      )}
-                      <Text className="text-[14px] font-bold text-[#0B1F44]">
-                        {formatDuration(plan.intervalCount, plan.intervalType, locale)}
-                      </Text>
-                      <View className="mt-1 flex-row items-baseline">
-                        <Text className="text-3xl font-extrabold text-emerald-600">
-                          {price}
-                        </Text>
-                        <Text className="ml-1 text-base font-bold text-emerald-600">€</Text>
-                        {oldPrice && (
-                          <Text className="ml-2 text-[13px] text-slate-400 line-through">
-                            {oldPrice} €
-                          </Text>
-                        )}
-                      </View>
-                      {perMonth && (
-                        <Text className="mt-0.5 text-[12px] text-slate-400">
-                          {perMonth} € {t('Mobile.premium.monthly')}
-                        </Text>
-                      )}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-
-            {/* CTA */}
-            {selectedPlan && (
-              <Pressable
-                onPress={handleCheckout}
-                disabled={loading}
-                className="mt-2 flex-row items-center justify-center rounded-2xl bg-[#F5C400] py-4 active:opacity-90 disabled:opacity-50"
-                style={{
-                  shadowColor: '#F5C400',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 12,
-                  elevation: 6,
-                }}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#162C66" />
-                ) : (
-                  <>
-                    <Crown color="#162C66" size={20} />
-                    <Text className="ml-2 text-base font-extrabold text-[#162C66]">
-                      {t('Mobile.premium.goPremium')} –{' '}
-                      {formatPrice(selectedPlan.amountCents, selectedPlan.currency)}
-                    </Text>
-                  </>
-                )}
-              </Pressable>
-            )}
-          </>
+            <Text className="mt-3 text-center text-[12px] text-slate-500">
+              {t('Mobile.premium.activateOnWebHint')}
+            </Text>
+          </View>
         )}
 
         {/* Trust badge */}

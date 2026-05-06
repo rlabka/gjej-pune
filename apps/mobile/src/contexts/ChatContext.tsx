@@ -16,7 +16,7 @@ import { getSocket, disconnectSocket } from '@/lib/socket';
 import { getToken } from '@/lib/auth';
 import { api } from '@/lib/api';
 import {
-  registerForPushNotifications,
+  registerIfAlreadyGranted,
   unregisterPushToken,
 } from '@/lib/push';
 
@@ -129,8 +129,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // Initial unread count
       refreshUnread();
 
-      // Register this device for push notifications (idempotent server-side)
-      registerForPushNotifications()
+      // Register this device for push iff iOS permission is already granted.
+      // The system permission dialog is triggered later via the in-app
+      // soft-prompt (see app/(tabs)/_layout.tsx), so we never surprise
+      // first-time users with an out-of-context iOS prompt.
+      registerIfAlreadyGranted()
         .then((token) => {
           if (token) pushTokenRef.current = token;
         })

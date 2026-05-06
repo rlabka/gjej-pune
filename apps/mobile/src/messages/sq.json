@@ -1744,8 +1744,8 @@
       "recentActivity": "Aktivitetet e fundit",
       "noActivityYet": "Ende asnjë aktivitet",
       "noActivityYetDesc": "Aktivitetet do të shfaqen këtu sapo të ndodhë diçka.",
-      "upgradePremium": "Përmirëso në Premium",
-      "goPremium": "Bëhu Premium tani",
+      "upgradePremium": "Zbulo përfitimet Premium",
+      "goPremium": "Mëso më shumë",
       "premiumBenefitContact": "Kontakto kandidatë në mbarë botën pa kufizim",
       "premiumBenefitRespond": "Përgjigju pa kufizim çdo mesazhi të ri",
       "premiumBenefitVisitors": "Shih kush ka vizituar profilin tënd",
@@ -1886,6 +1886,12 @@
       "update": "Përditëso",
       "deleteConfirm": "Vërtet fshi?"
     },
+    "pushPrompt": {
+      "title": "Qëndro i informuar",
+      "message": "Merr njoftim menjëherë kur dikush të shkruan ose kur shfaqen punë të reja të përshtatshme.",
+      "enable": "Aktivizo",
+      "later": "Më vonë"
+    },
     "premium": {
       "heading": "Bëhu Premium",
       "subheading": "Zhblloko të gjitha përparësitë dhe gjeni kandidatët më të mirë.",
@@ -1897,6 +1903,8 @@
       "bestOffer": "Oferta më e mirë",
       "monthly": "në muaj",
       "goPremium": "Aktivizo Premium",
+      "activateOnWeb": "Aktivizo Premium në gjej-pune.com",
+      "activateOnWebHint": "Do të ridrejtoheni në faqen tonë të internetit për të përfunduar abonimin Premium.",
       "alreadyPremium": "Ju jeni tashmë anëtar Premium!",
       "plan": "Plani aktual",
       "memberSince": "Anëtar që nga",
@@ -1921,9 +1929,9 @@
       "job": "njoftimin e punës",
       "ad": "profilin e kandidatit",
       "lockedTitle": "Funksion Premium",
-      "lockedDesc": "Aktivizo Premium për të parë kush ka vizituar njoftimet e tua.",
+      "lockedDesc": "Vizitat e profilit janë për anëtarët Premium.",
       "visitorsTotal": "vizitorë gjithsej",
-      "upgrade": "Aktivizo Premium",
+      "upgrade": "Mëso më shumë",
       "contact": "Kontakto"
     },
     "chat": {
@@ -1939,8 +1947,8 @@
       "send": "Dërgo",
       "attachFile": "Bashkangjit skedar",
       "you": "Ti",
-      "premiumRequired": "Premium kërkohet për të dërguar mesazhe",
-      "upgradeToSend": "Bëj upgrade në web për të dërguar mesazhe",
+      "premiumRequired": "Dërgimi i mesazheve është për anëtarët Premium.",
+      "upgradeToSend": "Dërgimi i mesazheve është për anëtarët Premium.",
       "startConversation": "Fillo bisedën",
       "contact": "Kontakto",
       "newMessage": "Mesazh i ri",
@@ -1957,8 +1965,8 @@
       "lastSeenPrefix": "Zuletzt online",
       "yesterday": "Gestern",
       "justNowShort": "Jetzt",
-      "premiumCta": "Premium freischalten, um vollständige Nachrichten zu lesen",
-      "premiumBtn": "Premium aktivieren",
+      "premiumCta": "Mesazhet e plota janë të disponueshme për anëtarët Premium.",
+      "premiumBtn": "Mëso më shumë",
       "conversation": "bisedë",
       "conversations": "biseda"
     },

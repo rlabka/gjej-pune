@@ -15,3 +15,21 @@ export function translateJobTitle(key: string | null | undefined, locale: Locale
   }
   return key;
 }
+
+/**
+ * Resolve a job-title key to the parent category group's localized label
+ * (e.g. title "Grafikdesign" → category "Design & Werbung").
+ * Mirrors apps/web/src/hooks/useCategories.ts → getCategoryLabelForTitle().
+ */
+export function getCategoryLabelForTitle(
+  key: string | null | undefined,
+  locale: Locale
+): string {
+  if (!key) return '';
+  for (const cat of JOB_CATEGORIES) {
+    if (cat.titles.some((t) => t.key === key)) {
+      return cat.labels[locale] ?? cat.labels.sq ?? '';
+    }
+  }
+  return '';
+}

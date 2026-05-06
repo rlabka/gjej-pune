@@ -172,6 +172,7 @@ model Conversation {
   lastMessage  String?
   lastAt       DateTime  @default(now())
   createdAt    DateTime  @default(now())
+  createdBy    String?   // user that initiated the chat; nullable for legacy rows
 
   messages Message[]
 

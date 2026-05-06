@@ -52,6 +52,7 @@ type AuthState = {
   ) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -82,6 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(null);
     }
     setIsLoading(false);
+  }, []);
+
+  /**
+   * Force a session reload. Used by external auth flows (Google/Apple) after
+   * they save the session to storage themselves. Reads from storage FIRST so
+   * the React state updates immediately even if the backend session validation
+   * has a network blip — otherwise a fresh sign-in races with the (tabs)
+   * layout's auth check and bounces the user back to welcome.
+   */
+  const reload = useCallback(async () => {
+    const cached = await getSession();
+    setSession(cached);
+    if (cached) void syncLocaleToBackend();
   }, []);
 
   useEffect(() => {
@@ -132,8 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthState>(
-    () => ({ session, isLoading, login, register, logout, refresh }),
-    [session, isLoading, login, register, logout, refresh]
+    () => ({ session, isLoading, login, register, logout, refresh, reload }),
+    [session, isLoading, login, register, logout, refresh, reload]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

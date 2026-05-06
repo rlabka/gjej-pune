@@ -8,7 +8,7 @@
     "scheme": "gjp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.gjp.app",
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -59,6 +59,12 @@
       "expo-localization",
       "expo-apple-authentication",
       [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.921043784034-24cuijgm7r0h1it42v3tb4rdt5kd0i24"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
@@ -72,6 +78,7 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/images/icon.png",
           "color": "#162C66",
           "defaultChannel": "messages"
         }

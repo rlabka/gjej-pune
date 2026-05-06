@@ -1744,8 +1744,8 @@
       "recentActivity": "Activité récente",
       "noActivityYet": "Pas encore d'activité",
       "noActivityYetDesc": "Les activités apparaîtront ici dès qu'il se passera quelque chose.",
-      "upgradePremium": "Passer à Premium",
-      "goPremium": "Devenir Premium",
+      "upgradePremium": "Découvrir les avantages Premium",
+      "goPremium": "En savoir plus",
       "premiumBenefitContact": "Contacter des candidats dans le monde entier sans limite",
       "premiumBenefitRespond": "Répondre sans limite à chaque nouveau message",
       "premiumBenefitVisitors": "Voir qui a visité votre profil",
@@ -1886,6 +1886,12 @@
       "update": "Mettre à jour",
       "deleteConfirm": "Vraiment supprimer ?"
     },
+    "pushPrompt": {
+      "title": "Restez informé",
+      "message": "Soyez averti immédiatement quand quelqu'un vous écrit ou que de nouvelles offres correspondent à votre profil.",
+      "enable": "Activer",
+      "later": "Plus tard"
+    },
     "premium": {
       "heading": "Devenir Premium",
       "subheading": "Débloquez tous les avantages et trouvez les meilleurs candidats.",
@@ -1897,6 +1903,8 @@
       "bestOffer": "Meilleure offre",
       "monthly": "par mois",
       "goPremium": "Activer Premium",
+      "activateOnWeb": "Activer Premium sur gjej-pune.com",
+      "activateOnWebHint": "Vous serez redirigé vers notre site web pour finaliser votre abonnement Premium.",
       "alreadyPremium": "Vous êtes déjà membre Premium !",
       "plan": "Plan actuel",
       "memberSince": "Membre depuis",
@@ -1921,9 +1929,9 @@
       "job": "offre d'emploi",
       "ad": "profil candidat",
       "lockedTitle": "Fonctionnalité Premium",
-      "lockedDesc": "Débloquez Premium pour voir qui a visité vos annonces.",
+      "lockedDesc": "Les visites de profil sont réservées aux membres Premium.",
       "visitorsTotal": "visiteurs au total",
-      "upgrade": "Débloquer Premium",
+      "upgrade": "En savoir plus",
       "contact": "Contacter"
     },
     "chat": {
@@ -1939,8 +1947,8 @@
       "send": "Envoyer",
       "attachFile": "Joindre un fichier",
       "you": "Vous",
-      "premiumRequired": "Premium requis pour envoyer des messages",
-      "upgradeToSend": "Passez à Premium sur le web",
+      "premiumRequired": "L'envoi de messages est réservé aux membres Premium.",
+      "upgradeToSend": "L'envoi de messages est réservé aux membres Premium.",
       "startConversation": "Démarrer la conversation",
       "contact": "Contacter",
       "newMessage": "Nouveau message",
@@ -1957,8 +1965,8 @@
       "lastSeenPrefix": "Zuletzt online",
       "yesterday": "Gestern",
       "justNowShort": "Jetzt",
-      "premiumCta": "Premium freischalten, um vollständige Nachrichten zu lesen",
-      "premiumBtn": "Premium aktivieren",
+      "premiumCta": "Les messages complets sont disponibles pour les membres Premium.",
+      "premiumBtn": "En savoir plus",
       "conversation": "conversation",
       "conversations": "conversations"
     },

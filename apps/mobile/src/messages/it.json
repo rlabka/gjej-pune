@@ -1744,8 +1744,8 @@
       "recentActivity": "Attività recenti",
       "noActivityYet": "Ancora nessuna attività",
       "noActivityYetDesc": "Le attività appariranno qui non appena succederà qualcosa.",
-      "upgradePremium": "Passa a Premium",
-      "goPremium": "Diventa Premium",
+      "upgradePremium": "Scopri i vantaggi Premium",
+      "goPremium": "Scopri di più",
       "premiumBenefitContact": "Contatta candidati in tutto il mondo senza limiti",
       "premiumBenefitRespond": "Rispondi senza limiti a ogni nuovo messaggio",
       "premiumBenefitVisitors": "Vedi chi ha visitato il tuo profilo",
@@ -1886,6 +1886,12 @@
       "update": "Aggiorna",
       "deleteConfirm": "Eliminare davvero?"
     },
+    "pushPrompt": {
+      "title": "Resta aggiornato",
+      "message": "Ricevi una notifica immediata quando qualcuno ti scrive o appaiono nuove offerte adatte a te.",
+      "enable": "Attiva",
+      "later": "Più tardi"
+    },
     "premium": {
       "heading": "Diventa Premium",
       "subheading": "Sblocca tutti i vantaggi e trova i migliori candidati.",
@@ -1897,6 +1903,8 @@
       "bestOffer": "Migliore offerta",
       "monthly": "al mese",
       "goPremium": "Attiva Premium",
+      "activateOnWeb": "Attiva Premium su gjej-pune.com",
+      "activateOnWebHint": "Verrai reindirizzato al nostro sito per completare il tuo abbonamento Premium.",
       "alreadyPremium": "Sei già un membro Premium!",
       "plan": "Piano attuale",
       "memberSince": "Membro dal",
@@ -1921,9 +1929,9 @@
       "job": "annuncio di lavoro",
       "ad": "profilo candidato",
       "lockedTitle": "Funzione Premium",
-      "lockedDesc": "Sblocca Premium per vedere chi ha visitato i tuoi annunci.",
+      "lockedDesc": "Le visite al profilo sono riservate ai membri Premium.",
       "visitorsTotal": "visitatori totali",
-      "upgrade": "Sblocca Premium",
+      "upgrade": "Scopri di più",
       "contact": "Contatta"
     },
     "chat": {
@@ -1939,8 +1947,8 @@
       "send": "Invia",
       "attachFile": "Allega file",
       "you": "Tu",
-      "premiumRequired": "Premium richiesto per inviare messaggi",
-      "upgradeToSend": "Passa a Premium sul web",
+      "premiumRequired": "L'invio di messaggi è riservato ai membri Premium.",
+      "upgradeToSend": "L'invio di messaggi è riservato ai membri Premium.",
       "startConversation": "Inizia conversazione",
       "contact": "Contatta",
       "newMessage": "Nuovo messaggio",
@@ -1957,8 +1965,8 @@
       "lastSeenPrefix": "Zuletzt online",
       "yesterday": "Gestern",
       "justNowShort": "Jetzt",
-      "premiumCta": "Premium freischalten, um vollständige Nachrichten zu lesen",
-      "premiumBtn": "Premium aktivieren",
+      "premiumCta": "I messaggi completi sono disponibili per i membri Premium.",
+      "premiumBtn": "Scopri di più",
       "conversation": "conversazione",
       "conversations": "conversazioni"
     },

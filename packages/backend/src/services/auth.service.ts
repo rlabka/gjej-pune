@@ -311,15 +311,49 @@ export async function appleAuthUser(
   }
 
   const email = (decoded.email || '').toString().toLowerCase().trim();
+  const appleSub = (decoded.sub || '').toString();
+  if (!appleSub) {
+    return { ok: false, code: 'invalidAppleToken', status: 401 };
+  }
+
+  // Apple only returns `email` on the very first authorization. Subsequent
+  // sign-ins carry only the stable `sub` (subject ID). To support returning
+  // users we look up by Account(provider='apple', providerAccountId=sub).
+  // If no Account row exists yet AND email is present, we'll create both.
+  const existingByApple = await prisma.account.findUnique({
+    where: { provider_providerAccountId: { provider: 'apple', providerAccountId: appleSub } },
+    include: { user: true },
+  });
+
+  if (existingByApple?.user) {
+    const u = existingByApple.user;
+    const user: AuthUser = {
+      id: u.id,
+      email: u.email,
+      displayName: u.displayName,
+      role: u.role as AuthRole,
+      isPremium: u.isPremium,
+    };
+    return { ok: true, data: { user, token: generateToken(user), isNew: false } };
+  }
+
+  // No Account link yet → require email to bootstrap a new user
   if (!email) {
-    // Apple gives email only on first sign-in; if the user later revokes, it's
-    // gone. We require an email to keep the flow simple.
     return { ok: false, code: 'missingEmail', status: 400 };
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
+    // Backfill the Apple Account link so future sign-ins (no email) still work
+    await prisma.account.create({
+      data: {
+        userId: existing.id,
+        type: 'oauth',
+        provider: 'apple',
+        providerAccountId: appleSub,
+      },
+    }).catch(() => { /* race: ignore unique-constraint on retry */ });
     const user: AuthUser = {
       id: existing.id,
       email: existing.email,
@@ -366,6 +400,16 @@ export async function appleAuthUser(
       locale: userLocale,
     } as any,
   });
+
+  // Link the Apple sub so future sign-ins (which won't carry email) can resolve
+  await prisma.account.create({
+    data: {
+      userId: dbUser.id,
+      type: 'oauth',
+      provider: 'apple',
+      providerAccountId: appleSub,
+    },
+  }).catch(() => { /* ignore unique-constraint races */ });
 
   const user: AuthUser = {
     id: dbUser.id,

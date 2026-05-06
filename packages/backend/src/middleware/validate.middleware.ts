@@ -76,8 +76,12 @@ export function validate(rules: ValidationRule[]) {
         errors.push({ field: rule.field, message: `${rule.field} must be a valid phone number` });
       }
 
-      if (rule.type === 'array' && !Array.isArray(value)) {
-        errors.push({ field: rule.field, message: `${rule.field} must be an array` });
+      if (rule.type === 'array') {
+        if (!Array.isArray(value)) {
+          errors.push({ field: rule.field, message: `${rule.field} must be an array` });
+        } else if (rule.minLength !== undefined && value.length < rule.minLength) {
+          errors.push({ field: rule.field, message: `${rule.field} must contain at least ${rule.minLength} item(s)` });
+        }
       }
 
       // String length checks

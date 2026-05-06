@@ -28,7 +28,7 @@ const createAdRules = [
   { field: 'availability', oneOf: ['immediate', 'negotiable'] },
   { field: 'livingPlace', type: 'string' as const, maxLength: 200 },
   { field: 'skills', type: 'array' as const },
-  { field: 'spokenLanguages', type: 'array' as const },
+  { field: 'spokenLanguages', required: true, type: 'array' as const, minLength: 1 },
 ];
 
 const router = Router();

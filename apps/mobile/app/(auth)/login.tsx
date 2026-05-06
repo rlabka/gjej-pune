@@ -29,7 +29,7 @@ import { useDialog } from '@/contexts/DialogContext';
 import {
   exchangeGoogleTokenForFirebase,
   isGoogleAuthConfigured,
-  useGoogleAuthRequest,
+  signInWithGoogle,
 } from '@/lib/firebase';
 import { loginWithApple, loginWithGoogle } from '@/lib/auth';
 
@@ -228,7 +228,7 @@ const ERR_TEXT: Record<string, Record<Locale, string>> = {
 };
 
 export default function LoginScreen() {
-  const { login, refresh } = useAuth();
+  const { login, refresh, reload } = useAuth();
   const { locale } = useI18n();
   const dialog = useDialog();
   const router = useRouter();
@@ -254,9 +254,6 @@ export default function LoginScreen() {
   }, []);
   const [error, setError] = useState<string | null>(null);
 
-  // Google OAuth — useAuthRequest must be called at the top level
-  const [googleRequest, googleResponse, promptGoogle] = useGoogleAuthRequest();
-
   const canSubmit = email.trim().length > 0 && password.length > 0 && !submitting;
 
   async function onSubmit() {
@@ -278,47 +275,42 @@ export default function LoginScreen() {
   }
 
   async function handleGoogleLogin() {
-    if (!isGoogleAuthConfigured) {
-      dialog.show({
-        variant: 'info',
-        title: 'Google Sign-In',
-        message:
-          'Google login ist noch nicht konfiguriert. Setze EXPO_PUBLIC_FIREBASE_API_KEY und EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in apps/mobile/.env',
-      });
-      return;
-    }
-    if (!googleRequest) return;
     setGoogleLoading(true);
     try {
-      const result = await promptGoogle();
-      if (result.type !== 'success') {
-        // user cancelled or error
-        if (result.type === 'error') {
-          setError('googleAuthFailed');
-        }
+      const g = await signInWithGoogle();
+      if (g.type === 'cancelled') return;
+      if (g.type === 'error') {
+        dialog.showError(`${g.code}\n${g.message}`, 'Google Sign-In');
         return;
       }
-      const googleIdToken =
-        result.authentication?.idToken ?? (result.params as any)?.id_token;
-      if (!googleIdToken) {
-        setError('googleAuthFailed');
+      let firebaseIdToken: string;
+      try {
+        const ex = await exchangeGoogleTokenForFirebase(g.idToken);
+        firebaseIdToken = ex.firebaseIdToken;
+      } catch (e: any) {
+        dialog.showError(
+          `Firebase exchange failed: ${e?.message || String(e)}`,
+          'Google Sign-In'
+        );
         return;
       }
-      // Exchange Google ID token → Firebase ID token via REST API
-      const { firebaseIdToken } = await exchangeGoogleTokenForFirebase(
-        googleIdToken
-      );
       // Default to job-seeker for first-time Google sign-in (web does the same)
       const res = await loginWithGoogle(firebaseIdToken, 'job-seeker', l);
       if (res.ok) {
-        await refresh();
+        await reload();
         router.replace('/(tabs)');
       } else {
-        setError((res as any).error ?? 'googleAuthFailed');
+        dialog.showError(
+          `Backend rejected: ${(res as any).error ?? 'unknown'}`,
+          'Google Sign-In'
+        );
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[GoogleAuth] failed:', err);
-      setError('googleAuthFailed');
+      dialog.showError(
+        `${err?.message || String(err)}`,
+        'Google Sign-In'
+      );
     } finally {
       setGoogleLoading(false);
     }
@@ -334,7 +326,7 @@ export default function LoginScreen() {
         ],
       });
       if (!credential.identityToken) {
-        setError('appleAuthFailed');
+        dialog.showError('Apple gab kein Identity-Token zurück.', 'Apple Sign-In');
         return;
       }
       const res = await loginWithApple(
@@ -344,16 +336,22 @@ export default function LoginScreen() {
         l
       );
       if (res.ok) {
-        await refresh();
+        await reload();
         router.replace('/(tabs)');
       } else {
-        setError((res as any).error ?? 'appleAuthFailed');
+        dialog.showError(
+          `Backend rejected: ${(res as any).error ?? 'unknown'}`,
+          'Apple Sign-In'
+        );
       }
     } catch (err: any) {
       // ERR_CANCELED (user dismissed sheet) is silent — no error toast
       if (err?.code !== 'ERR_CANCELED' && err?.code !== 'ERR_REQUEST_CANCELED') {
         console.error('[AppleAuth] failed:', err);
-        setError('appleAuthFailed');
+        dialog.showError(
+          `${err?.code || ''} ${err?.message || String(err)}`,
+          'Apple Sign-In'
+        );
       }
     } finally {
       setAppleLoading(false);
@@ -614,9 +612,7 @@ export default function LoginScreen() {
                 {appleLoading ? (
                   <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
-                  <Text className="text-[18px]" style={{ color: '#FFFFFF', marginTop: -2 }}>
-                    {''}
-                  </Text>
+                  <AppleLogo />
                 )}
                 <Text className="text-[14px] font-bold text-white">
                   {ui.appleBtn}
@@ -627,7 +623,7 @@ export default function LoginScreen() {
             {/* Google */}
             <Pressable
               onPress={handleGoogleLogin}
-              disabled={googleLoading || !googleRequest}
+              disabled={googleLoading || !isGoogleAuthConfigured}
               className="h-[52px] flex-row items-center justify-center rounded-xl border border-slate-200 bg-white active:bg-slate-50 disabled:opacity-60"
               style={{ gap: 10 }}
             >
@@ -671,6 +667,18 @@ export default function LoginScreen() {
 }
 
 /* Google G logo as SVG — matches the official Google color spec */
+/* Apple logo as SVG — Apple HIG requires their logo on Sign-in buttons */
+function AppleLogo() {
+  return (
+    <Svg width={18} height={20} viewBox="0 0 384 512">
+      <Path
+        fill="#FFFFFF"
+        d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"
+      />
+    </Svg>
+  );
+}
+
 function GoogleLogo() {
   return (
     <Svg width={20} height={20} viewBox="0 0 48 48">

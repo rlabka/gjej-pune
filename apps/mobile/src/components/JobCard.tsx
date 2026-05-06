@@ -16,7 +16,7 @@ import {
 import { config } from '@/lib/config';
 import { useFavorites } from '@/lib/useFavorites';
 import { useI18n } from '@/contexts/I18nContext';
-import { translateJobTitle } from '@/lib/jobTitle';
+import { getCategoryLabelForTitle, translateJobTitle } from '@/lib/jobTitle';
 import type { Locale } from '@jmp/shared';
 
 export type JobItem = {
@@ -55,6 +55,7 @@ export function JobCard({ item }: { item: JobItem }) {
   const isSaved = isFavorited('job', item.id);
   const salary = formatSalary(item);
   const title = translateJobTitle(item.category, locale as Locale);
+  const categoryLabel = getCategoryLabelForTitle(item.category, locale as Locale);
   const location = [item.locationCity, item.locationState].filter(Boolean).join(', ');
   const urgent = item.when?.toLowerCase().includes('urgent');
   const matchPct =
@@ -133,11 +134,11 @@ export function JobCard({ item }: { item: JobItem }) {
             <Text className="text-lg font-extrabold text-[#0B1F44]" numberOfLines={2}>
               {title}
             </Text>
-            {item.user?.displayName ? (
+            {categoryLabel ? (
               <View className="mt-1 flex-row items-center">
                 <Briefcase color="#94A3B8" size={12} />
                 <Text className="ml-1 text-xs font-semibold text-slate-500" numberOfLines={1}>
-                  {item.user.displayName}
+                  {categoryLabel}
                 </Text>
               </View>
             ) : null}

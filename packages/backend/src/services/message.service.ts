@@ -19,18 +19,36 @@ export async function getOrCreateConversation(
   if (!conv) {
     const jobRefs = jobId && jobTitle ? JSON.stringify([{ jobId, jobTitle }]) : '[]';
     conv = await prisma.conversation.create({
-      data: { participant1: p1, participant2: p2, jobId: jobId || null, jobTitle: jobTitle || null, jobRefs },
+      data: {
+        participant1: p1,
+        participant2: p2,
+        jobId: jobId || null,
+        jobTitle: jobTitle || null,
+        jobRefs,
+        createdBy: userId1,
+      },
     });
-  } else if (jobId && jobTitle) {
-    // Add new job reference if not already present
-    let refs: { jobId: string; jobTitle: string }[] = [];
-    try { refs = JSON.parse(conv.jobRefs || '[]'); } catch { refs = []; }
-    if (!refs.some(r => r.jobId === jobId)) {
-      refs.push({ jobId, jobTitle });
+  } else {
+    // Recover legacy/unowned empty conversations: if nobody has written yet
+    // and createdBy is unset, claim it for the current caller so they keep
+    // seeing it in their inbox after the recipient-side filter.
+    if (!conv.createdBy && conv.lastMessage === null) {
       conv = await prisma.conversation.update({
         where: { id: conv.id },
-        data: { jobRefs: JSON.stringify(refs) },
+        data: { createdBy: userId1 },
       });
+    }
+    if (jobId && jobTitle) {
+      // Add new job reference if not already present
+      let refs: { jobId: string; jobTitle: string }[] = [];
+      try { refs = JSON.parse(conv.jobRefs || '[]'); } catch { refs = []; }
+      if (!refs.some(r => r.jobId === jobId)) {
+        refs.push({ jobId, jobTitle });
+        conv = await prisma.conversation.update({
+          where: { id: conv.id },
+          data: { jobRefs: JSON.stringify(refs) },
+        });
+      }
     }
   }
 
@@ -40,9 +58,20 @@ export async function getOrCreateConversation(
 // ─── Get All Conversations for a User ───────────────────
 
 export async function getConversations(userId: string, isPremium: boolean = false) {
+  // Hide empty conversations from the recipient. The sender (creator) still
+  // sees their freshly-created conv so they can write the first message;
+  // legacy rows without `createdBy` are gated purely on having a message.
   const convs = await prisma.conversation.findMany({
     where: {
-      OR: [{ participant1: userId }, { participant2: userId }],
+      AND: [
+        { OR: [{ participant1: userId }, { participant2: userId }] },
+        {
+          OR: [
+            { lastMessage: { not: null } },
+            { createdBy: userId },
+          ],
+        },
+      ],
     },
     orderBy: { lastAt: 'desc' },
   });
@@ -204,22 +233,34 @@ export async function sendMessage(
       const settings = await prisma.userSettings.findUnique({ where: { userId: recipientId } });
       if (settings && !settings.newMessageAlerts) return;
 
-      const sender = await prisma.user.findUnique({
-        where: { id: senderId },
-        select: { displayName: true },
+      const recipient = await prisma.user.findUnique({
+        where: { id: recipientId },
+        select: { locale: true },
       });
       const { sendPushToUser } = await import('./push.service');
-      const preview = text
-        ? text.length > 80
-          ? text.slice(0, 80) + '…'
-          : text
-        : file
-          ? `📎 ${file.fileName}`
-          : '';
+      // Privacy: do NOT include sender name or message preview — non-premium
+      // users would otherwise read full chat content via OS push without ever
+      // unlocking premium. Title + body are generic, localized to the
+      // recipient's stored locale.
+      const titleByLocale: Record<string, string> = {
+        sq: 'Mesazh i ri',
+        de: 'Neue Nachricht',
+        en: 'New message',
+        fr: 'Nouveau message',
+        it: 'Nuovo messaggio',
+      };
+      const bodyByLocale: Record<string, string> = {
+        sq: 'Ke marrë një mesazh të ri.',
+        de: 'Du hast eine neue Nachricht erhalten.',
+        en: 'You have received a new message.',
+        fr: 'Vous avez reçu un nouveau message.',
+        it: 'Hai ricevuto un nuovo messaggio.',
+      };
+      const loc = recipient?.locale && titleByLocale[recipient.locale] ? recipient.locale : 'sq';
       await sendPushToUser(
         recipientId,
-        sender?.displayName || 'New message',
-        preview,
+        titleByLocale[loc],
+        bodyByLocale[loc],
         { type: 'message', conversationId, messageId: message.id }
       );
     } catch (err) {

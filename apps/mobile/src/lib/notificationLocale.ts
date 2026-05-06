@@ -27,7 +27,7 @@ const translations = {
             } angesehen.`
           : `Jemand hat dein ${
               m.targetType === 'job' ? 'Stellenangebot' : 'Jobprofil'
-            } angesehen. 🔒 Premium freischalten, um zu sehen wer.`,
+            } angesehen.`,
       new_match: (m: NotifMeta, locale: string) => {
         const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
         return m.adId
@@ -66,7 +66,7 @@ const translations = {
             }.`
           : `Someone viewed your ${
               m.targetType === 'job' ? 'job listing' : 'job profile'
-            }. 🔒 Unlock Premium to see who.`,
+            }.`,
       new_match: (m: NotifMeta, locale: string) => {
         const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
         return m.adId
@@ -104,7 +104,7 @@ const translations = {
             }.`
           : `Quelqu'un a consulté votre ${
               m.targetType === 'job' ? "offre d'emploi" : 'profil'
-            }. 🔒 Débloquez Premium pour voir qui.`,
+            }.`,
       new_match: (m: NotifMeta, locale: string) => {
         const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
         return m.adId
@@ -143,7 +143,7 @@ const translations = {
             }.`
           : `Qualcuno ha visualizzato il tuo ${
               m.targetType === 'job' ? 'annuncio di lavoro' : 'profilo'
-            }. 🔒 Sblocca Premium per vedere chi.`,
+            }.`,
       new_match: (m: NotifMeta, locale: string) => {
         const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
         return m.adId
@@ -182,7 +182,7 @@ const translations = {
             } tënd.`
           : `Dikush ka parë ${
               m.targetType === 'job' ? 'njoftimin e punës' : 'profilin'
-            } tënd. 🔒 Aktivizo Premium për të parë kush.`,
+            } tënd.`,
       new_match: (m: NotifMeta, locale: string) => {
         const cat = m.category ? getTranslatedTitle(String(m.category), locale as Locale) : '';
         return m.adId

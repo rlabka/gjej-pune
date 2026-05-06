@@ -416,10 +416,10 @@ export default function JobDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-[14px] font-extrabold text-white">
-                  Premium erforderlich
+                  Premium-Funktion
                 </Text>
                 <Text className="mt-0.5 text-[12px] text-white/60">
-                  Schalte Premium frei, um Arbeitgeber zu kontaktieren.
+                  Das Kontaktieren von Arbeitgebern ist Premium-Mitgliedern vorbehalten.
                 </Text>
               </View>
             </View>
@@ -494,7 +494,7 @@ export default function JobDetailScreen() {
           >
             <Crown color="#162C66" size={16} />
             <Text className="ml-2 text-[15px] font-extrabold text-[#162C66]">
-              Premium freischalten
+              Mehr erfahren
             </Text>
           </Pressable>
         )}
