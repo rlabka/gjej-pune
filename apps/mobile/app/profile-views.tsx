@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -11,20 +12,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
   ArrowLeft,
+  Ban,
   Briefcase,
   Calendar,
   Eye,
+  Flag,
   Lock,
   MessageCircle,
+  MoreVertical,
   Sparkles,
   User as UserIcon,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
 import { config } from '@/lib/config';
+import { ReportSheet } from '@/components/ReportSheet';
 
 type Viewer = {
   id: string;
@@ -134,7 +140,8 @@ const COPY: Record<Locale, {
 
 export default function ProfileViewsScreen() {
   const router = useRouter();
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const dialog = useDialog();
   useAuth(); // ensure session context
 
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(
@@ -148,6 +155,37 @@ export default function ProfileViewsScreen() {
   const [viewers, setViewers] = useState<Viewer[]>([]);
   const [count, setCount] = useState(0);
   const [locked, setLocked] = useState(true);
+  const [menuViewerId, setMenuViewerId] = useState<string | null>(null);
+  const [reportViewerId, setReportViewerId] = useState<string | null>(null);
+
+  async function handleBlock(viewerId: string) {
+    setMenuViewerId(null);
+    const ok = await dialog.confirm({
+      title: t('Mobile.moderation.blockConfirmTitle'),
+      message: t('Mobile.moderation.blockConfirmMessage'),
+      confirmLabel: t('Mobile.moderation.block'),
+      cancelLabel: t('Mobile.moderation.cancel'),
+      destructive: true,
+    });
+    if (!ok) return;
+    const token = (await getToken()) ?? undefined;
+    try {
+      const res = await api.post<{ ok: boolean }>(
+        `/api/users/${viewerId}/block`,
+        {},
+        token
+      );
+      if (res?.ok) {
+        dialog.showSuccess(t('Mobile.moderation.blockSuccess'));
+        // refresh viewers list — blocked viewer should disappear server-side
+        loadViews();
+      } else {
+        dialog.showError();
+      }
+    } catch {
+      dialog.showError();
+    }
+  }
 
   const loadViews = useCallback(async () => {
     const token = (await getToken()) ?? undefined;
@@ -280,11 +318,83 @@ export default function ProfileViewsScreen() {
                 copy={c}
                 dateLabel={formatDate(v.createdAt)}
                 onContact={() => onContact(v.viewerId)}
+                onMenu={() => setMenuViewerId(v.viewerId)}
               />
             ))}
           </View>
         )}
       </ScrollView>
+
+      {/* Per-viewer overflow menu — Report / Block (App Store G1.2) */}
+      <Modal
+        visible={!!menuViewerId}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuViewerId(null)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+          onPress={() => setMenuViewerId(null)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'white',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingTop: 12,
+              paddingBottom: 24,
+            }}
+          >
+            <View
+              style={{
+                alignSelf: 'center',
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: '#E2E8F0',
+                marginBottom: 8,
+              }}
+            />
+            <Pressable
+              onPress={() => {
+                const id = menuViewerId;
+                setMenuViewerId(null);
+                if (id) setReportViewerId(id);
+              }}
+              className="flex-row items-center px-5 py-4 active:bg-slate-50"
+            >
+              <Flag color="#0B1F44" size={18} />
+              <Text className="ml-3 text-[15px] font-semibold text-[#0B1F44]">
+                {t('Mobile.moderation.reportUser')}
+              </Text>
+            </Pressable>
+            <View className="h-px bg-slate-100" />
+            <Pressable
+              onPress={() => menuViewerId && handleBlock(menuViewerId)}
+              className="flex-row items-center px-5 py-4 active:bg-red-50"
+            >
+              <Ban color="#DC2626" size={18} />
+              <Text className="ml-3 text-[15px] font-semibold text-red-600">
+                {t('Mobile.moderation.blockUser')}
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {reportViewerId ? (
+        <ReportSheet
+          visible={!!reportViewerId}
+          targetType="user"
+          targetId={reportViewerId}
+          title={t('Mobile.moderation.reportUser')}
+          onClose={() => setReportViewerId(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -296,11 +406,13 @@ function ViewerRow({
   copy,
   dateLabel,
   onContact,
+  onMenu,
 }: {
   viewer: Viewer;
   copy: (typeof COPY)[Locale];
   dateLabel: string;
   onContact: () => void;
+  onMenu: () => void;
 }) {
   const avatarUrl = resolveMediaUrl(config.apiUrl, viewer.viewerImage);
   const isJobTarget = viewer.targetType === 'job';
@@ -342,6 +454,13 @@ function ViewerRow({
               <Text className="text-[11px] font-medium text-slate-400">
                 {dateLabel}
               </Text>
+              <Pressable
+                onPress={onMenu}
+                className="ml-1 h-7 w-7 items-center justify-center rounded-md active:bg-slate-100"
+                hitSlop={6}
+              >
+                <MoreVertical color="#94A3B8" size={14} />
+              </Pressable>
             </View>
           </View>
 

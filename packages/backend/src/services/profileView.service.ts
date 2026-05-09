@@ -122,8 +122,16 @@ export async function recordProfileView(
 
 // ─── Get viewers of my content (for premium users) ──────
 export async function getProfileViewers(userId: string, isPremium: boolean) {
+  // App Store Guideline 1.2: hide viewers from blocked users (and from
+  // users who blocked the viewer) so the moderation feels symmetric.
+  const { getHiddenUserIds } = await import('./moderation.service');
+  const hidden = await getHiddenUserIds(userId);
+
   const views = await prisma.profileView.findMany({
-    where: { viewedId: userId },
+    where: {
+      viewedId: userId,
+      ...(hidden.length ? { viewerId: { notIn: hidden } } : {}),
+    },
     orderBy: { createdAt: 'desc' },
     take: 50,
   });

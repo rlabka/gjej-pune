@@ -1,5 +1,6 @@
 import { prisma } from '../config/prisma';
 import { isUserOnline, getLastSeen } from '../websocket';
+import { getHiddenUserIds, isHiddenBetween } from './moderation.service';
 
 // ─── Get or Create Conversation ─────────────────────────
 
@@ -9,6 +10,11 @@ export async function getOrCreateConversation(
   jobId?: string,
   jobTitle?: string
 ) {
+  // App Store Guideline 1.2: blocked users must not be able to create new
+  // conversations with each other in either direction.
+  if (await isHiddenBetween(userId1, userId2)) {
+    throw new Error('blocked');
+  }
   // Normalise order so unique constraint works both ways
   const [p1, p2] = [userId1, userId2].sort();
 
@@ -58,6 +64,9 @@ export async function getOrCreateConversation(
 // ─── Get All Conversations for a User ───────────────────
 
 export async function getConversations(userId: string, isPremium: boolean = false) {
+  // Hide conversations whose other participant is blocked (or who blocked us).
+  const hidden = await getHiddenUserIds(userId);
+
   // Hide empty conversations from the recipient. The sender (creator) still
   // sees their freshly-created conv so they can write the first message;
   // legacy rows without `createdBy` are gated purely on having a message.
@@ -71,6 +80,12 @@ export async function getConversations(userId: string, isPremium: boolean = fals
             { createdBy: userId },
           ],
         },
+        ...(hidden.length
+          ? [
+              { participant1: { notIn: hidden } },
+              { participant2: { notIn: hidden } },
+            ]
+          : []),
       ],
     },
     orderBy: { lastAt: 'desc' },
@@ -164,6 +179,13 @@ export async function getMessages(conversationId: string, userId: string, isPrem
     return null; // not authorized
   }
 
+  // App Store Guideline 1.2: blocked users cannot access each other's
+  // conversation history.
+  const otherId = conv.participant1 === userId ? conv.participant2 : conv.participant1;
+  if (await isHiddenBetween(userId, otherId)) {
+    return null;
+  }
+
   const messages = await prisma.message.findMany({
     where: { conversationId },
     orderBy: { createdAt: 'asc' },
@@ -204,6 +226,13 @@ export async function sendMessage(
   // Verify sender is participant
   const conv = await prisma.conversation.findUnique({ where: { id: conversationId } });
   if (!conv || (conv.participant1 !== senderId && conv.participant2 !== senderId)) {
+    return null;
+  }
+
+  // App Store Guideline 1.2: blocked users cannot continue messaging.
+  const recipientForBlockCheck =
+    conv.participant1 === senderId ? conv.participant2 : conv.participant1;
+  if (await isHiddenBetween(senderId, recipientForBlockCheck)) {
     return null;
   }
 

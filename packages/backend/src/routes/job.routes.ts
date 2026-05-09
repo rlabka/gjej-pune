@@ -37,7 +37,7 @@ const updateJobRules = [
 
 const router = Router();
 
-router.get('/', list);                                          // GET  /api/jobs          (public, paginated)
+router.get('/', optionalAuth as any, list);                     // GET  /api/jobs          (public, paginated; optional auth for blocked-user filter)
 router.get('/categories', categories);                           // GET  /api/jobs/categories (public)
 router.get('/mine', requireAuth, myJobs);                       // GET  /api/jobs/mine     (auth)
 router.get('/recommended', requireAuth, recommended);           // GET  /api/jobs/recommended (auth)

@@ -33,7 +33,7 @@ const createAdRules = [
 
 const router = Router();
 
-router.get('/', list);                                         // GET  /api/ads          (public, paginated)
+router.get('/', optionalAuth as any, list);                    // GET  /api/ads          (public, paginated; optional auth for blocked-user filter)
 router.get('/categories', categories);                          // GET  /api/ads/categories (public)
 router.get('/mine', requireAuth, myAds);                       // GET  /api/ads/mine     (auth)
 router.get('/:id', optionalAuth as any, getOne);               // GET  /api/ads/:id      (public, optional auth for profile view tracking)

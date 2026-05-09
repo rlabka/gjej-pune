@@ -4,6 +4,7 @@ import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { recordProfileView } from '../services/profileView.service';
 import { createNotification } from '../services/notification.service';
 import { notifyEmployersOfNewAd } from '../services/matchNotify.service';
+import { getHiddenUserIds } from '../services/moderation.service';
 
 export async function create(req: AuthenticatedRequest, res: Response) {
   try {
@@ -59,6 +60,17 @@ export async function list(req: Request, res: Response) {
       experience: experience as string | undefined,
       availability: availability as string | undefined,
     });
+    // App Store Guideline 1.2: filter out ads from blocked users (and from
+    // users who blocked the viewer). Authenticated requests only.
+    const viewerId = (req as AuthenticatedRequest).user?.id;
+    if (viewerId) {
+      const hidden = await getHiddenUserIds(viewerId);
+      if (hidden.length && Array.isArray((result as any).ads)) {
+        (result as any).ads = (result as any).ads.filter(
+          (a: any) => !hidden.includes(a.userId)
+        );
+      }
+    }
     return res.json({ ok: true, ...result });
   } catch (error) {
     console.error('List ads error:', error);

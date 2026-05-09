@@ -4,6 +4,7 @@ import type { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { recordProfileView } from '../services/profileView.service';
 import { createNotification } from '../services/notification.service';
 import { notifyJobSeekersOfNewJob } from '../services/matchNotify.service';
+import { getHiddenUserIds } from '../services/moderation.service';
 
 export async function create(req: AuthenticatedRequest, res: Response) {
   try {
@@ -50,10 +51,18 @@ export async function list(req: Request, res: Response) {
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
     });
+    // App Store Guideline 1.2: hide listings from blocked users (and from
+    // users who blocked the viewer). Only applies when the request is
+    // authenticated; anonymous browsing sees the full feed.
+    const viewerId = (req as AuthenticatedRequest).user?.id;
+    const hidden = viewerId ? await getHiddenUserIds(viewerId) : [];
+    const filteredJobs = hidden.length
+      ? result.jobs.filter((j: any) => !hidden.includes(j.userId))
+      : result.jobs;
     // Strip companyName + contact details from public listing (prevent bypassing platform)
     const sanitized = {
       ...result,
-      jobs: result.jobs.map(({ companyName, contactName, contactSurname, contactPhone, contactEmail, ...rest }: any) => rest),
+      jobs: filteredJobs.map(({ companyName, contactName, contactSurname, contactPhone, contactEmail, ...rest }: any) => rest),
     };
     return res.json({ ok: true, ...sanitized });
   } catch (error) {

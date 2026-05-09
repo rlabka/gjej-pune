@@ -17,7 +17,9 @@ import * as ImagePicker from 'expo-image-picker';
 import {
   ArrowLeft,
   Camera,
+  ChevronRight,
   Lock,
+  ShieldOff,
   Trash2,
   User as UserIcon,
 } from 'lucide-react-native';
@@ -373,6 +375,21 @@ export default function SettingsScreen() {
               )}
             </Pressable>
           </View>
+
+          {/* Privacy & Safety — App Store Review Guideline 1.2 (UGC) */}
+          <SectionTitle title={t('Mobile.moderation.privacySafety')} />
+          <Pressable
+            onPress={() => router.push('/blocked-users' as any)}
+            className="flex-row items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-4 active:opacity-80"
+          >
+            <View className="flex-row items-center">
+              <ShieldOff color="#162C66" size={18} />
+              <Text className="ml-3 text-[14px] font-bold text-[#0B1F44]">
+                {t('Mobile.moderation.blockedUsers')}
+              </Text>
+            </View>
+            <ChevronRight color="#94A3B8" size={18} />
+          </Pressable>
 
           {/* Delete account */}
           <SectionTitle title={t('Mobile.profile.deleteAccount')} />

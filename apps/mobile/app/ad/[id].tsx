@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   Share,
@@ -19,10 +20,12 @@ import {
   Clock,
   Crown,
   Eye,
+  Flag,
   Globe2,
   Lock,
   MapPin,
   MessageCircle,
+  MoreVertical,
   Pencil,
   Share2,
   Sparkles,
@@ -37,6 +40,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
 import { config } from '@/lib/config';
 import { resolveMediaUrl } from '@/lib/useApi';
+import { ReportSheet } from '@/components/ReportSheet';
 
 type Locale = 'de' | 'en' | 'fr' | 'it' | 'sq';
 
@@ -208,7 +212,7 @@ function matchColorsFor(pct: number | null): { bg: string; text: string } {
 export default function AdDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const dialog = useDialog();
   const { session } = useAuth();
 
@@ -224,6 +228,8 @@ export default function AdDetailScreen() {
   const [saved, setSaved] = useState(false);
   const [savingFav, setSavingFav] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const isOwn = !!(session && ad && ad.userId === session.userId);
   const isJobSeeker = session?.role === 'job-seeker';
@@ -403,6 +409,15 @@ export default function AdDetailScreen() {
                 <Bookmark color="#162C66" size={18} />
               )}
             </Pressable>
+            {!isOwn && ad ? (
+              <Pressable
+                onPress={() => setMenuOpen(true)}
+                className="h-10 w-10 items-center justify-center rounded-full active:bg-slate-50"
+                accessibilityLabel={t('Mobile.moderation.report')}
+              >
+                <MoreVertical color="#162C66" size={18} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
       </SafeAreaView>
@@ -729,6 +744,59 @@ export default function AdDetailScreen() {
           </Pressable>
         )}
       </View>
+
+      {/* Header overflow-menu — Report this listing (App Store G1.2) */}
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+          onPress={() => setMenuOpen(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: 90,
+              right: 12,
+              backgroundColor: 'white',
+              borderRadius: 14,
+              minWidth: 220,
+              paddingVertical: 6,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.15,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
+            <Pressable
+              onPress={() => {
+                setMenuOpen(false);
+                setReportOpen(true);
+              }}
+              className="flex-row items-center px-4 py-3 active:bg-slate-50"
+            >
+              <Flag color="#0B1F44" size={16} />
+              <Text className="ml-3 text-[14px] font-semibold text-[#0B1F44]">
+                {t('Mobile.moderation.reportAd')}
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {ad ? (
+        <ReportSheet
+          visible={reportOpen}
+          targetType="ad"
+          targetId={ad.id}
+          title={t('Mobile.moderation.reportAd')}
+          onClose={() => setReportOpen(false)}
+        />
+      ) : null}
     </View>
   );
 }

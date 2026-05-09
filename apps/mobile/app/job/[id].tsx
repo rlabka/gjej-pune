@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   ScrollView,
   Share,
@@ -21,9 +22,11 @@ import {
   Coins,
   Crown,
   Eye,
+  Flag,
   Lock,
   MapPin,
   MessageCircle,
+  MoreVertical,
   Pencil,
   Share2,
 } from 'lucide-react-native';
@@ -34,6 +37,7 @@ import type { Locale } from '@jmp/shared';
 import { useDialog } from '@/contexts/DialogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getToken } from '@/lib/auth';
+import { ReportSheet } from '@/components/ReportSheet';
 
 type JobDetail = {
   id: string;
@@ -76,6 +80,8 @@ export default function JobDetailScreen() {
   const [saved, setSaved] = useState(false);
   const [savingFav, setSavingFav] = useState(false);
   const [startingChat, setStartingChat] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const isOwnJob = !!(session && job && job.userId === session.userId);
   const isJobSeeker = session?.role === 'job-seeker';
@@ -262,6 +268,15 @@ export default function JobDetailScreen() {
                 <Bookmark color="#162C66" size={18} />
               )}
             </Pressable>
+            {!isOwnJob && job ? (
+              <Pressable
+                onPress={() => setMenuOpen(true)}
+                className="h-10 w-10 items-center justify-center rounded-full active:bg-slate-50"
+                accessibilityLabel={t('Mobile.moderation.report')}
+              >
+                <MoreVertical color="#162C66" size={18} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
       </SafeAreaView>
@@ -499,6 +514,59 @@ export default function JobDetailScreen() {
           </Pressable>
         )}
       </View>
+
+      {/* Header overflow-menu — Report this job (App Store G1.2) */}
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+          onPress={() => setMenuOpen(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: 90,
+              right: 12,
+              backgroundColor: 'white',
+              borderRadius: 14,
+              minWidth: 220,
+              paddingVertical: 6,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.15,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
+            <Pressable
+              onPress={() => {
+                setMenuOpen(false);
+                setReportOpen(true);
+              }}
+              className="flex-row items-center px-4 py-3 active:bg-slate-50"
+            >
+              <Flag color="#0B1F44" size={16} />
+              <Text className="ml-3 text-[14px] font-semibold text-[#0B1F44]">
+                {t('Mobile.moderation.reportJob')}
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {job ? (
+        <ReportSheet
+          visible={reportOpen}
+          targetType="job"
+          targetId={job.id}
+          title={t('Mobile.moderation.reportJob')}
+          onClose={() => setReportOpen(false)}
+        />
+      ) : null}
     </View>
   );
 }

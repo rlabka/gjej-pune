@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   Text,
@@ -17,21 +18,26 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Linking from 'expo-linking';
 import {
   ArrowLeft,
+  Ban,
   Briefcase,
   Crown,
   FileText,
+  Flag,
   Lock,
+  MoreVertical,
   Paperclip,
   Send,
   X,
 } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat, type ChatMessage } from '@/contexts/ChatContext';
+import { useDialog } from '@/contexts/DialogContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
 import { config } from '@/lib/config';
+import { ReportSheet } from '@/components/ReportSheet';
 
 type JobRef = { jobId: string | null; jobTitle: string | null };
 
@@ -78,6 +84,7 @@ export default function ChatDetailScreen() {
   const { t } = useI18n();
   const { session } = useAuth();
   const { onMessage, isOnline, refreshUnread } = useChat();
+  const dialog = useDialog();
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -90,7 +97,43 @@ export default function ChatDetailScreen() {
     type: string;
     isImage: boolean;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
+
+  async function handleBlock() {
+    if (!conversation) return;
+    setMenuOpen(false);
+    const ok = await dialog.confirm({
+      title: t('Mobile.moderation.blockConfirmTitle'),
+      message: t('Mobile.moderation.blockConfirmMessage'),
+      confirmLabel: t('Mobile.moderation.block'),
+      cancelLabel: t('Mobile.moderation.cancel'),
+      destructive: true,
+    });
+    if (!ok) return;
+    const token = (await getToken()) ?? undefined;
+    try {
+      const res = await api.post<{ ok: boolean; error?: string }>(
+        `/api/users/${conversation.partnerId}/block`,
+        {},
+        token
+      );
+      if (res?.ok) {
+        dialog.showSuccess(t('Mobile.moderation.blockSuccess'));
+        router.replace('/(tabs)/chat' as any);
+      } else {
+        dialog.showError(t('Mobile.common.error'));
+      }
+    } catch {
+      dialog.showError(t('Mobile.common.error'));
+    }
+  }
+
+  function openReport() {
+    setMenuOpen(false);
+    setReportOpen(true);
+  }
 
   const myUserId = session?.userId;
   const isJobSeeker = session?.role === 'job-seeker';
@@ -349,6 +392,16 @@ export default function ChatDetailScreen() {
                 ) : null}
               </View>
             </View>
+
+            {conversation ? (
+              <Pressable
+                onPress={() => setMenuOpen(true)}
+                className="h-9 w-9 items-center justify-center rounded-lg active:bg-slate-50"
+                accessibilityLabel={t('Mobile.moderation.report')}
+              >
+                <MoreVertical color="#94A3B8" size={20} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
 
@@ -506,6 +559,66 @@ export default function ChatDetailScreen() {
           )}
         </KeyboardAvoidingView>
       </SafeAreaView>
+
+      {/* Header overflow-menu — Report / Block */}
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
+          onPress={() => setMenuOpen(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: 80,
+              right: 12,
+              backgroundColor: 'white',
+              borderRadius: 14,
+              minWidth: 200,
+              paddingVertical: 6,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.15,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
+            <Pressable
+              onPress={openReport}
+              className="flex-row items-center px-4 py-3 active:bg-slate-50"
+            >
+              <Flag color="#0B1F44" size={16} />
+              <Text className="ml-3 text-[14px] font-semibold text-[#0B1F44]">
+                {t('Mobile.moderation.reportUser')}
+              </Text>
+            </Pressable>
+            <View className="h-px bg-slate-100" />
+            <Pressable
+              onPress={handleBlock}
+              className="flex-row items-center px-4 py-3 active:bg-red-50"
+            >
+              <Ban color="#DC2626" size={16} />
+              <Text className="ml-3 text-[14px] font-semibold text-red-600">
+                {t('Mobile.moderation.blockUser')}
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {conversation ? (
+        <ReportSheet
+          visible={reportOpen}
+          targetType="user"
+          targetId={conversation.partnerId}
+          title={t('Mobile.moderation.reportUser')}
+          onClose={() => setReportOpen(false)}
+        />
+      ) : null}
     </View>
   );
 }
