@@ -24,6 +24,7 @@ import {
   Phone,
   User,
 } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
@@ -37,14 +38,29 @@ import { PhoneInput } from '@/components/PhoneInput';
 const SALARY_TYPES = ['Hour', 'Month', 'Year', 'Provision'] as const;
 type SalaryType = (typeof SALARY_TYPES)[number];
 
+// Split a stored displayName like "Eray Celik" into first/last parts. Used to
+// pre-fill the contact form when a freshly-signed-in user (especially via Sign
+// in with Apple) is sent to this screen by the onboarding gate — Apple Review
+// Guideline 4 requires that any name/email already provided by the
+// Authentication Services framework must not be requested again.
+function splitDisplayName(full: string | null | undefined): { first: string; last: string } {
+  const trimmed = (full || '').trim();
+  if (!trimmed) return { first: '', last: '' };
+  const parts = trimmed.split(/\s+/);
+  if (parts.length === 1) return { first: parts[0], last: '' };
+  return { first: parts[0], last: parts.slice(1).join(' ') };
+}
+
 export default function NewJobScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const dialog = useDialog();
+  const { session } = useAuth();
 
+  const initial = splitDisplayName(session?.displayName);
   const [category, setCategory] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [contactSurname, setContactSurname] = useState('');
+  const [contactName, setContactName] = useState(initial.first);
+  const [contactSurname, setContactSurname] = useState(initial.last);
   const [contactPhone, setContactPhone] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [salary, setSalary] = useState('');

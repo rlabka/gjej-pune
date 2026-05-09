@@ -31,6 +31,7 @@ import {
   User,
   X,
 } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useDialog } from '@/contexts/DialogContext';
 import { api } from '@/lib/api';
@@ -281,14 +282,27 @@ export default function NewAdScreen() {
   const router = useRouter();
   const { locale } = useI18n();
   const dialog = useDialog();
+  const { session } = useAuth();
   const l: Locale = (['de', 'en', 'fr', 'it', 'sq'] as const).includes(locale as Locale)
     ? (locale as Locale)
     : 'sq';
   const c = COPY[l];
 
+  // Pre-fill name from the session — required by App Store Review
+  // Guideline 4 so users who signed in via Apple/Google aren't asked to
+  // re-enter information already provided by the Authentication Services
+  // framework. We split on the first whitespace; lone names go into firstName.
+  const initialName = (() => {
+    const trimmed = (session?.displayName || '').trim();
+    if (!trimmed) return { first: '', last: '' };
+    const parts = trimmed.split(/\s+/);
+    if (parts.length === 1) return { first: parts[0], last: '' };
+    return { first: parts[0], last: parts.slice(1).join(' ') };
+  })();
+
   const [jobCategory, setJobCategory] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [surname, setSurname] = useState('');
+  const [firstName, setFirstName] = useState(initialName.first);
+  const [surname, setSurname] = useState(initialName.last);
   const [telNr, setTelNr] = useState('');
   const [ageField, setAgeField] = useState('');
   const [yearsExperience, setYearsExperience] = useState('');
