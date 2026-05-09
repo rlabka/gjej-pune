@@ -21,7 +21,10 @@ export async function createConversation(req: AuthenticatedRequest, res: Respons
 
     const conv = await getOrCreateConversation(req.user.id, targetUserId, jobId, jobTitle);
     return res.json({ ok: true, conversation: conv });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === 'blocked') {
+      return res.status(403).json({ ok: false, error: 'blocked' });
+    }
     console.error('Create conversation error:', error);
     return res.status(500).json({ error: 'internalError' });
   }
