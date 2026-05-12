@@ -266,13 +266,20 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 }
 
-// ─── Subscriptions (Stripe) ─────────────────────────────────
+// ─── Subscriptions (Stripe + Apple IAP) ─────────────────────
+// Source field: 'stripe' for web (existing), 'apple_iap' for iOS in-app
+// purchases. Apple/Stripe IDs are nullable to allow either source.
 model Subscription {
   id                    String    @id @default(cuid())
   userId                String
-  stripeSubscriptionId  String    @unique
-  stripePriceId         String
-  status                String    // "active" | "canceled" | "past_due" | "trialing" | "incomplete"
+  source                String    @default("stripe") // "stripe" | "apple_iap" | "google_iap"
+  stripeSubscriptionId  String?   @unique
+  stripePriceId         String?
+  // Apple IAP identifiers
+  iosOriginalTransactionId String? @unique
+  iosLatestTransactionId   String?
+  iosProductId             String?
+  status                String    // "active" | "canceled" | "past_due" | "trialing" | "incomplete" | "expired" | "in_grace_period"
   planDurationMonths    Int       // 1, 3, 6
   currentPeriodStart    DateTime
   currentPeriodEnd      DateTime
@@ -282,6 +289,9 @@ model Subscription {
   updatedAt             DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([source, status])
 }
 
 // ─── Plans (Admin-managed, Stripe-synced) ───────────────────────

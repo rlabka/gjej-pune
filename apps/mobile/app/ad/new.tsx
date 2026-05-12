@@ -327,7 +327,9 @@ export default function NewAdScreen() {
     !!jobCategory &&
     firstName.trim().length > 0 &&
     surname.trim().length > 0 &&
-    telNr.trim().length > 0 &&
+    // Phone is OPTIONAL — App Store Review Guideline 5.1.1(v) prohibits
+    // requiring personal contact info beyond what is strictly necessary.
+    // livingPlace remains required because it drives the matching feed.
     !!ageField &&
     Number(ageField) >= 16 &&
     Number(ageField) <= 99 &&
@@ -375,7 +377,7 @@ export default function NewAdScreen() {
     if (!jobCategory) next.category = 'required';
     if (!firstName.trim()) next.firstName = 'required';
     if (!surname.trim()) next.surname = 'required';
-    if (!telNr.trim()) next.contactPhone = 'required';
+    // telNr (phone) is optional — see canPublish comment above.
     if (!ageField || Number(ageField) < 16 || Number(ageField) > 99) next.age = 'invalidAge';
     if (!yearsExperience) next.experience = 'required';
     if (!livingPlace.trim() || livingLat === null) next.livingPlace = 'required';

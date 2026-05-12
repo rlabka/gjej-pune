@@ -25,6 +25,7 @@
     "expo-device": "~8.0.10",
     "expo-document-picker": "~14.0.8",
     "expo-font": "~14.0.11",
+    "expo-iap": "^4.2.7",
     "expo-image-picker": "~17.0.10",
     "expo-linking": "~8.0.11",
     "expo-localization": "~17.0.8",

@@ -22,7 +22,8 @@ const createAdRules = [
   { field: 'category', required: true, type: 'string' as const, minLength: 2, maxLength: 100 },
   { field: 'firstName', required: true, type: 'string' as const, minLength: 1, maxLength: 100 },
   { field: 'surname', required: true, type: 'string' as const, minLength: 1, maxLength: 100 },
-  { field: 'phone', required: true, type: 'phone' as const },
+  // Phone is optional — App Store Review Guideline 5.1.1(v).
+  { field: 'phone', type: 'phone' as const },
   { field: 'email', type: 'email' as const },
   { field: 'experience', type: 'string' as const, maxLength: 50 },
   { field: 'availability', oneOf: ['immediate', 'negotiable'] },

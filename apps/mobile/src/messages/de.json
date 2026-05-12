@@ -2029,7 +2029,16 @@
       "loadingPlans": "Tarife werden geladen…",
       "noPlans": "Aktuell keine Tarife verfügbar.",
       "trusted": "Sicher & vertrauenswürdig",
-      "trustedDesc": "Jederzeit kündbar. Keine versteckten Kosten."
+      "trustedDesc": "Jederzeit kündbar. Keine versteckten Kosten.",
+      "subscribe": "Abonnieren",
+      "restorePurchases": "Käufe wiederherstellen",
+      "manageOnApple": "Abo in Apple-Einstellungen verwalten",
+      "purchaseSuccess": "Premium aktiviert!",
+      "purchaseFailed": "Kauf konnte nicht abgeschlossen werden.",
+      "restoreSuccess": "Premium wiederhergestellt.",
+      "restoreNothing": "Keine aktiven Käufe gefunden.",
+      "totalPrice": "Gesamtpreis",
+      "autoRenewDisclosure": "Das Abonnement verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende der Laufzeit gekündigt wird. Die Kündigung erfolgt in deinen Apple-ID-Einstellungen → Abonnements. Der Betrag wird über deinen Apple-Account abgerechnet."
     },
     "profileViews": {
       "title": "Profilbesuche",

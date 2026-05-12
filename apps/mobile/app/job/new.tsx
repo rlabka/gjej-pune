@@ -80,7 +80,10 @@ export default function NewJobScreen() {
     !!category &&
     contactName.trim().length > 0 &&
     contactSurname.trim().length > 0 &&
-    contactPhone.trim().length > 0 &&
+    // Phone is OPTIONAL — App Store Review Guideline 5.1.1(v) prohibits
+    // requiring personal contact info beyond what is strictly necessary
+    // for the app's core functionality. Job posters who omit it just
+    // don't receive direct phone calls; chat is the primary channel.
     salary.trim().length > 0 &&
     locationLabel.trim().length > 0 &&
     !!whenOption;
@@ -99,7 +102,7 @@ export default function NewJobScreen() {
     if (!category) nextErrors.category = 'required';
     if (!contactName.trim()) nextErrors.contactName = 'required';
     if (!contactSurname.trim()) nextErrors.contactSurname = 'required';
-    if (!contactPhone.trim()) nextErrors.contactPhone = 'required';
+    // contactPhone is optional — see canPublish comment above.
     if (!salary.trim()) nextErrors.salary = 'required';
     if (!locationLabel.trim()) nextErrors.locationCity = 'required';
     if (!whenOption) nextErrors.when = 'required';

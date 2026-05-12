@@ -15,6 +15,7 @@ import stripeRoutes from './stripe.routes';
 import adRoutes from './ad.routes';
 import pushRoutes from './push.routes';
 import moderationRoutes from './moderation.routes';
+import iapRoutes from './iap.routes';
 import { requireAuth } from '../middleware/auth.middleware';
 import { prisma } from '../config/prisma';
 import { fixEmailTypos, isDeliverableEmail } from '../services/email.service';
@@ -50,6 +51,9 @@ router.use('/push', pushRoutes);
 // Moderation routes mount at root because they expose /users/:id/block,
 // /users/blocked, and /reports — keep alongside the existing /users/:id/profile.
 router.use('/', moderationRoutes);
+
+// Apple In-App Purchase
+router.use('/iap', iapRoutes);
 
 // Public user profile (for chat profile dialog)
 router.get('/users/:id/profile', requireAuth, async (req: Request<{ id: string }>, res: Response) => {

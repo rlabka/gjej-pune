@@ -107,7 +107,7 @@ export default function EditJobScreen() {
     !!category &&
     contactName.trim().length > 0 &&
     contactSurname.trim().length > 0 &&
-    contactPhone.trim().length > 0 &&
+    // contactPhone is OPTIONAL — App Store Review Guideline 5.1.1(v).
     salary.trim().length > 0 &&
     locationLabel.trim().length > 0 &&
     !!whenOption;
@@ -126,7 +126,7 @@ export default function EditJobScreen() {
     if (!category) nextErrors.category = 'required';
     if (!contactName.trim()) nextErrors.contactName = 'required';
     if (!contactSurname.trim()) nextErrors.contactSurname = 'required';
-    if (!contactPhone.trim()) nextErrors.contactPhone = 'required';
+    // contactPhone optional — Guideline 5.1.1(v).
     if (!salary.trim()) nextErrors.salary = 'required';
     if (!locationLabel.trim()) nextErrors.locationCity = 'required';
     if (!whenOption) nextErrors.when = 'required';

@@ -7,7 +7,8 @@ const createJobRules = [
   { field: 'category', required: true, type: 'string' as const, minLength: 2, maxLength: 100 },
   { field: 'contactName', required: true, type: 'string' as const, minLength: 1, maxLength: 100 },
   { field: 'contactSurname', required: true, type: 'string' as const, minLength: 1, maxLength: 100 },
-  { field: 'contactPhone', required: true, type: 'phone' as const },
+  // Phone is optional — App Store Review Guideline 5.1.1(v).
+  { field: 'contactPhone', type: 'phone' as const },
   { field: 'contactEmail', type: 'email' as const },
   { field: 'companyName', type: 'string' as const, maxLength: 200 },
   { field: 'salary', required: true, type: 'number' as const, min: 5, max: 1000000 },

@@ -376,7 +376,8 @@ export default function EditAdScreen() {
   ]);
 
   async function onSubmit() {
-    if (!firstName || !surname || !phone || !category) {
+    // Phone is optional (App Store Review Guideline 5.1.1(v)).
+    if (!firstName || !surname || !category) {
       dialog.showError('Bitte alle Pflichtfelder ausfüllen.', c.title);
       return;
     }

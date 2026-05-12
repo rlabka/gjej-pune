@@ -192,33 +192,37 @@ export async function getSubscriptionDetails(userId: string): Promise<Subscripti
 
   if (!sub) return null;
 
-  // Get payment method from Stripe
+  // Get payment method from Stripe — only for stripe-sourced subs.
   let paymentMethod: SubscriptionDetails['paymentMethod'] = null;
-  try {
-    const stripeSub = await getStripe().subscriptions.retrieve(sub.stripeSubscriptionId, {
-      expand: ['default_payment_method'],
-    });
-    const pm = stripeSub.default_payment_method;
-    if (pm && typeof pm !== 'string' && pm.card) {
-      paymentMethod = {
-        brand: pm.card.brand,
-        last4: pm.card.last4,
-        expMonth: pm.card.exp_month,
-        expYear: pm.card.exp_year,
-      };
+  if (sub.stripeSubscriptionId) {
+    try {
+      const stripeSub = await getStripe().subscriptions.retrieve(sub.stripeSubscriptionId, {
+        expand: ['default_payment_method'],
+      });
+      const pm = stripeSub.default_payment_method;
+      if (pm && typeof pm !== 'string' && pm.card) {
+        paymentMethod = {
+          brand: pm.card.brand,
+          last4: pm.card.last4,
+          expMonth: pm.card.exp_month,
+          expYear: pm.card.exp_year,
+        };
+      }
+    } catch (err) {
+      console.error('[Stripe] Error fetching payment method:', err);
     }
-  } catch (err) {
-    console.error('[Stripe] Error fetching payment method:', err);
   }
 
   // Get the price amount
   let amountCents = 0;
   let currency = 'eur';
-  try {
-    const price = await getStripe().prices.retrieve(sub.stripePriceId);
-    amountCents = price.unit_amount || 0;
-    currency = price.currency;
-  } catch {}
+  if (sub.stripePriceId) {
+    try {
+      const price = await getStripe().prices.retrieve(sub.stripePriceId);
+      amountCents = price.unit_amount || 0;
+      currency = price.currency;
+    } catch {}
+  }
 
   return {
     active: sub.status === 'active' || sub.status === 'trialing',
@@ -275,6 +279,9 @@ export async function cancelSubscription(userId: string): Promise<{ success: boo
   });
 
   if (!sub) throw new Error('No active subscription found');
+  if (!sub.stripeSubscriptionId) {
+    throw new Error('iOS IAP subscription — manage in iPhone Settings → Subscriptions');
+  }
 
   await getStripe().subscriptions.update(sub.stripeSubscriptionId, {
     cancel_at_period_end: true,
@@ -300,6 +307,9 @@ export async function reactivateSubscription(userId: string): Promise<{ success:
   });
 
   if (!sub) throw new Error('No canceled subscription found');
+  if (!sub.stripeSubscriptionId) {
+    throw new Error('iOS IAP subscription — manage in iPhone Settings → Subscriptions');
+  }
 
   await getStripe().subscriptions.update(sub.stripeSubscriptionId, {
     cancel_at_period_end: false,
@@ -796,6 +806,9 @@ export async function adminCancelSubscription(
   if (!sub) throw new Error('Subscription not found');
   if (['canceled', 'incomplete_expired'].includes(sub.status)) {
     throw new Error('Subscription is already canceled');
+  }
+  if (!sub.stripeSubscriptionId) {
+    throw new Error('iOS IAP subscription cannot be canceled from admin — managed by Apple');
   }
 
   if (mode === 'immediate') {
