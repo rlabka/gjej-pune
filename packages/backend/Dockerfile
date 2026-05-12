@@ -42,6 +42,11 @@ COPY --from=builder /app/packages/backend/src/database/schema.prisma ./prisma/sc
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/package.json ./
 
+# Apple Root CA certs — must sit next to compiled iap.service.js because
+# the runtime does fs.readFileSync(path.join(__dirname, 'apple-certs', …)).
+# TypeScript only emits .js, so we have to bring the .cer files in by hand.
+COPY --from=builder /app/packages/backend/src/services/apple-certs ./dist/services/apple-certs
+
 # Copy shared package (node_modules/@jmp/shared symlink points here)
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
