@@ -92,48 +92,80 @@ export function isKnownProductId(productId: string): boolean {
 }
 
 // ─── Lazy-initialised clients (avoid creating on import in test env) ───
+//
+// We keep one client + one verifier per environment. TestFlight purchases
+// are always Sandbox while live App Store purchases are Production, and a
+// single backend has to handle both — so for verifyPurchase we try one
+// env first and fall back to the other on 404/401. Webhooks tell us the
+// environment in their payload, so they don't need the fallback dance.
 
-let cachedClient: AppStoreServerAPIClient | null = null;
-let cachedVerifier: SignedDataVerifier | null = null;
+const clients: Partial<Record<Environment, AppStoreServerAPIClient>> = {};
+const verifiers: Partial<Record<Environment, SignedDataVerifier>> = {};
 
-function getClient(): AppStoreServerAPIClient {
-  if (!cachedClient) {
+function getClient(env: Environment = IAP_ENV): AppStoreServerAPIClient {
+  let c = clients[env];
+  if (!c) {
     if (!SIGNING_KEY || !KEY_ID || !ISSUER_ID) {
       throw new Error('Apple IAP credentials missing in env');
     }
-    cachedClient = new AppStoreServerAPIClient(
-      SIGNING_KEY,
-      KEY_ID,
-      ISSUER_ID,
-      BUNDLE_ID,
-      IAP_ENV
-    );
+    c = new AppStoreServerAPIClient(SIGNING_KEY, KEY_ID, ISSUER_ID, BUNDLE_ID, env);
+    clients[env] = c;
   }
-  return cachedClient;
+  return c;
 }
 
-/**
- * Returns a verifier capable of decoding+validating JWS payloads from Apple
- * (both transaction info and server notifications). The empty Apple root
- * cert array means we trust Apple's CA chain implicitly via the bundled
- * library — production use should add the official Apple Root CAs.
- */
-function getVerifier(): SignedDataVerifier {
-  if (!cachedVerifier) {
+function getVerifier(env: Environment = IAP_ENV): SignedDataVerifier {
+  let v = verifiers[env];
+  if (!v) {
     if (APPLE_ROOT_CERTS.length === 0) {
       throw new Error('Apple root certificates not loaded — check src/services/apple-certs/');
     }
-    // appAppleId is required by the SDK when env is PRODUCTION. SANDBOX
-    // tolerates undefined, but we still pass it for consistency.
-    cachedVerifier = new SignedDataVerifier(
+    v = new SignedDataVerifier(
       APPLE_ROOT_CERTS,
-      true, // enableOnlineChecks
-      IAP_ENV,
+      true,
+      env,
       BUNDLE_ID,
       APP_APPLE_ID || undefined
     );
+    verifiers[env] = v;
   }
-  return cachedVerifier;
+  return v;
+}
+
+/**
+ * Calls getTransactionInfo against PRODUCTION first; if Apple says the
+ * transaction is unknown / unauthorised there, retry against SANDBOX.
+ * This is the pattern Apple recommends for apps that ship to both the
+ * App Store (real money, production) and TestFlight (sandbox).
+ */
+async function getTransactionInfoBothEnvs(transactionId: string): Promise<{
+  txInfo: unknown;
+  env: Environment;
+}> {
+  const order: Environment[] =
+    IAP_ENV === Environment.PRODUCTION
+      ? [Environment.PRODUCTION, Environment.SANDBOX]
+      : [Environment.SANDBOX, Environment.PRODUCTION];
+
+  let lastError: unknown;
+  for (const env of order) {
+    try {
+      const txInfo = await getClient(env).getTransactionInfo(transactionId);
+      return { txInfo, env };
+    } catch (err) {
+      const status = (err as any)?.httpStatusCode;
+      // 401 = wrong env for this transaction; 404 = transaction not found.
+      // Anything else (5xx, network) — keep trying the other env, but
+      // remember the error in case both fail.
+      lastError = err;
+      console.warn(`[IAP] getTransactionInfo ${env} → HTTP ${status}, falling back`);
+      if (status !== 401 && status !== 404) {
+        // Non-env errors are unlikely to succeed in the other env either,
+        // but try once for resilience.
+      }
+    }
+  }
+  throw lastError;
 }
 
 // ─── Helpers ────────────────────────────────────────────────
@@ -225,11 +257,14 @@ export async function verifyPurchase(opts: {
   const { userId, transactionId } = opts;
   if (!transactionId) return { ok: false, code: 'missingTransactionId' };
 
-  let txInfo;
+  let txInfo: unknown;
+  let env: Environment;
   try {
-    txInfo = await getClient().getTransactionInfo(transactionId);
+    const result = await getTransactionInfoBothEnvs(transactionId);
+    txInfo = result.txInfo;
+    env = result.env;
   } catch (err) {
-    console.error('[IAP] getTransactionInfo failed:', err);
+    console.error('[IAP] getTransactionInfo failed in both envs:', err);
     return { ok: false, code: 'invalidTransaction' };
   }
 
@@ -238,7 +273,7 @@ export async function verifyPurchase(opts: {
 
   let decoded: JWSTransactionDecodedPayload;
   try {
-    decoded = await getVerifier().verifyAndDecodeTransaction(signedTransaction);
+    decoded = await getVerifier(env).verifyAndDecodeTransaction(signedTransaction);
   } catch (err) {
     console.error('[IAP] verifyAndDecodeTransaction failed:', err);
     return { ok: false, code: 'verifyFailed' };
@@ -290,10 +325,10 @@ export async function restorePurchases(opts: {
   // HTTPS call to Apple, so process sequentially to stay polite.
   for (const txId of transactionIds) {
     try {
-      const txInfo = await getClient().getTransactionInfo(txId);
+      const { txInfo, env } = await getTransactionInfoBothEnvs(txId);
       const signed = (txInfo as any).signedTransactionInfo as string | undefined;
       if (!signed) continue;
-      const decoded = await getVerifier().verifyAndDecodeTransaction(signed);
+      const decoded = await getVerifier(env).verifyAndDecodeTransaction(signed);
       const productId = safeProductId(decoded);
       if (!isKnownProductId(productId)) {
         console.warn('[IAP] restore: skipping unknown product', productId);
@@ -357,12 +392,23 @@ export async function handleAppStoreNotification(
 ): Promise<{ ok: true } | { ok: false; code: string }> {
   if (!signedPayload) return { ok: false, code: 'missingPayload' };
 
+  // Apple sends notifications from both Sandbox and Production webhooks;
+  // try Production first, fall back to Sandbox so a single endpoint can
+  // serve both. We keep the env that worked and reuse it for the wrapped
+  // transaction decode below.
   let decoded: ResponseBodyV2DecodedPayload;
+  let notifEnv: Environment;
   try {
-    decoded = await getVerifier().verifyAndDecodeNotification(signedPayload);
-  } catch (err) {
-    console.error('[IAP] webhook verify failed:', err);
-    return { ok: false, code: 'verifyFailed' };
+    decoded = await getVerifier(Environment.PRODUCTION).verifyAndDecodeNotification(signedPayload);
+    notifEnv = Environment.PRODUCTION;
+  } catch (errProd) {
+    try {
+      decoded = await getVerifier(Environment.SANDBOX).verifyAndDecodeNotification(signedPayload);
+      notifEnv = Environment.SANDBOX;
+    } catch (errSandbox) {
+      console.error('[IAP] webhook verify failed in both envs:', { errProd, errSandbox });
+      return { ok: false, code: 'verifyFailed' };
+    }
   }
 
   const data = decoded.data;
@@ -374,7 +420,7 @@ export async function handleAppStoreNotification(
 
   let tx: JWSTransactionDecodedPayload;
   try {
-    tx = await getVerifier().verifyAndDecodeTransaction(data.signedTransactionInfo);
+    tx = await getVerifier(notifEnv).verifyAndDecodeTransaction(data.signedTransactionInfo);
   } catch (err) {
     console.error('[IAP] webhook transaction decode failed:', err);
     return { ok: false, code: 'transactionDecodeFailed' };
