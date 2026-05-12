@@ -35,6 +35,12 @@ app.use(cors({
 // ─── Stripe Webhook (raw body – must be before express.json) ──
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
+// ─── Apple IAP Webhook (raw body, 1MB limit for large JWS payloads) ──
+// Must be before express.json() — Apple's notification payloads can
+// exceed the default 100KB body limit when they carry transaction
+// history.
+app.use('/api/iap/apple-webhook', express.raw({ type: 'application/json', limit: '1mb' }));
+
 // ─── Body Parsing ───────────────────────────────────────
 app.use(express.json());
 

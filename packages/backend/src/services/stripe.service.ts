@@ -213,7 +213,10 @@ export async function getSubscriptionDetails(userId: string): Promise<Subscripti
     }
   }
 
-  // Get the price amount
+  // Get the price amount. For Stripe-sourced subs we go to Stripe; for
+  // iOS IAP subs we look up the price in our local product → price map
+  // (Apple manages prices in App Store Connect; we mirror them here so
+  // the active-subscription view shows the right amount).
   let amountCents = 0;
   let currency = 'eur';
   if (sub.stripePriceId) {
@@ -222,6 +225,10 @@ export async function getSubscriptionDetails(userId: string): Promise<Subscripti
       amountCents = price.unit_amount || 0;
       currency = price.currency;
     } catch {}
+  } else if (sub.source === 'apple_iap' && sub.iosProductId) {
+    const { productIdToPriceCents } = await import('./iap.service');
+    amountCents = productIdToPriceCents(sub.iosProductId);
+    currency = 'eur';
   }
 
   return {

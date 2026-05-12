@@ -611,6 +611,29 @@ export default function PremiumScreen() {
             <Text className="mt-4 text-[11px] leading-snug text-slate-500">
               {t('Mobile.premium.autoRenewDisclosure')}
             </Text>
+
+            {/* Apple Guideline 3.1.2 — Privacy + Terms must be linked
+                from any screen that offers an auto-renewable subscription. */}
+            <View className="mt-3 flex-row flex-wrap items-center justify-center" style={{ gap: 14 }}>
+              <Pressable
+                onPress={() =>
+                  Linking.openURL(`https://gjej-pune.com/${locale}/datenschutz`)
+                }
+              >
+                <Text className="text-[11px] font-semibold text-[#162C66] underline">
+                  {t('Mobile.premium.privacyPolicy')}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  Linking.openURL(`https://gjej-pune.com/${locale}/agb`)
+                }
+              >
+                <Text className="text-[11px] font-semibold text-[#162C66] underline">
+                  {t('Mobile.premium.termsOfUse')}
+                </Text>
+              </Pressable>
+            </View>
           </View>
         ) : (
           // ── Android non-premium: web-checkout CTA (LinkedIn pattern) ──

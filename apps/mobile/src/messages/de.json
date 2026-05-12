@@ -2038,7 +2038,9 @@
       "restoreSuccess": "Premium wiederhergestellt.",
       "restoreNothing": "Keine aktiven Käufe gefunden.",
       "totalPrice": "Gesamtpreis",
-      "autoRenewDisclosure": "Das Abonnement verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende der Laufzeit gekündigt wird. Die Kündigung erfolgt in deinen Apple-ID-Einstellungen → Abonnements. Der Betrag wird über deinen Apple-Account abgerechnet."
+      "autoRenewDisclosure": "Das Abonnement verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ende der Laufzeit gekündigt wird. Die Kündigung erfolgt in deinen Apple-ID-Einstellungen → Abonnements. Der Betrag wird über deinen Apple-Account abgerechnet.",
+      "privacyPolicy": "Datenschutz",
+      "termsOfUse": "Nutzungsbedingungen"
     },
     "profileViews": {
       "title": "Profilbesuche",

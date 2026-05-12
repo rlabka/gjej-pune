@@ -67,22 +67,52 @@ export async function restorePurchasesHandler(
  * App Store Server Notifications V2 endpoint. Apple POSTs renewal,
  * cancellation, refund, etc. events here. No auth — verification is
  * done via JWS signature inside handleAppStoreNotification.
+ *
+ * Return codes:
+ *   200  signature valid + processed (or no-op like TEST notification)
+ *   400  malformed request body (won't get Apple to retry)
+ *   5xx  transient processing error — Apple WILL retry
+ *
+ * Returning 200 unconditionally would silently drop renewal / refund
+ * events when our DB write or signature fails, so we let transient
+ * failures bubble up.
  */
 export async function appleWebhookHandler(req: Request, res: Response) {
   try {
-    const { signedPayload } = req.body || {};
+    // Body may arrive as raw Buffer (preferred — set up via express.raw
+    // middleware for this route) or parsed object (express.json fallback).
+    let signedPayload: string | undefined;
+    if (Buffer.isBuffer(req.body)) {
+      try {
+        const parsed = JSON.parse(req.body.toString('utf8'));
+        signedPayload = parsed?.signedPayload;
+      } catch {
+        return res.status(400).json({ ok: false, error: 'invalidJson' });
+      }
+    } else {
+      signedPayload = (req.body as any)?.signedPayload;
+    }
+
     if (!signedPayload || typeof signedPayload !== 'string') {
-      // Apple expects 200 even on no-op so they don't keep retrying.
+      return res.status(400).json({ ok: false, error: 'missingSignedPayload' });
+    }
+
+    const result = await handleAppStoreNotification(signedPayload);
+    if (result.ok) {
       return res.status(200).json({ ok: true });
     }
-    const result = await handleAppStoreNotification(signedPayload);
-    // Always 200 to Apple — log internally if invalid so we don't trigger retries.
-    if (!result.ok) {
-      console.error('[IAP] webhook handler returned error:', result);
+
+    // Distinguish permanent verification failures (bad signature → 200,
+    // don't make Apple retry) from transient errors (5xx → Apple retries).
+    if (result.code === 'verifyFailed' || result.code === 'transactionDecodeFailed') {
+      console.error('[IAP] webhook permanent verify error:', result);
+      return res.status(200).json({ ok: false, code: result.code });
     }
-    return res.status(200).json({ ok: true });
+
+    console.error('[IAP] webhook transient error:', result);
+    return res.status(500).json({ ok: false, code: result.code });
   } catch (err: any) {
-    console.error('[IAP] apple-webhook error:', err);
-    return res.status(200).json({ ok: true });
+    console.error('[IAP] apple-webhook unexpected error:', err);
+    return res.status(500).json({ ok: false, error: 'internal' });
   }
 }

@@ -1954,6 +1954,8 @@
       "restoreNothing": "Nessun acquisto attivo trovato.",
       "totalPrice": "Prezzo totale",
       "autoRenewDisclosure": "L'abbonamento si rinnova automaticamente salvo cancellazione almeno 24 ore prima della fine del periodo. Cancella in qualsiasi momento in Apple ID → Abbonamenti. Il pagamento viene addebitato sul tuo account Apple.",
+      "privacyPolicy": "Privacy",
+      "termsOfUse": "Termini di utilizzo",
       "loadingPlans": "Caricamento piani…",
       "noPlans": "Nessun piano disponibile al momento.",
       "trusted": "Sicuro e affidabile",

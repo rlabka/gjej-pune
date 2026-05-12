@@ -284,7 +284,6 @@ export default function EditJobScreen() {
                 <Field
                   label={t('Mobile.jobForm.telNr')}
                   icon={<Phone color="#94A3B8" size={11} />}
-                  required
                   hint={t('Mobile.jobForm.hidden')}
                   value={contactPhone}
                   onChangeText={(v) => {

@@ -562,7 +562,6 @@ export default function EditAdScreen() {
               <Field
                 icon={<Phone color="#64748B" size={16} />}
                 label={`${c.phone} ${c.phoneHint}`}
-                required
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"

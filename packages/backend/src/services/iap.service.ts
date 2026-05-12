@@ -21,6 +21,8 @@ import {
   type NotificationTypeV2,
   type Subtype,
 } from '@apple/app-store-server-library';
+import * as fs from 'fs';
+import * as path from 'path';
 import { prisma } from '../config/prisma';
 
 // ─── Config (read once at module load) ──────────────────────
@@ -30,6 +32,10 @@ const ISSUER_ID = process.env.APPLE_IAP_ISSUER_ID || '';
 const BUNDLE_ID = process.env.APPLE_IAP_BUNDLE_ID || 'com.gjp.app';
 const ENV_NAME = (process.env.APPLE_IAP_ENVIRONMENT || 'PRODUCTION').toUpperCase();
 const PRIVATE_KEY_RAW = process.env.APPLE_IAP_PRIVATE_KEY || '';
+// Numeric App Store ID — visible in App Store Connect URL for the app
+// (e.g. https://appstoreconnect.apple.com/apps/6765750376). Required by
+// Apple's SignedDataVerifier when running against PRODUCTION.
+const APP_APPLE_ID = parseInt(process.env.APPLE_IAP_APP_APPLE_ID || '0', 10);
 
 // Apple's `signingKey` constructor parameter accepts the PEM-encoded private
 // key as a string. The `.env.production` file stores newlines as literal \n
@@ -39,6 +45,18 @@ const SIGNING_KEY = PRIVATE_KEY_RAW.replace(/\\n/g, '\n');
 const IAP_ENV: Environment =
   ENV_NAME === 'SANDBOX' ? Environment.SANDBOX : Environment.PRODUCTION;
 
+// Apple Root CA certs bundled with the service. Required by the SDK to
+// verify the JWS signature on transaction/notification payloads — without
+// these, every verification call throws VerificationException.
+const APPLE_ROOT_CERTS: Buffer[] = (() => {
+  const dir = path.join(__dirname, 'apple-certs');
+  const files = ['AppleRootCA-G3.cer', 'AppleRootCA-G2.cer'];
+  return files
+    .map((f) => path.join(dir, f))
+    .filter((p) => fs.existsSync(p))
+    .map((p) => fs.readFileSync(p));
+})();
+
 // ─── Product ID → plan duration mapping ─────────────────────
 
 const PRODUCT_TO_MONTHS: Record<string, number> = {
@@ -47,8 +65,30 @@ const PRODUCT_TO_MONTHS: Record<string, number> = {
   'com.gjp.app.premium.6months': 6,
 };
 
+// Cents pricing per IAP product (EUR), kept in sync with App Store Connect
+// IAP setup. Used so the in-app "active subscription" view can show a
+// price for iOS-IAP subs, since stripe.prices.retrieve won't know about
+// Apple-side products. Values are the EUR tier prices we set in App
+// Store Connect (Apple's fixed pricing tiers don't allow €120/€160
+// exactly, so 3- and 6-month plans use the next-closest tier).
+const PRODUCT_TO_PRICE_CENTS: Record<string, number> = {
+  'com.gjp.app.premium.1month': 5900,    // €59.00
+  'com.gjp.app.premium.3months': 11999,  // €119.99 (Apple tier; web Stripe = €120)
+  'com.gjp.app.premium.6months': 15999,  // €159.99 (Apple tier; web Stripe = €160)
+};
+
 export function productIdToMonths(productId: string): number {
-  return PRODUCT_TO_MONTHS[productId] ?? 1;
+  const months = PRODUCT_TO_MONTHS[productId];
+  if (!months) throw new Error(`unknown_product_id:${productId}`);
+  return months;
+}
+
+export function productIdToPriceCents(productId: string): number {
+  return PRODUCT_TO_PRICE_CENTS[productId] ?? 0;
+}
+
+export function isKnownProductId(productId: string): boolean {
+  return productId in PRODUCT_TO_MONTHS;
 }
 
 // ─── Lazy-initialised clients (avoid creating on import in test env) ───
@@ -80,11 +120,17 @@ function getClient(): AppStoreServerAPIClient {
  */
 function getVerifier(): SignedDataVerifier {
   if (!cachedVerifier) {
+    if (APPLE_ROOT_CERTS.length === 0) {
+      throw new Error('Apple root certificates not loaded — check src/services/apple-certs/');
+    }
+    // appAppleId is required by the SDK when env is PRODUCTION. SANDBOX
+    // tolerates undefined, but we still pass it for consistency.
     cachedVerifier = new SignedDataVerifier(
-      [], // appleRootCertificates — empty = library uses bundled defaults
+      APPLE_ROOT_CERTS,
       true, // enableOnlineChecks
       IAP_ENV,
-      BUNDLE_ID
+      BUNDLE_ID,
+      APP_APPLE_ID || undefined
     );
   }
   return cachedVerifier;
@@ -239,12 +285,20 @@ export async function restorePurchases(opts: {
   let hasActive = false;
   const now = Date.now();
 
-  for (const txId of transactionIds.slice(0, 10)) {
+  // No hard limit on the number of transactions — Apple's StoreKit2 can
+  // return many for users who renewed across years. Each lookup is one
+  // HTTPS call to Apple, so process sequentially to stay polite.
+  for (const txId of transactionIds) {
     try {
       const txInfo = await getClient().getTransactionInfo(txId);
       const signed = (txInfo as any).signedTransactionInfo as string | undefined;
       if (!signed) continue;
       const decoded = await getVerifier().verifyAndDecodeTransaction(signed);
+      const productId = safeProductId(decoded);
+      if (!isKnownProductId(productId)) {
+        console.warn('[IAP] restore: skipping unknown product', productId);
+        continue;
+      }
       const expiresMs = decoded.expiresDate ?? 0;
       const status: 'active' | 'expired' = expiresMs > now ? 'active' : 'expired';
       await upsertSubscriptionFromTransaction({

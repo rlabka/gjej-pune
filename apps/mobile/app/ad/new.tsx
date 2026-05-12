@@ -539,7 +539,6 @@ export default function NewAdScreen() {
                     <Phone color="#94A3B8" size={11} />
                     <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                       {c.telNr}
-                      <Text className="text-red-500"> *</Text>
                     </Text>
                     <Text className="text-[10px] font-medium text-slate-400">{c.hidden}</Text>
                   </View>
