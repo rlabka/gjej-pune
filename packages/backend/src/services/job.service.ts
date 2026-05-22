@@ -11,6 +11,30 @@ function stripDiacritics(s: string): string {
     .trim();
 }
 
+// ─── Fuzzy place matcher (mirrors jobAd.service) ──────────────────────
+function tokenize(s: string): string[] {
+  return s.split(/[^a-z0-9]+/i).filter((t) => t.length >= 3 && !/^\d+$/.test(t));
+}
+
+function tokensMatch(qt: string, pt: string): boolean {
+  if (qt === pt) return true;
+  if (pt.includes(qt) || qt.includes(pt)) return true;
+  const minLen = Math.min(qt.length, pt.length);
+  if (minLen >= 5 && qt.slice(0, 5) === pt.slice(0, 5)) return true;
+  return false;
+}
+
+function placeMatches(query: string, place: string): boolean {
+  if (!query || !place) return false;
+  const q = stripDiacritics(query.toLowerCase());
+  const p = stripDiacritics(place.toLowerCase());
+  if (p.includes(q)) return true;
+  const qTokens = tokenize(q);
+  if (qTokens.length === 0) return false;
+  const pTokens = tokenize(p);
+  return qTokens.every((qt) => pTokens.some((pt) => tokensMatch(qt, pt)));
+}
+
 // ─── Country Name → Code Mapping (all supported languages) ─
 // Keys are stored WITHOUT diacritics (stripped) so lookup is accent-insensitive.
 const COUNTRY_NAME_TO_CODE: Record<string, string> = {};
@@ -314,17 +338,23 @@ export async function getJobs(filters: JobFilters = {}) {
     );
   }
 
-  // Case-insensitive location text filter (city, state, country name, countryCode)
+  // Case-insensitive location text filter. Handles three input shapes:
+  //   "Tirana"          → city/state substring match
+  //   "Schweiz"         → country code match
+  //   "Tirana, Albania" → country code match AND city substring match
+  // Both sides are diacritic-stripped so "Tirana" matches "Tiranë",
+  // "Zurich" matches "Zürich", etc.
   if (filters.location && (filters.lat == null || filters.lng == null || locationIsCountry)) {
-    const loc = filters.location.toLowerCase().trim();
-    // Check if the input is a country name → resolve to country code
-    const resolvedCode = countryCodeFromName(loc);
-    // Also try to extract country from "City, Country" format
-    const parts = loc.split(',').map(p => p.trim());
-    const lastPart = parts.length > 1 ? parts[parts.length - 1] : null;
+    const locRaw = filters.location.toLowerCase().trim();
+    const loc = stripDiacritics(locRaw);
+    const resolvedCode = countryCodeFromName(locRaw);
+    const partsRaw = locRaw.split(',').map(p => p.trim()).filter(Boolean);
+    const lastPart = partsRaw.length > 1 ? partsRaw[partsRaw.length - 1] : null;
     const resolvedCodeFromPart = lastPart ? countryCodeFromName(lastPart) : null;
 
-    // Country bounding boxes for fallback when countryCode is null (lat/lng based)
+    // City parts = the parts the user typed that are NOT country names.
+    const cityRaws = partsRaw.filter((p) => countryCodeFromName(p) == null);
+
     const COUNTRY_BOUNDS: Record<string, { latMin: number; latMax: number; lngMin: number; lngMax: number }> = {
       CH: { latMin: 45.8, latMax: 47.9, lngMin: 5.9, lngMax: 10.5 },
       DE: { latMin: 47.2, latMax: 55.1, lngMin: 5.8, lngMax: 15.1 },
@@ -338,31 +368,34 @@ export async function getJobs(filters: JobFilters = {}) {
     const isCountrySearch = resolvedCode != null || resolvedCodeFromPart != null;
 
     allJobs = allJobs.filter((j) => {
-      // When searching for a country, only match by countryCode — skip city/state substring
+      const cityField = j.locationCity || '';
+      const stateField = j.locationState || '';
+      const placeBlob = `${cityField}, ${stateField}`;
+
       if (isCountrySearch) {
-        if (resolvedCode && j.countryCode === resolvedCode) return true;
-        if (resolvedCodeFromPart && j.countryCode === resolvedCodeFromPart) return true;
-        // Fallback: if job has no countryCode but has coordinates, check bounding box
         const code = resolvedCode || resolvedCodeFromPart;
-        if (code && !j.countryCode && j.lat != null && j.lng != null) {
-          const bounds = COUNTRY_BOUNDS[code];
-          if (bounds && j.lat >= bounds.latMin && j.lat <= bounds.latMax && j.lng >= bounds.lngMin && j.lng <= bounds.lngMax) {
-            return true;
+        let countryOk = false;
+        if (code) {
+          if (j.countryCode === code) countryOk = true;
+          else if (!j.countryCode && j.lat != null && j.lng != null) {
+            const b = COUNTRY_BOUNDS[code];
+            if (b && j.lat >= b.latMin && j.lat <= b.latMax && j.lng >= b.lngMin && j.lng <= b.lngMax) {
+              countryOk = true;
+            }
           }
         }
-        return false;
+        if (!countryOk) return false;
+        if (cityRaws.length > 0) {
+          return cityRaws.every((p) => placeMatches(p, placeBlob));
+        }
+        return true;
       }
-      // City/state text search (only when NOT a country search)
-      if (j.locationCity.toLowerCase().includes(loc)) return true;
-      if (j.locationState.toLowerCase().includes(loc)) return true;
-      // Direct countryCode match for 2-letter input
+
+      // No country in input — fuzzy match against city + state.
+      if (placeMatches(locRaw, placeBlob)) return true;
       if (j.countryCode && j.countryCode.toLowerCase() === loc) return true;
-      // Partial match: check if any part matches city or state
-      if (parts.length > 1) {
-        return parts.some(p =>
-          j.locationCity.toLowerCase().includes(p) ||
-          j.locationState.toLowerCase().includes(p)
-        );
+      if (partsRaw.length > 1) {
+        return partsRaw.some((p) => placeMatches(p, placeBlob));
       }
       return false;
     });
@@ -370,16 +403,23 @@ export async function getJobs(filters: JobFilters = {}) {
 
   const total = allJobs.length;
 
-  // Sort: 'date' = newest first, 'relevance' (default) = premium first then newest
+  // Sort: 'date' = newest first; default = Premium first (bumped on renewal).
   const sorted = allJobs
     .map((job) => ({ ...job, isBoosted: job.user?.isPremium || false }))
     .sort((a, b) => {
-      if (filters.sort === 'date') {
+      if (filters.sort === 'date' || filters.sort === 'newest') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
-      // relevance: premium first, then by date
+      if (filters.sort === 'oldest') {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
+      // Default: Premium first, then by updatedAt within the Premium group so
+      // a freshly-renewed Premium user re-surfaces above older Premium jobs.
       if (a.isBoosted && !b.isBoosted) return -1;
       if (!a.isBoosted && b.isBoosted) return 1;
+      if (a.isBoosted && b.isBoosted) {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -409,6 +449,19 @@ export async function getJobsByUser(userId: string) {
     include: { images: true },
     orderBy: { createdAt: 'desc' },
   });
+}
+
+/**
+ * Bump every active job of this user to the top of the Premium group by
+ * updating their `updatedAt` to NOW. Called when a subscription becomes
+ * active so a renewed employer re-surfaces above older Premium jobs.
+ */
+export async function bumpUserJobsOnPremiumActivation(userId: string): Promise<void> {
+  await prisma.$executeRaw`
+    UPDATE "Job"
+    SET "updatedAt" = NOW()
+    WHERE "userId" = ${userId} AND status = 'Active'
+  `;
 }
 
 // ─── Get Single Job ─────────────────────────────────────

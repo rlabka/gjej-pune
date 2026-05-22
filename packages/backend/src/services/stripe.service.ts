@@ -2,7 +2,26 @@ import Stripe from 'stripe';
 import { prisma } from '../config/prisma';
 import { env } from '../config/env';
 import { generateToken } from './auth.service';
+import { bumpUserAdsOnPremiumActivation } from './jobAd.service';
+import { bumpUserJobsOnPremiumActivation } from './job.service';
 import type { AuthRole } from '@jmp/shared';
+
+/**
+ * Mark a user's active listings as freshly boosted so they re-surface in
+ * the public feed. Called from every Premium-activation path (initial
+ * checkout, renewal invoice, subscription reactivation) so a paying user
+ * doesn't get stuck below older Premium listings after each renewal.
+ */
+async function bumpListingsForPremiumUser(userId: string): Promise<void> {
+  try {
+    await Promise.all([
+      bumpUserAdsOnPremiumActivation(userId),
+      bumpUserJobsOnPremiumActivation(userId),
+    ]);
+  } catch (err) {
+    console.error('[Stripe Webhook] bumpListingsForPremiumUser failed:', err);
+  }
+}
 
 // ─── Stripe Client (lazy – server starts even without keys) ──
 
@@ -474,6 +493,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { id: userId },
     data: { isPremium: true },
   });
+  await bumpListingsForPremiumUser(userId);
 
   // Send confirmation email
   try {
@@ -587,6 +607,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     where: { id: sub.userId },
     data: { isPremium: true },
   });
+  await bumpListingsForPremiumUser(sub.userId);
 
   // Send renewal email (skip first invoice)
   if (invoice.billing_reason === 'subscription_cycle') {
@@ -686,10 +707,18 @@ async function handleSubscriptionUpdated(stripeSub: Stripe.Subscription) {
   // Sync premium status — but don't blindly set false if user has OTHER active subscriptions
   const isThisSubActive = ['active', 'trialing'].includes(stripeSub.status);
   if (isThisSubActive) {
+    const before = await prisma.user.findUnique({
+      where: { id: sub.userId },
+      select: { isPremium: true },
+    });
     await prisma.user.update({
       where: { id: sub.userId },
       data: { isPremium: true },
     });
+    // Only bump listings on the false→true transition; we don't want every
+    // unrelated subscription event (price change, metadata edit, …) to
+    // re-shuffle the feed.
+    if (!before?.isPremium) await bumpListingsForPremiumUser(sub.userId);
     console.log(`[Stripe Webhook] handleSubscriptionUpdated – user ${sub.userId} isPremium=true (sub ${stripeSub.id} is ${stripeSub.status})`);
   } else {
     // Before setting isPremium=false, check if user has ANY other active subscription

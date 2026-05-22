@@ -233,10 +233,29 @@ async function upsertSubscriptionFromTransaction(opts: {
 
   // Mirror the active-or-not flag onto User so isPremium checks stay cheap.
   const isPremium = status === 'active' || status === 'in_grace_period';
+  const before = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isPremium: true },
+  });
   await prisma.user.update({
     where: { id: userId },
     data: { isPremium },
   });
+  // On the false→true transition (initial purchase or renewal coming out of
+  // a lapse) bump every active listing of the user so they re-surface in
+  // the public feed above older Premium listings.
+  if (isPremium && !before?.isPremium) {
+    try {
+      const { bumpUserAdsOnPremiumActivation } = await import('./jobAd.service');
+      const { bumpUserJobsOnPremiumActivation } = await import('./job.service');
+      await Promise.all([
+        bumpUserAdsOnPremiumActivation(userId),
+        bumpUserJobsOnPremiumActivation(userId),
+      ]);
+    } catch (err) {
+      console.error('[IAP] bump listings on premium activation failed:', err);
+    }
+  }
 }
 
 // ─── Public API ─────────────────────────────────────────────

@@ -11,6 +11,38 @@ function stripDiacritics(s: string): string {
     .trim();
 }
 
+// ─── Fuzzy place matcher ──────────────────────────────────────────────
+// Handles real-world inconsistencies in stored vs typed city names:
+//   - Diacritics:        "Tirana" -> "Tiranë", "Zurich" -> "Zürich"
+//   - Ending variations: "Tirana" -> "Tirane", "Geneva" -> "Genève"
+//   - Stored places with extra components like
+//     "Tiranë, 1001-1028, Shqipëria Qendrore, Shqipëria"
+// Full cross-language translations (Köln/Cologne, Wien/Vienna) need a
+// city alias table -- out of scope here.
+function tokenize(s: string): string[] {
+  return s.split(/[^a-z0-9]+/i).filter((t) => t.length >= 3 && !/^\d+$/.test(t));
+}
+
+function tokensMatch(qt: string, pt: string): boolean {
+  if (qt === pt) return true;
+  if (pt.includes(qt) || qt.includes(pt)) return true;
+  // 5-char prefix overlap covers Tirana/Tirane, Geneva/Geneve etc.
+  const minLen = Math.min(qt.length, pt.length);
+  if (minLen >= 5 && qt.slice(0, 5) === pt.slice(0, 5)) return true;
+  return false;
+}
+
+function placeMatches(query: string, place: string): boolean {
+  if (!query || !place) return false;
+  const q = stripDiacritics(query.toLowerCase());
+  const p = stripDiacritics(place.toLowerCase());
+  if (p.includes(q)) return true;
+  const qTokens = tokenize(q);
+  if (qTokens.length === 0) return false;
+  const pTokens = tokenize(p);
+  return qTokens.every((qt) => pTokens.some((pt) => tokensMatch(qt, pt)));
+}
+
 // ─── Country Name → Code Mapping (all supported languages) ─
 // Keys are stored WITHOUT diacritics (stripped) so lookup is accent-insensitive.
 const COUNTRY_NAME_TO_CODE: Record<string, string> = {};
@@ -205,6 +237,20 @@ export async function getAdsByUser(userId: string) {
   return ads.map((ad) => ({ ...ad, skills: JSON.parse(ad.skills), spokenLanguages: JSON.parse(ad.spokenLanguages) }));
 }
 
+/**
+ * Bump every active ad of this user to the top of the Premium group by
+ * updating their `updatedAt` to NOW. Called when a subscription becomes
+ * active (initial purchase or renewal) so the user re-surfaces in the
+ * feed instead of being stuck under older Premium listings.
+ */
+export async function bumpUserAdsOnPremiumActivation(userId: string): Promise<void> {
+  await prisma.$executeRaw`
+    UPDATE "JobSeekerAd"
+    SET "updatedAt" = NOW()
+    WHERE "userId" = ${userId} AND status = 'Active'
+  `;
+}
+
 // ─── Get All Ads (public listing) ───────────────────────
 
 export async function getAds(filters: { keyword?: string; category?: string; location?: string; lat?: number; lng?: number; radius?: number; page?: number; limit?: number; sort?: string; experience?: string; availability?: string } = {}) {
@@ -274,10 +320,14 @@ export async function getAds(filters: { keyword?: string; category?: string; loc
       })
       .filter((a) => a.distance_km <= r)
       .sort((a, b) => {
+        // Explicit date sort overrides premium boost so the user's choice wins.
+        if (filters.sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        if (filters.sort === 'newest' || filters.sort === 'date') {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+        // Default (relevance): premium first, then nearest.
         if (a.isBoosted && !b.isBoosted) return -1;
         if (!a.isBoosted && b.isBoosted) return 1;
-        if (filters.sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        if (filters.sort === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         return a.distance_km - b.distance_km;
       });
 
@@ -312,13 +362,22 @@ export async function getAds(filters: { keyword?: string; category?: string; loc
     });
   }
 
-  // Case-insensitive location text filter with country name resolution
+  // Case-insensitive location text filter with country name resolution.
+  // The user may type either a city ("Tirana"), a country ("Schweiz"),
+  // or both ("Tirana, Albania"). Both sides of the comparison are diacritic-
+  // stripped so "Tirana" matches stored "Tiranë", "Zurich" matches "Zürich".
   if (filters.location && (filters.lat == null || filters.lng == null || locationIsCountry)) {
-    const loc = filters.location.toLowerCase().trim();
-    const resolvedCode = countryCodeFromName(loc);
-    const parts = loc.split(',').map(p => p.trim());
-    const lastPart = parts.length > 1 ? parts[parts.length - 1] : null;
+    const locRaw = filters.location.toLowerCase().trim();
+    const loc = stripDiacritics(locRaw);
+    const resolvedCode = countryCodeFromName(locRaw);
+    const partsRaw = locRaw.split(',').map(p => p.trim()).filter(Boolean);
+    const lastPart = partsRaw.length > 1 ? partsRaw[partsRaw.length - 1] : null;
     const resolvedCodeFromPart = lastPart ? countryCodeFromName(lastPart) : null;
+
+    // City parts = parts the user typed that are NOT country names.
+    // For "Tirana, Albania" that's just ["tirana"]; the ad's livingPlace
+    // must fuzzy-match ALL of them in addition to the country match.
+    const cityRaws = partsRaw.filter((p) => countryCodeFromName(p) == null);
 
     const COUNTRY_BOUNDS: Record<string, { latMin: number; latMax: number; lngMin: number; lngMax: number }> = {
       CH: { latMin: 45.8, latMax: 47.9, lngMin: 5.9, lngMax: 10.5 },
@@ -333,27 +392,33 @@ export async function getAds(filters: { keyword?: string; category?: string; loc
     const isCountrySearch = resolvedCode != null || resolvedCodeFromPart != null;
 
     allAdsNormal = allAdsNormal.filter((a) => {
-      // When searching for a country, only match by countryCode — skip livingPlace substring
       if (isCountrySearch) {
-        if (resolvedCode && a.countryCode === resolvedCode) return true;
-        if (resolvedCodeFromPart && a.countryCode === resolvedCodeFromPart) return true;
-        // Fallback: if ad has no countryCode but has coordinates, check bounding box
+        // Country side must match via countryCode column or bbox fallback.
         const code = resolvedCode || resolvedCodeFromPart;
-        if (code && !a.countryCode && a.lat != null && a.lng != null) {
-          const bounds = COUNTRY_BOUNDS[code];
-          if (bounds && a.lat >= bounds.latMin && a.lat <= bounds.latMax && a.lng >= bounds.lngMin && a.lng <= bounds.lngMax) {
-            return true;
+        let countryOk = false;
+        if (code) {
+          if (a.countryCode === code) countryOk = true;
+          else if (!a.countryCode && a.lat != null && a.lng != null) {
+            const b = COUNTRY_BOUNDS[code];
+            if (b && a.lat >= b.latMin && a.lat <= b.latMax && a.lng >= b.lngMin && a.lng <= b.lngMax) {
+              countryOk = true;
+            }
           }
         }
-        return false;
+        if (!countryOk) return false;
+        // City side (e.g. "Tirana" from "Tirana, Albania") must fuzzy-match.
+        if (cityRaws.length > 0) {
+          return cityRaws.every((p) => placeMatches(p, a.livingPlace || ''));
+        }
+        return true;
       }
-      // City/place text search (only when NOT a country search)
-      if ((a.livingPlace || '').toLowerCase().includes(loc)) return true;
-      // Direct countryCode match for 2-letter input
+
+      // No country recognised — pure city/text fuzzy match.
+      if (placeMatches(locRaw, a.livingPlace || '')) return true;
       if (a.countryCode && a.countryCode.toLowerCase() === loc) return true;
-      // Partial match for "City, Country" format
-      if (parts.length > 1) {
-        return parts.some(p => (a.livingPlace || '').toLowerCase().includes(p));
+      // Multi-part input ("City, Region" without country): any part is enough.
+      if (partsRaw.length > 1) {
+        return partsRaw.some((p) => placeMatches(p, a.livingPlace || ''));
       }
       return false;
     });
@@ -364,15 +429,24 @@ export async function getAds(filters: { keyword?: string; category?: string; loc
   const sorted = allAdsNormal
     .map((ad: any) => ({ ...ad, skills: JSON.parse(ad.skills), spokenLanguages: JSON.parse(ad.spokenLanguages), isBoosted: ad.user?.isPremium || false }))
     .sort((a: any, b: any) => {
-      // Premium always on top
-      if (a.isBoosted && !b.isBoosted) return -1;
-      if (!a.isBoosted && b.isBoosted) return 1;
-
+      // Explicit date sort: user chose it, so it wins over Premium boost.
       if (filters.sort === 'oldest') {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       }
-      if (filters.sort === 'newest') {
+      if (filters.sort === 'newest' || filters.sort === 'date') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+
+      // Default (relevance): Premium first.
+      if (a.isBoosted && !b.isBoosted) return -1;
+      if (!a.isBoosted && b.isBoosted) return 1;
+
+      // Within the Premium group: most recently bumped first. Bumps happen
+      // when the user renews their subscription or edits the ad — so a
+      // freshly-renewed Premium user pops back to the top of the Premium
+      // group instead of being stuck under older Premium ads.
+      if (a.isBoosted && b.isBoosted) {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
       // relevance (default): score by completeness + views + recency
       const scoreA = (a.views || 0) * 2 + (a.experience ? 5 : 0) + ((a.skills || []).length > 0 ? 3 : 0) + (a.photoUrl ? 3 : 0) + (a.age ? 1 : 0);
