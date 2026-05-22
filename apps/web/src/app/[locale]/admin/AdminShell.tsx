@@ -5,7 +5,7 @@ import { Link, usePathname } from '@/i18n/routing';
 import { useLocale, useTranslations } from 'next-intl';
 import { logout } from '@/lib/auth';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { Globe, Scale, LogOut, Menu, X, ExternalLink, Settings, Users, Briefcase, FileText, BookOpen, CreditCard, FolderOpen, Search, Megaphone } from 'lucide-react';
+import { Globe, Scale, LogOut, Menu, X, ExternalLink, Settings, Users, Briefcase, FileText, BookOpen, CreditCard, FolderOpen, Search, Megaphone, Bell } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useState, useEffect } from 'react';
 
@@ -28,6 +28,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
     { href: '/admin/categories', labelKey: 'navCategories', icon: FolderOpen },
     { href: '/admin/subscriptions', labelKey: 'navSubscriptions', icon: CreditCard },
     { href: '/admin/ad-placements', labelKey: 'navAdPlacements', icon: Megaphone },
+    { href: '/admin/push', labelKey: 'navPush', icon: Bell },
     { href: '/admin/seo', labelKey: 'navSeo', icon: Search },
     { href: '/admin/settings', labelKey: 'settings', icon: Settings },
   ];

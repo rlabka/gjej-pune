@@ -155,7 +155,8 @@
     "option2": "Trova dipendenti"
   },
   "AdditionalServices": {
-    "title": "Altri servizi", "description": "Facilitiamo inoltre la ricerca di candidati idonei in queste aree:",
+    "title": "Altri servizi",
+    "description": "Facilitiamo inoltre la ricerca di candidati idonei in queste aree:",
     "jobs": "Lavori",
     "jobsDesc": "Scopri posizioni a tempo pieno e part-time in tutti i settori.",
     "freelance": "Lavoro autonomo",
@@ -163,7 +164,8 @@
     "companies": "Aziende",
     "companiesDesc": "Presenta la tua azienda come un datore di lavoro attraente.",
     "recruiting": "Recruiting",
-    "recruitingDesc": "Supporto professionale nella ricerca del personale.", "moreInfo": "Scopri di più",
+    "recruitingDesc": "Supporto professionale nella ricerca del personale.",
+    "moreInfo": "Scopri di più",
     "jobsImage": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400&h=300&fit=crop",
     "freelanceImage": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&h=300&fit=crop",
     "companiesImage": "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&h=300&fit=crop",
@@ -594,6 +596,7 @@
     "navUsers": "Utenti",
     "navSubscriptions": "Abbonamenti",
     "navAdPlacements": "Pubblicità",
+    "navPush": "Notifiche push",
     "navCategories": "Categorie",
     "navSeo": "SEO",
     "navJobs": "Offerte di lavoro",

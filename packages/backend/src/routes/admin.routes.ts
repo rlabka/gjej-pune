@@ -144,4 +144,14 @@ router.post('/ad-placements/:id/reject', adminRejectHandler);
 router.delete('/ad-placements/:id', adminDeleteHandler);
 router.post('/ad-placements/:id/logo', adLogoUpload.single('logo'), adminUploadLogoHandler);
 
+// Push broadcasts (admin → mobile users)
+import {
+  adminPushPreview,
+  adminPushBroadcast,
+  adminPushHistory,
+} from '../controllers/push.controller';
+router.post('/push/preview', adminPushPreview);
+router.post('/push/broadcast', adminPushBroadcast);
+router.get('/push/history', adminPushHistory);
+
 export default router;

@@ -155,7 +155,8 @@
     "option2": "Trouver des employés"
   },
   "AdditionalServices": {
-    "title": "Plus de services", "description": "Nous facilitons également la recherche de candidats appropriés dans ces domaines :",
+    "title": "Plus de services",
+    "description": "Nous facilitons également la recherche de candidats appropriés dans ces domaines :",
     "jobs": "Emplois",
     "jobsDesc": "Découvrez des postes à plein temps et à temps partiel dans tous les secteurs.",
     "freelance": "Freelance",
@@ -163,7 +164,8 @@
     "companies": "Entreprises",
     "companiesDesc": "Présentez votre entreprise comme un employeur attractif.",
     "recruiting": "Recrutement",
-    "recruitingDesc": "Soutien professionnel dans le recrutement de personnel.", "moreInfo": "En savoir plus",
+    "recruitingDesc": "Soutien professionnel dans le recrutement de personnel.",
+    "moreInfo": "En savoir plus",
     "jobsImage": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400&h=300&fit=crop",
     "freelanceImage": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&h=300&fit=crop",
     "companiesImage": "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&h=300&fit=crop",
@@ -594,6 +596,7 @@
     "navUsers": "Utilisateurs",
     "navSubscriptions": "Abonnements",
     "navAdPlacements": "Publicité",
+    "navPush": "Notifications push",
     "navCategories": "Catégories",
     "navSeo": "SEO",
     "navJobs": "Offres d'emploi",

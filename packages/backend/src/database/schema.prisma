@@ -45,6 +45,26 @@ model User {
   blocksUsers    UserBlock[] @relation("BlocksUser")
   blockedByUsers UserBlock[] @relation("BlockedByUser")
   reportsMade    Report[]    @relation("ReportsMade")
+  pushBroadcasts PushBroadcast[] @relation("AdminPushBroadcasts")
+}
+
+model PushBroadcast {
+  id              String   @id @default(cuid())
+  adminId         String
+  filter          Json
+  title           String
+  body            String
+  data            Json
+  usersTargeted   Int
+  devicesTargeted Int
+  devicesSent     Int
+  devicesFailed   Int
+  createdAt       DateTime @default(now())
+
+  admin User @relation("AdminPushBroadcasts", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([adminId])
 }
 
 model UserSettings {

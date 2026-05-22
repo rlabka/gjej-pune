@@ -155,7 +155,8 @@
     "option2": "Gjej punonjës"
   },
   "AdditionalServices": {
-    "title": "Shërbime të tjera", "description": "Ne lehtësojmë gjithashtu kërkimin e kandidatëve të përshtatshëm në këto fusha:",
+    "title": "Shërbime të tjera",
+    "description": "Ne lehtësojmë gjithashtu kërkimin e kandidatëve të përshtatshëm në këto fusha:",
     "jobs": "Pozicione",
     "jobsDesc": "Zbuloni pozicione me kohë të plotë dhe të pjesëshme në të gjitha industritë.",
     "freelance": "Freelance",
@@ -163,7 +164,8 @@
     "companies": "Kompani",
     "companiesDesc": "Prezantoni kompaninë tuaj si një punëdhënës tërheqës.",
     "recruiting": "Rekrutim",
-    "recruitingDesc": "Mbështetje profesionale në kërkimin e personelit.", "moreInfo": "Mëso më shumë",
+    "recruitingDesc": "Mbështetje profesionale në kërkimin e personelit.",
+    "moreInfo": "Mëso më shumë",
     "jobsImage": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400&h=300&fit=crop",
     "freelanceImage": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&h=300&fit=crop",
     "companiesImage": "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400&h=300&fit=crop",
@@ -687,6 +689,7 @@
     "navUsers": "Përdoruesit",
     "navSubscriptions": "Abonimet",
     "navAdPlacements": "Reklamim",
+    "navPush": "Njoftime push",
     "navCategories": "Kategoritë",
     "navSeo": "SEO",
     "navJobs": "Oferta pune",
