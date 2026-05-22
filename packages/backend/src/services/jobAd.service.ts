@@ -15,10 +15,68 @@ function stripDiacritics(s: string): string {
 // Handles real-world inconsistencies in stored vs typed city names:
 //   - Diacritics:        "Tirana" -> "Tiranë", "Zurich" -> "Zürich"
 //   - Ending variations: "Tirana" -> "Tirane", "Geneva" -> "Genève"
+//   - Cross-language translations via the explicit alias map below
+//     (Albanian/English/German/Italian for the main Western-European
+//     and Balkan cities our user base uses).
 //   - Stored places with extra components like
 //     "Tiranë, 1001-1028, Shqipëria Qendrore, Shqipëria"
-// Full cross-language translations (Köln/Cologne, Wien/Vienna) need a
-// city alias table -- out of scope here.
+
+// Each row contains every known spelling/translation of one city.
+// All entries are lowercase + diacritic-stripped (the matcher does the
+// same to its inputs, so no special handling needed here).
+const CITY_ALIAS_GROUPS: string[][] = [
+  // ─── Albania / Kosovo
+  ['tirana', 'tirane'],
+  ['pristina', 'prishtina', 'prishtine'],
+  ['vlora', 'vlore', 'valona'],
+  ['durres', 'durazzo'],
+  ['shkodra', 'shkoder', 'scutari', 'skadar'],
+  ['korca', 'korce'],
+  ['elbasan', 'elbasani'],
+  ['fier', 'fieri'],
+  ['berat', 'berati'],
+  ['gjirokaster', 'gjirokastra', 'argirocastro'],
+  ['peja', 'pec'],
+  ['prizren', 'prizreni'],
+  ['mitrovica', 'mitrovice'],
+  // ─── Germany
+  ['cologne', 'koln'],
+  ['munich', 'munchen'],
+  ['nuremberg', 'nurnberg'],
+  ['mayence', 'mainz'],
+  ['frankfurt'],
+  // ─── Austria
+  ['vienna', 'wien'],
+  ['salzburg'],
+  // ─── Switzerland
+  ['geneva', 'geneve', 'genf', 'ginevra'],
+  ['zurich', 'zurigo', 'cyrihu'],
+  ['basel', 'bale', 'basilea'],
+  ['bern', 'berne', 'berna', 'berni'],
+  ['lucerne', 'luzern', 'lucerna'],
+  // ─── Italy
+  ['rome', 'roma', 'rom'],
+  ['milan', 'milano', 'mailand'],
+  ['florence', 'firenze', 'florenz'],
+  ['venice', 'venezia', 'venedig'],
+  ['turin', 'torino'],
+  ['naples', 'napoli', 'neapel'],
+  ['genoa', 'genova', 'genua'],
+  // ─── France
+  ['marseille', 'marseilles'],
+  ['lyon', 'lyons', 'lione'],
+];
+
+// Build an O(1) lookup: each variant → Set of all variants in its group.
+const CITY_ALIASES: Map<string, Set<string>> = (() => {
+  const map = new Map<string, Set<string>>();
+  for (const group of CITY_ALIAS_GROUPS) {
+    const set = new Set(group);
+    for (const name of group) map.set(name, set);
+  }
+  return map;
+})();
+
 function tokenize(s: string): string[] {
   return s.split(/[^a-z0-9]+/i).filter((t) => t.length >= 3 && !/^\d+$/.test(t));
 }
@@ -29,6 +87,14 @@ function tokensMatch(qt: string, pt: string): boolean {
   // 5-char prefix overlap covers Tirana/Tirane, Geneva/Geneve etc.
   const minLen = Math.min(qt.length, pt.length);
   if (minLen >= 5 && qt.slice(0, 5) === pt.slice(0, 5)) return true;
+  // Cross-language alias (e.g. Pristina ↔ Prishtine, Vlora ↔ Vlore).
+  const aliases = CITY_ALIASES.get(qt);
+  if (aliases) {
+    for (const alias of aliases) {
+      if (alias === pt) return true;
+      if (pt.includes(alias) || alias.includes(pt)) return true;
+    }
+  }
   return false;
 }
 

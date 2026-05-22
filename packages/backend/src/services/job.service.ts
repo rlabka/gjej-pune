@@ -12,6 +12,54 @@ function stripDiacritics(s: string): string {
 }
 
 // ─── Fuzzy place matcher (mirrors jobAd.service) ──────────────────────
+// Cross-language city aliases — same table as jobAd.service. Kept in
+// sync by hand; if it grows we can extract it to a shared module.
+const CITY_ALIAS_GROUPS: string[][] = [
+  ['tirana', 'tirane'],
+  ['pristina', 'prishtina', 'prishtine'],
+  ['vlora', 'vlore', 'valona'],
+  ['durres', 'durazzo'],
+  ['shkodra', 'shkoder', 'scutari', 'skadar'],
+  ['korca', 'korce'],
+  ['elbasan', 'elbasani'],
+  ['fier', 'fieri'],
+  ['berat', 'berati'],
+  ['gjirokaster', 'gjirokastra', 'argirocastro'],
+  ['peja', 'pec'],
+  ['prizren', 'prizreni'],
+  ['mitrovica', 'mitrovice'],
+  ['cologne', 'koln'],
+  ['munich', 'munchen'],
+  ['nuremberg', 'nurnberg'],
+  ['mayence', 'mainz'],
+  ['frankfurt'],
+  ['vienna', 'wien'],
+  ['salzburg'],
+  ['geneva', 'geneve', 'genf', 'ginevra'],
+  ['zurich', 'zurigo', 'cyrihu'],
+  ['basel', 'bale', 'basilea'],
+  ['bern', 'berne', 'berna', 'berni'],
+  ['lucerne', 'luzern', 'lucerna'],
+  ['rome', 'roma', 'rom'],
+  ['milan', 'milano', 'mailand'],
+  ['florence', 'firenze', 'florenz'],
+  ['venice', 'venezia', 'venedig'],
+  ['turin', 'torino'],
+  ['naples', 'napoli', 'neapel'],
+  ['genoa', 'genova', 'genua'],
+  ['marseille', 'marseilles'],
+  ['lyon', 'lyons', 'lione'],
+];
+
+const CITY_ALIASES: Map<string, Set<string>> = (() => {
+  const map = new Map<string, Set<string>>();
+  for (const group of CITY_ALIAS_GROUPS) {
+    const set = new Set(group);
+    for (const name of group) map.set(name, set);
+  }
+  return map;
+})();
+
 function tokenize(s: string): string[] {
   return s.split(/[^a-z0-9]+/i).filter((t) => t.length >= 3 && !/^\d+$/.test(t));
 }
@@ -21,6 +69,13 @@ function tokensMatch(qt: string, pt: string): boolean {
   if (pt.includes(qt) || qt.includes(pt)) return true;
   const minLen = Math.min(qt.length, pt.length);
   if (minLen >= 5 && qt.slice(0, 5) === pt.slice(0, 5)) return true;
+  const aliases = CITY_ALIASES.get(qt);
+  if (aliases) {
+    for (const alias of aliases) {
+      if (alias === pt) return true;
+      if (pt.includes(alias) || alias.includes(pt)) return true;
+    }
+  }
   return false;
 }
 
