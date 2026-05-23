@@ -1,7 +1,6 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import TrustLogos from '@/components/TrustLogos';
-import AppComingSoon from '@/components/AppComingSoon';
 import HowItWorks from '@/components/HowItWorks';
 import PlatformOffer from '@/components/PlatformOffer';
 import CitySearch from '@/components/CitySearch';
@@ -21,7 +20,6 @@ export default function HomePage() {
         <main className="flex-grow">
           <HeroSection />
           <TrustLogos />
-          <AppComingSoon />
           <HowItWorks />
           <PlatformOffer />
           <CitySearch />

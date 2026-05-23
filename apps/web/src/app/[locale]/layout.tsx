@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import ThemeProvider from '@/components/ThemeProvider';
+import AppDownloadBanner from '@/components/AppDownloadBanner';
 
 const CMS_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -140,7 +141,10 @@ export default async function RootLayout({
 
   return (
     <NextIntlClientProvider messages={mergedMessages}>
-      <ThemeProvider>{children}</ThemeProvider>
+      <ThemeProvider>
+        <AppDownloadBanner />
+        {children}
+      </ThemeProvider>
     </NextIntlClientProvider>
   );
 }
