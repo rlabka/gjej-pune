@@ -6,6 +6,19 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { getThemeConfig, CONFIG_UPDATED_EVENT } from '@/lib/siteConfig';
 import { useState, useEffect } from 'react';
 import { Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
+import { FaApple, FaGooglePlay } from 'react-icons/fa';
+import { useLocale } from 'next-intl';
+
+const APP_STORE_URL = 'https://apps.apple.com/app/id6765750376';
+const PLAY_STORE_URL = '#'; // Placeholder until the Android build ships.
+
+const APP_BADGE_COPY: Record<string, { downloadOn: string; getOn: string; appStore: string; googlePlay: string }> = {
+  de: { downloadOn: 'Laden im',       getOn: 'Erhältlich bei',       appStore: 'App Store', googlePlay: 'Google Play' },
+  en: { downloadOn: 'Download on the', getOn: 'Get it on',             appStore: 'App Store', googlePlay: 'Google Play' },
+  fr: { downloadOn: 'Télécharger sur', getOn: 'Disponible sur',        appStore: 'App Store', googlePlay: 'Google Play' },
+  it: { downloadOn: 'Scarica su',      getOn: 'Disponibile su',        appStore: 'App Store', googlePlay: 'Google Play' },
+  sq: { downloadOn: 'Shkarko në',      getOn: 'Disponueshëm në',       appStore: 'App Store', googlePlay: 'Google Play' },
+};
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -20,6 +33,8 @@ interface SocialLinks {
 
 export default function Footer() {
   const t = useTranslations('Footer');
+  const locale = useLocale();
+  const appBadge = APP_BADGE_COPY[locale] ?? APP_BADGE_COPY.de;
   const [theme, setTheme] = useState(getThemeConfig());
   const [social, setSocial] = useState<SocialLinks>({});
 
@@ -75,6 +90,44 @@ export default function Footer() {
             <p className="text-white/70 text-sm leading-relaxed max-w-sm mb-8">
               {t('description')}
             </p>
+            {/* App Store + Google Play badges — official-style buttons.
+                iOS gets the live App Store URL; Android stays on `#` until
+                the Play store build ships. */}
+            <div className="mb-7 flex flex-wrap items-center gap-3">
+              <a
+                href={APP_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${appBadge.downloadOn} ${appBadge.appStore}`}
+                className="inline-flex items-center gap-3 rounded-xl bg-black px-4 py-2.5 ring-1 ring-white/10 hover:bg-black/80 hover:ring-white/20 transition-all"
+              >
+                <FaApple size={26} className="text-white" />
+                <div className="flex flex-col leading-none text-left">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-white/65">
+                    {appBadge.downloadOn}
+                  </span>
+                  <span className="mt-0.5 text-[15px] font-bold text-white">
+                    {appBadge.appStore}
+                  </span>
+                </div>
+              </a>
+              <a
+                href={PLAY_STORE_URL}
+                aria-label={`${appBadge.getOn} ${appBadge.googlePlay}`}
+                className="inline-flex items-center gap-3 rounded-xl bg-black px-4 py-2.5 ring-1 ring-white/10 hover:bg-black/80 hover:ring-white/20 transition-all"
+              >
+                <FaGooglePlay size={22} className="text-white" />
+                <div className="flex flex-col leading-none text-left">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-white/65">
+                    {appBadge.getOn}
+                  </span>
+                  <span className="mt-0.5 text-[15px] font-bold text-white">
+                    {appBadge.googlePlay}
+                  </span>
+                </div>
+              </a>
+            </div>
+
             {socialItems.length > 0 && (
               <div className="flex items-center gap-3 text-white/60">
                 {socialItems.map((s) => {
