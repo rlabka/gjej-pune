@@ -7,7 +7,7 @@ import { FaApple, FaGooglePlay } from 'react-icons/fa';
 import Image from 'next/image';
 
 const APP_STORE_URL = 'https://apps.apple.com/app/id6765750376';
-const PLAY_STORE_URL = ''; // Filled in once the Android build ships.
+const PLAY_STORE_URL = '#'; // Placeholder until the Android build ships.
 
 const DISMISS_KEY = 'gjp:app-banner-dismissed';
 const DISMISS_TTL_DAYS = 7;
