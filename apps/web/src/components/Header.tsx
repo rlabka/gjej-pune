@@ -846,6 +846,11 @@ export default function Header() {
                   <ChevronRight size={16} className="text-slate-300" />
                 </Link>
               )}
+              <Link href="/dashboard/job-seeker/profile-views" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-slate-700 hover:bg-white hover:text-[#162C66] hover:shadow-sm transition-all">
+                <span className="text-slate-400"><Eye size={18} /></span>
+                <span className="flex-1">{navT('profileVisitors')}</span>
+                <ChevronRight size={16} className="text-slate-300" />
+              </Link>
             </nav>
           )}
 
@@ -873,6 +878,11 @@ export default function Header() {
                 </span>
                 <span className="flex-1">{navT('messages')}</span>
                 {unreadMsgCount > 0 && <span className="text-[11px] font-bold text-white bg-rose-500 px-1.5 py-0.5 rounded-full">{unreadMsgCount}</span>}
+                <ChevronRight size={16} className="text-slate-300" />
+              </Link>
+              <Link href="/dashboard/employer/profile-views" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold text-slate-700 hover:bg-white hover:text-[#162C66] hover:shadow-sm transition-all">
+                <span className="text-slate-400"><Eye size={18} /></span>
+                <span className="flex-1">{navT('profileVisitors')}</span>
                 <ChevronRight size={16} className="text-slate-300" />
               </Link>
             </nav>

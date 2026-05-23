@@ -38,6 +38,8 @@ type Viewer = {
   viewerName: string;
   viewerImage: string | null;
   viewerRole: string;
+  viewerAdId: string | null;
+  viewerJobId: string | null;
   targetType: string;
   targetId: string;
   createdAt: string;
@@ -311,16 +313,31 @@ export default function ProfileViewsScreen() {
               </Text>
             </View>
 
-            {viewers.map((v) => (
-              <ViewerRow
-                key={v.id}
-                viewer={v}
-                copy={c}
-                dateLabel={formatDate(v.createdAt)}
-                onContact={() => onContact(v.viewerId)}
-                onMenu={() => setMenuViewerId(v.viewerId)}
-              />
-            ))}
+            {viewers.map((v) => {
+              // Resolve the public detail page for this viewer:
+              // job-seeker → their first active /ad/<id>;
+              // employer   → their most-recent active /job/<id>;
+              // anything else (no public listing) → no navigation.
+              const profileHref =
+                v.viewerAdId
+                  ? (`/ad/${v.viewerAdId}` as const)
+                  : v.viewerJobId
+                  ? (`/job/${v.viewerJobId}` as const)
+                  : null;
+              return (
+                <ViewerRow
+                  key={v.id}
+                  viewer={v}
+                  copy={c}
+                  dateLabel={formatDate(v.createdAt)}
+                  onContact={() => onContact(v.viewerId)}
+                  onMenu={() => setMenuViewerId(v.viewerId)}
+                  onOpenProfile={
+                    profileHref ? () => router.push(profileHref as any) : null
+                  }
+                />
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -407,12 +424,14 @@ function ViewerRow({
   dateLabel,
   onContact,
   onMenu,
+  onOpenProfile,
 }: {
   viewer: Viewer;
   copy: (typeof COPY)[Locale];
   dateLabel: string;
   onContact: () => void;
   onMenu: () => void;
+  onOpenProfile: (() => void) | null;
 }) {
   const avatarUrl = resolveMediaUrl(config.apiUrl, viewer.viewerImage);
   const isJobTarget = viewer.targetType === 'job';
@@ -428,8 +447,12 @@ function ViewerRow({
         elevation: 2,
       }}
     >
-      {/* Top: avatar + name + date */}
-      <View className="flex-row items-start p-4">
+      {/* Top: avatar + name + date — tappable to open the viewer's profile */}
+      <Pressable
+        onPress={onOpenProfile ?? undefined}
+        disabled={!onOpenProfile}
+        className="flex-row items-start p-4 active:bg-slate-50"
+      >
         {avatarUrl ? (
           <Image
             source={{ uri: avatarUrl }}
@@ -483,7 +506,7 @@ function ViewerRow({
             </Text>
           </View>
         </View>
-      </View>
+      </Pressable>
 
       {/* Bottom: contact CTA */}
       <View className="border-t border-slate-100 px-4 py-3">

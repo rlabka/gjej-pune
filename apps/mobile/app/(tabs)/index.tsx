@@ -31,6 +31,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { getDisplayName, getToken } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { config } from '@/lib/config';
@@ -227,7 +228,10 @@ export default function HomeScreen() {
           }
         >
           {/* Welcome header */}
-          <View className="px-6 pb-5 pt-12">
+          <View className="px-6 pb-5 pt-6">
+            <View className="mb-3 flex-row items-center justify-end">
+              <LanguageSwitcher variant="light" />
+            </View>
             <Text className="text-3xl font-extrabold leading-9 text-[#0B1F44]">
               {t('Mobile.home.welcomeBack')}{' '}
               <Text className="text-[#F5C400]">{name}</Text>
@@ -276,6 +280,11 @@ export default function HomeScreen() {
                   : t('Mobile.home.favoriteJobs')
               }
               onPress={() => router.push('/favorites' as any)}
+            />
+            <ActionCard
+              icon={Eye}
+              label={t('Mobile.profileViews.title')}
+              onPress={() => router.push('/profile-views' as any)}
             />
             <ActionCard
               icon={Plus}

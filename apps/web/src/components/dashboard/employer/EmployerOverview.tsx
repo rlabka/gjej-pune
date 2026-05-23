@@ -143,11 +143,22 @@ export default function EmployerOverview() {
       .catch(() => {});
   }, []);
 
+  // Short labels for the new "Profile visitors" quick-nav card — kept inline
+  // so we don't touch the existing per-locale `ui` strings.
+  const visitorsLabel = ({
+    de: 'Besucher',
+    en: 'Profile visitors',
+    fr: 'Visiteurs',
+    it: 'Visitatori',
+    sq: 'Vizitorët',
+  } as Record<string, string>)[locale] ?? 'Profile visitors';
+
   const quickNavItems = [
     { icon: MessageSquare, label: loc.newMessages(unreadMsgCount), href: '/dashboard/employer/messages', badge: unreadMsgCount > 0 ? unreadMsgCount : null, accent: false },
     { icon: Search, label: loc.findCandidate, href: '/dashboard/employer/candidates', badge: null, accent: false },
     { icon: Briefcase, label: loc.myJobOffers, href: '/dashboard/employer/jobs', badge: null, accent: false },
     { icon: Heart, label: loc.favoriteCandidates, href: '/dashboard/employer/favorites', badge: null, accent: false },
+    { icon: Eye, label: visitorsLabel, href: '/dashboard/employer/profile-views', badge: null, accent: false },
     { icon: Plus, label: loc.postNewJob, href: '/dashboard/employer/jobs/new', badge: null, accent: true },
   ];
 

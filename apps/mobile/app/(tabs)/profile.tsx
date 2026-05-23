@@ -20,6 +20,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useDialog } from '@/contexts/DialogContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { getDisplayName } from '@/lib/auth';
 import { useState } from 'react';
 
@@ -60,9 +61,12 @@ export default function ProfileScreen() {
         contentContainerStyle={{ paddingBottom: 80 }}
       >
         <View className="px-6 pt-6">
-          <Text className="text-3xl font-extrabold text-secondary">
-            {t('Mobile.profile.title')}
-          </Text>
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="text-3xl font-extrabold text-secondary">
+              {t('Mobile.profile.title')}
+            </Text>
+            <LanguageSwitcher variant="light" />
+          </View>
 
           {session && (
             <View className="mt-6 rounded-2xl border border-border bg-white p-5">

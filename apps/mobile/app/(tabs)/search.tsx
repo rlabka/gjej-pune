@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -27,6 +27,7 @@ import { JobCard, type JobItem } from '@/components/JobCard';
 import { AdCard, type AdItem } from '@/components/AdCard';
 import { FilterModal, type FilterValues } from '@/components/FilterModal';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { JOB_CATEGORIES, type Locale } from '@jmp/shared';
 
 type Mode = 'jobs' | 'ads';
@@ -90,8 +91,15 @@ export default function BrowseScreen() {
     (filters.sort !== 'relevance' ? 1 : 0) +
     (filters.radius !== 100 ? 1 : 0);
 
+  // Monotonically increasing request id — every time we fire a fetch
+  // we bump this, and any in-flight fetch that finishes after a newer one
+  // started is silently ignored. Without this the result list flickers
+  // between stale and current results as the user types or toggles filters.
+  const requestIdRef = useRef(0);
+
   const fetchPage = useCallback(
     async (p: number, append: boolean) => {
+      const myReqId = ++requestIdRef.current;
       setLoading(true);
       try {
         const params: Record<string, string> = {
@@ -113,6 +121,9 @@ export default function BrowseScreen() {
           if (filters.when) params.when = filters.when;
           const qs = new URLSearchParams(params).toString();
           const res = await api.get<JobsResponse>(`/api/jobs?${qs}`);
+          // Drop stale responses — a newer request was kicked off while
+          // this one was in flight.
+          if (myReqId !== requestIdRef.current) return;
           if (!res?.ok) throw new Error('fetch failed');
           setTotal(res.total);
           setTotalPages(res.totalPages);
@@ -120,6 +131,7 @@ export default function BrowseScreen() {
         } else {
           const qs = new URLSearchParams(params).toString();
           const res = await api.get<AdsResponse>(`/api/ads?${qs}`);
+          if (myReqId !== requestIdRef.current) return;
           if (!res?.ok) throw new Error('fetch failed');
           setTotal(res.total);
           setTotalPages(res.totalPages);
@@ -128,13 +140,18 @@ export default function BrowseScreen() {
       } catch {
         /* ignore */
       } finally {
-        setLoading(false);
-        setRefreshing(false);
+        if (myReqId === requestIdRef.current) {
+          setLoading(false);
+          setRefreshing(false);
+        }
       }
     },
     [mode, query, filters]
   );
 
+  // Debounced refetch on query / filter / mode change. The cleanup of the
+  // useEffect cancels a pending timer so rapid edits collapse into one
+  // request; the in-flight fetch is invalidated by the request id above.
   useEffect(() => {
     const id = setTimeout(() => {
       setPage(1);
@@ -174,7 +191,7 @@ export default function BrowseScreen() {
       {/* Top bar with logo — matches login/register/profile */}
       <SafeAreaView edges={['top']} className="bg-white">
         <View
-          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-3"
           style={{
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
@@ -183,11 +200,13 @@ export default function BrowseScreen() {
             elevation: 1,
           }}
         >
+          <View style={{ width: 60 }} />
           <Image
             source={LOGO_IMAGE}
             style={{ height: 28, width: 110 }}
             resizeMode="contain"
           />
+          <LanguageSwitcher variant="light" />
         </View>
       </SafeAreaView>
       <View className="flex-1">

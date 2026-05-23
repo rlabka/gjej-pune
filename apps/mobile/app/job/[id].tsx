@@ -297,7 +297,9 @@ export default function JobDetailScreen() {
             elevation: 3,
           }}
         >
-          {/* Top section with category + company */}
+          {/* Top section with category — company name intentionally hidden
+              on the public detail view (only shown once a conversation
+              starts, to protect employer identity in the public feed). */}
           <View className="border-b border-slate-100 p-5">
             <View className="flex-row items-start" style={{ gap: 14 }}>
               <View className="h-14 w-14 items-center justify-center rounded-2xl bg-[#162C66]/[0.06]">
@@ -307,26 +309,14 @@ export default function JobDetailScreen() {
                 <Text className="text-[22px] font-extrabold leading-tight tracking-tight text-[#0B1F44]">
                   {translateJobTitle(job.category, locale as Locale)}
                 </Text>
-                {job.companyName ?? job.user?.displayName ? (
-                  <View
-                    className="mt-2 flex-row items-center"
-                    style={{ gap: 6 }}
-                  >
-                    <Building2 color="#94A3B8" size={13} />
-                    <Text
-                      className="flex-1 text-[13px] font-semibold text-slate-500"
-                      numberOfLines={1}
-                    >
-                      {job.companyName ?? job.user?.displayName}
-                    </Text>
-                    {job.user?.isPremium ? (
-                      <View className="flex-row items-center rounded-md bg-[#F5C400]/15 px-1.5 py-0.5">
-                        <Crown color="#B45309" size={10} />
-                        <Text className="ml-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-700">
-                          Premium
-                        </Text>
-                      </View>
-                    ) : null}
+                {job.user?.isPremium ? (
+                  <View className="mt-2 flex-row" style={{ gap: 6 }}>
+                    <View className="flex-row items-center rounded-md bg-[#F5C400]/15 px-1.5 py-0.5">
+                      <Crown color="#B45309" size={10} />
+                      <Text className="ml-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-700">
+                        Premium
+                      </Text>
+                    </View>
                   </View>
                 ) : null}
               </View>

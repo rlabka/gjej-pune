@@ -143,11 +143,20 @@ export default function JobSeekerDashboardPage() {
     setHasRecommendedJobs(!!root && root.children.length > 0);
   }, []);
 
+  const visitorsLabel = ({
+    de: 'Besucher',
+    en: 'Profile visitors',
+    fr: 'Visiteurs',
+    it: 'Visitatori',
+    sq: 'Vizitorët',
+  } as Record<string, string>)[locale] ?? 'Profile visitors';
+
   const quickNavItems = [
     { icon: MessageSquare, label: loc.newMessages(unreadMsgCount), href: '/dashboard/job-seeker/messages', badge: unreadMsgCount || null, accent: false },
     { icon: Search, label: loc.searchJob, href: '/jobs', badge: null, accent: false },
     { icon: User, label: loc.myProfiles, href: '/dashboard/job-seeker/my-ads', badge: null, accent: false },
     { icon: Heart, label: loc.favoriteJobs, href: '/dashboard/job-seeker/saved', badge: null, accent: false },
+    { icon: Eye, label: visitorsLabel, href: '/dashboard/job-seeker/profile-views', badge: null, accent: false },
     { icon: Plus, label: loc.createProfile, href: '/dashboard/job-seeker/my-ads?create=1', badge: null, accent: true },
   ];
 

@@ -141,12 +141,31 @@ export async function getProfileViewers(userId: string, isPremium: boolean) {
     return { count: views.length, viewers: [], locked: true };
   }
 
-  // Premium: enrich with viewer info
+  // Premium: enrich with viewer info, including the first JobSeekerAd id
+  // (job-seekers) or the most-recent Job id (employers) so the mobile UI
+  // can deep-link from a viewer row straight to their public detail page.
   const enriched = await Promise.all(
     views.map(async (v: any) => {
       const viewer = await prisma.user.findUnique({
         where: { id: v.viewerId },
-        select: { id: true, displayName: true, image: true, role: true },
+        select: {
+          id: true,
+          displayName: true,
+          image: true,
+          role: true,
+          jobSeekerAds: {
+            where: { status: 'Active' },
+            select: { id: true },
+            orderBy: { updatedAt: 'desc' },
+            take: 1,
+          },
+          jobs: {
+            where: { status: 'Active' },
+            select: { id: true },
+            orderBy: { updatedAt: 'desc' },
+            take: 1,
+          },
+        },
       });
       return {
         id: v.id,
@@ -154,6 +173,8 @@ export async function getProfileViewers(userId: string, isPremium: boolean) {
         viewerName: viewer?.displayName || 'Unbekannt',
         viewerImage: viewer?.image || null,
         viewerRole: viewer?.role || 'job-seeker',
+        viewerAdId: viewer?.jobSeekerAds?.[0]?.id ?? null,
+        viewerJobId: viewer?.jobs?.[0]?.id ?? null,
         targetType: v.targetType,
         targetId: v.targetId,
         createdAt: v.createdAt,

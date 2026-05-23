@@ -27,6 +27,7 @@ import {
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { useI18n } from '@/contexts/I18nContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { getNotifTitle, getNotifBody } from '@/lib/notificationLocale';
@@ -322,7 +323,7 @@ export default function NotificationsScreen() {
       {/* Top bar with logo — consistent across tabs */}
       <SafeAreaView edges={['top']} className="bg-white">
         <View
-          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-3"
           style={{
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
@@ -331,11 +332,13 @@ export default function NotificationsScreen() {
             elevation: 1,
           }}
         >
+          <View style={{ width: 60 }} />
           <Image
             source={LOGO_IMAGE}
             style={{ height: 28, width: 110 }}
             resizeMode="contain"
           />
+          <LanguageSwitcher variant="light" />
         </View>
       </SafeAreaView>
       <View className="flex-1">

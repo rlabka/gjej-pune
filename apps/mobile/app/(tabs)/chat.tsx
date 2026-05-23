@@ -22,6 +22,7 @@ const LOGO_IMAGE = require('../../assets/images/logo.png');
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { api } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { resolveMediaUrl } from '@/lib/useApi';
@@ -154,7 +155,7 @@ export default function ChatListScreen() {
       {/* Top bar with logo — consistent with login/register/search */}
       <SafeAreaView edges={['top']} className="bg-white">
         <View
-          className="flex-row items-center justify-center border-b border-slate-200/70 bg-white px-4 py-3"
+          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-3"
           style={{
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
@@ -163,11 +164,13 @@ export default function ChatListScreen() {
             elevation: 1,
           }}
         >
+          <View style={{ width: 60 }} />
           <Image
             source={LOGO_IMAGE}
             style={{ height: 28, width: 110 }}
             resizeMode="contain"
           />
+          <LanguageSwitcher variant="light" />
         </View>
       </SafeAreaView>
       <View className="flex-1">
@@ -371,26 +374,27 @@ function ConversationRow({
   return (
     <Pressable
       onPress={onPress}
-      className="border-b border-slate-50 px-4 py-3.5 active:bg-slate-50"
+      className="border-b border-slate-100 px-4 py-4 active:bg-slate-50"
     >
-      <View className="flex-row items-center" style={{ gap: 12 }}>
-        {/* Avatar + online dot */}
+      <View className="flex-row items-center" style={{ gap: 14 }}>
+        {/* Avatar + online dot — bigger so the chat list reads as easily
+            as LinkedIn / WhatsApp on a phone. */}
         <View className="relative shrink-0">
           {photo ? (
             <Image
               source={{ uri: photo }}
-              style={{ width: 40, height: 40, borderRadius: 20 }}
+              style={{ width: 54, height: 54, borderRadius: 27 }}
               resizeMode="cover"
             />
           ) : (
             <View
               className={`items-center justify-center rounded-full ${
-                hasUnread ? 'bg-[#162C66]' : 'bg-slate-100'
+                hasUnread ? 'bg-[#162C66]' : 'bg-[#162C66]/10'
               }`}
-              style={{ width: 40, height: 40 }}
+              style={{ width: 54, height: 54 }}
             >
               <Text
-                className={`text-[13px] font-bold ${
+                className={`text-[18px] font-extrabold ${
                   hasUnread ? 'text-white' : 'text-[#162C66]'
                 }`}
               >
@@ -398,55 +402,61 @@ function ConversationRow({
               </Text>
             </View>
           )}
-          <View
-            className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${
-              online ? 'bg-emerald-400' : 'bg-slate-300'
-            }`}
-          />
+          {online ? (
+            <View
+              className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500"
+            />
+          ) : null}
         </View>
 
         {/* Content */}
         <View className="flex-1">
           {/* Row 1: name + time */}
-          <View className="mb-0.5 flex-row items-baseline justify-between">
+          <View className="mb-1 flex-row items-baseline justify-between">
             <Text
-              className={`flex-1 text-[13px] ${
+              className={`flex-1 text-[16px] tracking-tight ${
                 hasUnread
-                  ? 'font-semibold text-[#0B1F44]'
-                  : 'font-medium text-slate-700'
+                  ? 'font-extrabold text-[#0B1F44]'
+                  : 'font-semibold text-[#0B1F44]'
               }`}
               numberOfLines={1}
             >
               {item.partnerName}
             </Text>
-            <Text className="ml-2 text-[11px] text-slate-400">
+            <Text
+              className={`ml-2 text-[12px] ${
+                hasUnread
+                  ? 'font-bold text-[#162C66]'
+                  : 'font-medium text-slate-500'
+              }`}
+            >
               {timeAgo(item.lastAt, t)}
             </Text>
           </View>
 
-          {/* Row 2: job refs */}
+          {/* Row 2: job refs (when this conversation is tied to job ads) */}
           {visibleRefs.length > 0 ? (
             <View
-              className="mb-0.5 flex-row items-center"
-              style={{ gap: 4 }}
+              className="mb-1.5 flex-row items-center"
+              style={{ gap: 5 }}
             >
-              <Briefcase color="#94A3B8" size={11} />
+              <Briefcase color="#64748B" size={12} />
               {visibleRefs.map((ref, i) => (
                 <View
                   key={i}
-                  className="rounded bg-slate-50 px-1.5 py-0.5"
+                  className="rounded-md bg-slate-100 px-2 py-0.5"
                 >
                   <Text
-                    className="text-[11px] font-medium text-slate-500"
+                    className="text-[12px] font-semibold text-slate-600"
                     numberOfLines={1}
-                    style={{ maxWidth: 100 }}
+                    style={{ maxWidth: 110 }}
                   >
                     {ref.jobTitle}
                   </Text>
                 </View>
               ))}
               {restRefs > 0 ? (
-                <Text className="text-[10px] font-medium text-slate-400">
+                <Text className="text-[11px] font-semibold text-slate-500">
                   +{restRefs}
                 </Text>
               ) : null}
@@ -456,18 +466,30 @@ function ConversationRow({
           {/* Row 3: last message + unread badge */}
           <View className="flex-row items-center justify-between">
             <Text
-              className="flex-1 text-[12px] text-slate-400"
+              className={`flex-1 text-[14px] leading-snug ${
+                hasUnread
+                  ? 'font-semibold text-[#0B1F44]'
+                  : 'font-medium text-slate-500'
+              }`}
               numberOfLines={1}
             >
               {item.lastMessage ?? ''}
             </Text>
             {hasUnread ? (
               <View
-                className="ml-2 items-center justify-center rounded-full bg-[#162C66]"
-                style={{ width: 18, height: 18 }}
+                className="ml-2 items-center justify-center rounded-full bg-[#F5C400] px-1.5"
+                style={{
+                  height: 22,
+                  minWidth: 22,
+                  shadowColor: '#F5C400',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
               >
-                <Text className="text-[9px] font-bold text-white">
-                  {item.unreadCount}
+                <Text className="text-[11px] font-extrabold text-[#0B1F44]">
+                  {item.unreadCount > 99 ? '99+' : item.unreadCount}
                 </Text>
               </View>
             ) : null}

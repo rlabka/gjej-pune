@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
   PanResponder,
@@ -52,6 +52,20 @@ export function FilterModal({ visible, onClose, onApply, mode, initial }: Props)
   const [sort, setSort] = useState(initial.sort);
   const [experience, setExperience] = useState(initial.experience);
   const [when, setWhen] = useState(initial.when);
+
+  // Re-seed local state from the parent's current filters every time the
+  // modal opens. Without this, useState(initial.X) only fires once, so a
+  // value the user typed into the main search bar between opens would be
+  // overwritten by Apply with the stale (empty) local copy.
+  useEffect(() => {
+    if (!visible) return;
+    setCategories(initial.categories);
+    setLocation(initial.location);
+    setRadius(initial.radius);
+    setSort(initial.sort);
+    setExperience(initial.experience);
+    setWhen(initial.when);
+  }, [visible, initial]);
 
   const [search, setSearch] = useState('');
   const [openGroup, setOpenGroup] = useState<string | null>(null);

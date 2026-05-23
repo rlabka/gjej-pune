@@ -383,14 +383,23 @@ export async function getJobs(filters: JobFilters = {}) {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Case-insensitive keyword filter (SQLite INSTR is case-sensitive)
+  // Case-insensitive + diacritic-insensitive keyword filter. Includes city
+  // and state so "Tirana" typed into the search bar also returns jobs whose
+  // locationCity is stored as "Tiranë" — users naturally type city names
+  // into the keyword box, not just into the location filter.
   if (filters.keyword) {
-    const kw = filters.keyword.toLowerCase();
-    allJobs = allJobs.filter((j) =>
-      j.category.toLowerCase().includes(kw) ||
-      (j.companyName || '').toLowerCase().includes(kw) ||
-      (j.description || '').toLowerCase().includes(kw)
-    );
+    const kwRaw = filters.keyword.toLowerCase();
+    const kw = stripDiacritics(kwRaw);
+    allJobs = allJobs.filter((j) => {
+      const fields = [
+        j.category,
+        j.companyName || '',
+        j.description || '',
+        j.locationCity || '',
+        j.locationState || '',
+      ];
+      return fields.some((f) => stripDiacritics(f.toLowerCase()).includes(kw));
+    });
   }
 
   // Case-insensitive location text filter. Handles three input shapes:
