@@ -29,9 +29,7 @@
           }
         ]
       },
-      "associatedDomains": [
-        "applinks:gjej-pune.com"
-      ]
+      "associatedDomains": []
     },
     "android": {
       "adaptiveIcon": {
