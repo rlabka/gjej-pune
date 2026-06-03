@@ -599,11 +599,11 @@ export default function AuthUnified({ initialMode, reasonBanned, registrationRol
       {/* Success dialog — enterprise modal */}
       {successMsg && (() => {
         const successCopy = {
-          de: { title: 'Willkommen bei gjej-pune!', subtitle: 'Ihr Konto wurde erfolgreich erstellt', desc: 'Im nächsten Schritt erstellen Sie Ihr Jobprofil — es dauert nur wenige Minuten.', cta: 'Jobprofil erstellen', steps: ['Konto erstellt', 'Profil erstellen', 'Loslegen'] },
-          en: { title: 'Welcome to gjej-pune!', subtitle: 'Your account has been created successfully', desc: 'Next, create your job profile — it only takes a few minutes.', cta: 'Create Job Profile', steps: ['Account created', 'Create profile', 'Get started'] },
-          fr: { title: 'Bienvenue sur gjej-pune !', subtitle: 'Votre compte a été créé avec succès', desc: 'Créez maintenant votre profil emploi — cela ne prend que quelques minutes.', cta: 'Créer profil emploi', steps: ['Compte créé', 'Créer profil', 'Commencer'] },
-          it: { title: 'Benvenuto su gjej-pune!', subtitle: 'Il tuo account è stato creato con successo', desc: 'Ora crea il tuo profilo lavoro — bastano pochi minuti.', cta: 'Crea profilo lavoro', steps: ['Account creato', 'Crea profilo', 'Inizia'] },
-          sq: { title: 'Mirë se vini në gjej-pune!', subtitle: 'Llogaria juaj u krijua me sukses', desc: 'Tani krijoni profilin tuaj të punës — duhen vetëm disa minuta.', cta: 'Krijo profil pune', steps: ['Llogaria u krijua', 'Krijo profilin', 'Fillo'] },
+          de: { title: 'Willkommen bei gjejpune24!', subtitle: 'Ihr Konto wurde erfolgreich erstellt', desc: 'Im nächsten Schritt erstellen Sie Ihr Jobprofil — es dauert nur wenige Minuten.', cta: 'Jobprofil erstellen', steps: ['Konto erstellt', 'Profil erstellen', 'Loslegen'] },
+          en: { title: 'Welcome to gjejpune24!', subtitle: 'Your account has been created successfully', desc: 'Next, create your job profile — it only takes a few minutes.', cta: 'Create Job Profile', steps: ['Account created', 'Create profile', 'Get started'] },
+          fr: { title: 'Bienvenue sur gjejpune24 !', subtitle: 'Votre compte a été créé avec succès', desc: 'Créez maintenant votre profil emploi — cela ne prend que quelques minutes.', cta: 'Créer profil emploi', steps: ['Compte créé', 'Créer profil', 'Commencer'] },
+          it: { title: 'Benvenuto su gjejpune24!', subtitle: 'Il tuo account è stato creato con successo', desc: 'Ora crea il tuo profilo lavoro — bastano pochi minuti.', cta: 'Crea profilo lavoro', steps: ['Account creato', 'Crea profilo', 'Inizia'] },
+          sq: { title: 'Mirë se vini në gjejpune24!', subtitle: 'Llogaria juaj u krijua me sukses', desc: 'Tani krijoni profilin tuaj të punës — duhen vetëm disa minuta.', cta: 'Krijo profil pune', steps: ['Llogaria u krijua', 'Krijo profilin', 'Fillo'] },
         } as const;
         const sc = successCopy[locale as keyof typeof successCopy] ?? successCopy.de;
         return (
@@ -876,7 +876,7 @@ export default function AuthUnified({ initialMode, reasonBanned, registrationRol
                 {locale === 'de' ? 'Kontotyp auswählen' : locale === 'fr' ? 'Choisir le type de compte' : locale === 'it' ? 'Scegli il tipo di account' : locale === 'sq' ? 'Zgjidhni llojin e llogarisë' : 'Choose account type'}
               </h3>
               <p className="mt-1.5 text-[13px] text-slate-500 font-medium">
-                {locale === 'de' ? 'Wie möchten Sie gjej-pune nutzen?' : locale === 'fr' ? 'Comment souhaitez-vous utiliser gjej-pune ?' : locale === 'it' ? 'Come vuoi usare gjej-pune?' : locale === 'sq' ? 'Si dëshironi të përdorni gjej-pune?' : 'How would you like to use gjej-pune?'}
+                {locale === 'de' ? 'Wie möchten Sie gjejpune24 nutzen?' : locale === 'fr' ? 'Comment souhaitez-vous utiliser gjejpune24 ?' : locale === 'it' ? 'Come vuoi usare gjejpune24?' : locale === 'sq' ? 'Si dëshironi të përdorni gjejpune24?' : 'How would you like to use gjejpune24?'}
               </p>
             </div>
 

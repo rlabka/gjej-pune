@@ -292,7 +292,7 @@ export default function AdminPushPage() {
                     <div className="mt-0.5 h-6 w-6 shrink-0 rounded-md bg-[#F5C400]" />
                     <div className="min-w-0 flex-1">
                       <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                        gjej-pune · now
+                        gjejpune24 · now
                       </div>
                       <div className="mt-0.5 text-sm font-bold text-slate-900">
                         {title || 'Title'}

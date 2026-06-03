@@ -14,7 +14,7 @@
   },
   "Hero": {
     "title": "Find your next job. Simple. <marker>Secure</marker>. Fast.",
-    "subtitle": "gjej-pune connects job seekers with verified employers in Albania, Europe and around the world.",
+    "subtitle": "gjejpune24 connects job seekers with verified employers in Albania, Europe and around the world.",
     "lookingForJob": "I am looking for a job",
     "lookingForEmployees": "I am looking for employees",
     "cityPlaceholder": "City or State",
@@ -37,7 +37,7 @@
     "step2Link": "Our conditions",
     "step3Title": "Choose the right candidate",
     "step3Desc": "Find the perfect match for your team and start your journey together.",
-    "step3Link": "How gjej-pune works",
+    "step3Link": "How gjejpune24 works",
     "moreInfo": "Learn more"
   },
   "PlatformOffer": {
@@ -102,34 +102,34 @@
   },
   "InfoCarousel": {
     "title": "More Information",
-    "slide1_card1_title": "How does gjej-pune work?",
+    "slide1_card1_title": "How does gjejpune24 work?",
     "slide1_card2_title": "What does a job or position cost?",
-    "slide1_card3_title": "What makes gjej-pune special?",
+    "slide1_card3_title": "What makes gjejpune24 special?",
     "slide2_card1_title": "Full-time, part-time or freelance - what is the difference?",
     "slide2_card2_title": "How do I hire an employee?",
-    "slide2_card3_title": "How do we ensure safety on gjej-pune?"
+    "slide2_card3_title": "How do we ensure safety on gjejpune24?"
   },
   "TrustAndSafety": {
     "title": "Safe and trustworthy",
-    "description": "We want job seekers and employers to feel comfortable with gjej-pune. That's why we check every new profile and our reliable customer service is always available for you.",
-    "securityLink": "How do we ensure security on gjej-pune?",
+    "description": "We want job seekers and employers to feel comfortable with gjejpune24. That's why we check every new profile and our reliable customer service is always available for you.",
+    "securityLink": "How do we ensure security on gjejpune24?",
     "feature1": "Detailed profiles with photo, references and CV.",
     "feature2": "Secure messaging function for the first contact within the platform.",
     "feature4": "Detailed reviews from other users."
   },
   "FAQ": {
     "title": "Would you like to learn more?",
-    "q1": "What is gjej-pune and how does it work?",
-    "a1": "gjej-pune is a professional job platform that connects job seekers with verified employers in Albania, Europe and around the world. You can create a free profile, browse jobs, and apply. Premium options are available for advanced features like reading full messages.",
-    "q2": "What are the advantages of gjej-pune compared to other providers?",
-    "a2": "gjej-pune offers verified profiles, secure messaging functions, detailed reviews, and reliable customer service. Our platform has been successfully connecting talents with companies across Europe for over 5 years.",
+    "q1": "What is gjejpune24 and how does it work?",
+    "a1": "gjejpune24 is a professional job platform that connects job seekers with verified employers in Albania, Europe and around the world. You can create a free profile, browse jobs, and apply. Premium options are available for advanced features like reading full messages.",
+    "q2": "What are the advantages of gjejpune24 compared to other providers?",
+    "a2": "gjejpune24 offers verified profiles, secure messaging functions, detailed reviews, and reliable customer service. Our platform has been successfully connecting talents with companies across Europe for over 5 years.",
     "q3": "What is the difference between full-time, part-time, and freelance?",
     "a3": "Full-time typically means a 40-hour workweek with a fixed salary. Part-time offers flexible working hours with reduced hours. Freelance means self-employed work with project-based assignments and flexible time management.",
     "q4": "How much does a job or position cost?",
     "a4": "Costs vary depending on the position, industry, and experience level. Employers can post job listings for free. Premium features like enhanced visibility and access to more applicants are available through various packages. Exact pricing can be found on our pricing page.",
     "q5": "Do I get help with hiring and insuring an employee?",
     "a5": "Yes, we provide comprehensive support for hiring, including guidance on contracts, insurance, and legal aspects. Our customer service is always available to answer questions and guide you through the process.",
-    "q6": "How does gjej-pune ensure security?",
+    "q6": "How does gjejpune24 ensure security?",
     "a6": "We verify every new profile, offer secure messaging functions within the platform, and enable detailed reviews from other users. Additionally, we have a reliable customer service team available to assist with any questions or concerns."
   },
   "CTASection": {
@@ -221,9 +221,9 @@
     "date": "Date",
     "showMoreFilters": "Show more filters",
     "jobsInSwitzerland": "Jobs in Europe",
-    "pageTitle": "Jobs in Europe | gjej-pune",
-    "pageTitleWithLocation": "Jobs in {location} | gjej-pune",
-    "pageTitleWithKeyword": "{keyword} jobs | gjej-pune",
+    "pageTitle": "Jobs in Europe | gjejpune24",
+    "pageTitleWithLocation": "Jobs in {location} | gjejpune24",
+    "pageTitleWithKeyword": "{keyword} jobs | gjejpune24",
     "pageDescription": "Browse job openings across Europe. Find your next opportunity.",
     "pageDescriptionSearch": "Jobs matching your search across Europe.",
     "relaxFilters": "Relax filters or clear search",
@@ -1504,7 +1504,7 @@
   },
   "auth": {
     "common": {
-      "brand": "gjej-pune",
+      "brand": "gjejpune24",
       "loading": "Loading…"
     },
     "roles": {

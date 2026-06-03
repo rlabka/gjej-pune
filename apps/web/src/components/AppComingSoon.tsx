@@ -10,7 +10,7 @@ const PLAY_STORE_URL = ''; // Filled in once the Android build is live.
 const loc = {
   de: {
     badge: 'JETZT VERFÜGBAR',
-    title: 'gjej-pune App',
+    title: 'gjejpune24 App',
     subtitle: 'Lade die App herunter und finde noch heute deinen Job — schnell, mobil und überall.',
     apple: 'App Store',
     google: 'Google Play',
@@ -19,7 +19,7 @@ const loc = {
   },
   en: {
     badge: 'AVAILABLE NOW',
-    title: 'gjej-pune App',
+    title: 'gjejpune24 App',
     subtitle: 'Download the app and find your job today — fast, mobile, anywhere.',
     apple: 'App Store',
     google: 'Google Play',
@@ -28,7 +28,7 @@ const loc = {
   },
   fr: {
     badge: 'DISPONIBLE',
-    title: 'App gjej-pune',
+    title: 'App gjejpune24',
     subtitle: "Téléchargez l'application et trouvez votre emploi dès aujourd'hui — rapide, mobile, partout.",
     apple: 'App Store',
     google: 'Google Play',
@@ -37,7 +37,7 @@ const loc = {
   },
   it: {
     badge: 'DISPONIBILE',
-    title: 'App gjej-pune',
+    title: 'App gjejpune24',
     subtitle: "Scarica l'app e trova oggi il tuo lavoro — veloce, mobile, ovunque.",
     apple: 'App Store',
     google: 'Google Play',
@@ -46,7 +46,7 @@ const loc = {
   },
   sq: {
     badge: 'TANI E DISPONUESHME',
-    title: 'Aplikacioni gjej-pune',
+    title: 'Aplikacioni gjejpune24',
     subtitle: 'Shkarko aplikacionin dhe gjej punën sot — shpejt, mobil, kudo.',
     apple: 'App Store',
     google: 'Google Play',

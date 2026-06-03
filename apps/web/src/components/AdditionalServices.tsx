@@ -10,7 +10,7 @@ export default function AdditionalServices() {
 
   const services = [
     {
-      title: 'gjej-pune',
+      title: 'gjejpune24',
       subtitle: t('jobs'),
       link: t('jobsDesc'),
       icon: <Briefcase className="w-6 h-6 text-[#162C66]" />,
@@ -19,7 +19,7 @@ export default function AdditionalServices() {
       textColor: 'text-[#162C66]'
     },
     {
-      title: 'gjej-pune',
+      title: 'gjejpune24',
       subtitle: t('freelance'),
       link: t('freelanceDesc'),
       icon: <Zap className="w-6 h-6 text-[#162C66]" />,
@@ -28,7 +28,7 @@ export default function AdditionalServices() {
       textColor: 'text-[#162C66]'
     },
     {
-      title: 'gjej-pune',
+      title: 'gjejpune24',
       subtitle: t('companies'),
       link: t('companiesDesc'),
       icon: <Building2 className="w-6 h-6 text-[#162C66]" />,
@@ -37,7 +37,7 @@ export default function AdditionalServices() {
       textColor: 'text-[#162C66]'
     },
     {
-      title: 'gjej-pune',
+      title: 'gjejpune24',
       subtitle: t('recruiting'),
       link: t('recruitingDesc'),
       icon: <Search className="w-6 h-6 text-[#162C66]" />,

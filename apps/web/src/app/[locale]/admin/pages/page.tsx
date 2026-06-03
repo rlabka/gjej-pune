@@ -100,12 +100,12 @@ const CONTACT_FIELDS: FieldDef[] = [
 ];
 
 const SOCIAL_FIELDS: FieldDef[] = [
-  { key: 'facebook', label: 'Facebook', type: 'text', placeholder: 'https://facebook.com/gjej-pune', icon: Facebook, hint: 'Leer lassen um auszublenden' },
-  { key: 'instagram', label: 'Instagram', type: 'text', placeholder: 'https://instagram.com/gjej-pune', icon: Instagram, hint: 'Leer lassen um auszublenden' },
-  { key: 'linkedin', label: 'LinkedIn', type: 'text', placeholder: 'https://linkedin.com/company/gjej-pune', icon: Linkedin, hint: 'Leer lassen um auszublenden' },
-  { key: 'twitter', label: 'X / Twitter', type: 'text', placeholder: 'https://x.com/gjej-pune', icon: Twitter, hint: 'Leer lassen um auszublenden' },
-  { key: 'tiktok', label: 'TikTok', type: 'text', placeholder: 'https://tiktok.com/@gjej-pune', hint: 'Leer lassen um auszublenden' },
-  { key: 'youtube', label: 'YouTube', type: 'text', placeholder: 'https://youtube.com/@gjej-pune', icon: Youtube, hint: 'Leer lassen um auszublenden' },
+  { key: 'facebook', label: 'Facebook', type: 'text', placeholder: 'https://facebook.com/gjejpune24', icon: Facebook, hint: 'Leer lassen um auszublenden' },
+  { key: 'instagram', label: 'Instagram', type: 'text', placeholder: 'https://instagram.com/gjejpune24', icon: Instagram, hint: 'Leer lassen um auszublenden' },
+  { key: 'linkedin', label: 'LinkedIn', type: 'text', placeholder: 'https://linkedin.com/company/gjejpune24', icon: Linkedin, hint: 'Leer lassen um auszublenden' },
+  { key: 'twitter', label: 'X / Twitter', type: 'text', placeholder: 'https://x.com/gjejpune24', icon: Twitter, hint: 'Leer lassen um auszublenden' },
+  { key: 'tiktok', label: 'TikTok', type: 'text', placeholder: 'https://tiktok.com/@gjejpune24', hint: 'Leer lassen um auszublenden' },
+  { key: 'youtube', label: 'YouTube', type: 'text', placeholder: 'https://youtube.com/@gjejpune24', icon: Youtube, hint: 'Leer lassen um auszublenden' },
 ];
 
 type FormData = Record<string, Record<string, string>>;

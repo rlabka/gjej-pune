@@ -14,7 +14,7 @@
   },
   "Hero": {
     "title": "Gjej punën tënde të radhës. Thjesht. <marker>Sigurt</marker>. Shpejt.",
-    "subtitle": "gjej-pune lidh punëkërkuesit me punëdhënës të verifikuar në Shqipëri, Evropë dhe në mbarë botën.",
+    "subtitle": "gjejpune24 lidh punëkërkuesit me punëdhënës të verifikuar në Shqipëri, Evropë dhe në mbarë botën.",
     "lookingForJob": "Po kërkoj punë",
     "lookingForEmployees": "Po kërkoj punonjës",
     "cityPlaceholder": "Qyteti ose rajoni",
@@ -37,7 +37,7 @@
     "step2Link": "Kushtet tona",
     "step3Title": "Zgjidh kandidatin e duhur",
     "step3Desc": "Gjej përputhjen perfekte për ekipin tënd dhe fillo udhëtimin së bashku.",
-    "step3Link": "Si funksionon gjej-pune",
+    "step3Link": "Si funksionon gjejpune24",
     "moreInfo": "Mëso më shumë"
   },
   "PlatformOffer": {
@@ -102,34 +102,34 @@
   },
   "InfoCarousel": {
     "title": "Informacione të mëtejshme",
-    "slide1_card1_title": "Si funksionon gjej-pune?",
+    "slide1_card1_title": "Si funksionon gjejpune24?",
     "slide1_card2_title": "Sa kushton një punë ose pozicion?",
-    "slide1_card3_title": "Çfarë e bën gjej-pune të veçantë?",
+    "slide1_card3_title": "Çfarë e bën gjejpune24 të veçantë?",
     "slide2_card1_title": "Kohë e plotë, e pjesëshme ose freelance - cili është ndryshimi?",
     "slide2_card2_title": "Si të punësoj një punonjës?",
-    "slide2_card3_title": "Si e sigurojmë sigurinë në gjej-pune?"
+    "slide2_card3_title": "Si e sigurojmë sigurinë në gjejpune24?"
   },
   "TrustAndSafety": {
     "title": "E sigurt dhe e besueshme",
-    "description": "Duam që punëkërkuesit dhe punëdhënësit të ndihen mirë me gjej-pune. Prandaj kontrollojmë çdo profil të ri dhe shërbimi ynë i besueshëm i klientëve është gjithmonë në dispozicion.",
-    "securityLink": "Si e sigurojmë sigurinë në gjej-pune?",
+    "description": "Duam që punëkërkuesit dhe punëdhënësit të ndihen mirë me gjejpune24. Prandaj kontrollojmë çdo profil të ri dhe shërbimi ynë i besueshëm i klientëve është gjithmonë në dispozicion.",
+    "securityLink": "Si e sigurojmë sigurinë në gjejpune24?",
     "feature1": "Profile të detajuara me foto, referenca dhe CV.",
     "feature2": "Funksion i sigurt mesazhesh për kontaktin e parë.",
     "feature4": "Mbështetje personale për pyetje dhe shqetësime."
   },
   "FAQ": {
     "title": "Dëshironi të mësoni më shumë?",
-    "q1": "Çfarë është gjej-pune dhe si funksionon?",
-    "a1": "gjej-pune është një platformë profesionale pune që lidh punëkërkuesit me punëdhënës të verifikuar në Shqipëri, Evropë dhe në mbarë botën. Mund të krijoni një profil falas, të shfletoni punë dhe të aplikoni. Opsionet premium janë të disponueshme për funksione të avancuara.",
-    "q2": "Cilat janë avantazhet e gjej-pune në krahasim me ofruesit e tjerë?",
-    "a2": "gjej-pune ofron profile të verifikuara, mesazhe të sigurta, vlerësime të detajuara dhe shërbim të besueshëm klientësh. Platforma jonë ka lidhur me sukses talentet me kompanitë në gjithë Evropën për mbi 5 vjet.",
+    "q1": "Çfarë është gjejpune24 dhe si funksionon?",
+    "a1": "gjejpune24 është një platformë profesionale pune që lidh punëkërkuesit me punëdhënës të verifikuar në Shqipëri, Evropë dhe në mbarë botën. Mund të krijoni një profil falas, të shfletoni punë dhe të aplikoni. Opsionet premium janë të disponueshme për funksione të avancuara.",
+    "q2": "Cilat janë avantazhet e gjejpune24 në krahasim me ofruesit e tjerë?",
+    "a2": "gjejpune24 ofron profile të verifikuara, mesazhe të sigurta, vlerësime të detajuara dhe shërbim të besueshëm klientësh. Platforma jonë ka lidhur me sukses talentet me kompanitë në gjithë Evropën për mbi 5 vjet.",
     "q3": "Cili është ndryshimi midis kohës së plotë, të pjesëshme dhe freelance?",
     "a3": "Koha e plotë zakonisht nënkupton një javë pune 40-orëshe me pagë fikse. Koha e pjesëshme ofron orare fleksibël me orë të reduktuara. Freelance nënkupton punë të pavarur me projekte dhe menaxhim fleksibël të kohës.",
     "q4": "Sa kushton një punë ose pozicion?",
     "a4": "Kostot variojnë sipas pozicionit, industrisë dhe përvojës. Punëdhënësit mund të publikojnë oferta pune falas. Për funksione premium si dukshmëri e shtuar dhe akses në më shumë kandidatë, janë të disponueshme paketa të ndryshme.",
     "q5": "A marr ndihmë për punësimin dhe sigurimin e një punonjësi?",
     "a5": "Po, ofrojmë mbështetje gjithëpërfshirëse për punësimin, duke përfshirë këshillime për kontrata, sigurime dhe aspekte ligjore. Shërbimi ynë i klientëve është gjithmonë në dispozicion.",
-    "q6": "Si e siguron gjej-pune sigurinë?",
+    "q6": "Si e siguron gjejpune24 sigurinë?",
     "a6": "Ne kontrollojmë çdo profil të ri, ofrojmë mesazhe të sigurta brenda platformës dhe mundësojmë vlerësime të detajuara nga përdoruesit e tjerë."
   },
   "CTASection": {
@@ -221,9 +221,9 @@
     "date": "Data",
     "showMoreFilters": "Shfaq më shumë filtra",
     "jobsInSwitzerland": "Punë në Evropë",
-    "pageTitle": "Punë në Evropë | gjej-pune",
-    "pageTitleWithLocation": "Punë në {location} | gjej-pune",
-    "pageTitleWithKeyword": "{keyword} punë | gjej-pune",
+    "pageTitle": "Punë në Evropë | gjejpune24",
+    "pageTitleWithLocation": "Punë në {location} | gjejpune24",
+    "pageTitleWithKeyword": "{keyword} punë | gjejpune24",
     "pageDescription": "Shfletoni oferta pune në gjithë Evropën.",
     "pageDescriptionSearch": "Punë që përputhen me kërkimin tuaj në Evropë.",
     "relaxFilters": "Lehtëso filtrat ose pastro kërkimin",
@@ -1529,7 +1529,7 @@
   },
   "auth": {
     "common": {
-      "brand": "gjej-pune",
+      "brand": "gjejpune24",
       "loading": "Duke ngarkuar..."
     },
     "roles": {

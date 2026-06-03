@@ -47,7 +47,7 @@ export default function JobSeekerSidebar() {
             </span>
           </div>
           <span className="text-xl font-black tracking-tight text-white group-hover:text-[#F5C400] transition-colors duration-300">
-            gjej-pune<span className="text-[#F5C400]">.com</span>
+            gjejpune24<span className="text-[#F5C400]">.com</span>
           </span>
         </Link>
       </div>

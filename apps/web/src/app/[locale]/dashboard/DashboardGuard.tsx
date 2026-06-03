@@ -167,7 +167,7 @@ export default function DashboardGuard({ children }: Props) {
         {/* Compact header */}
         <header className="h-14 sm:h-16 bg-white border-b border-slate-200/60 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <img src="/logo.png" alt="gjej-pune" className="h-7 sm:h-8 w-auto object-contain" />
+            <img src="/logo.png" alt="gjejpune24" className="h-7 sm:h-8 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSwitcher />

@@ -14,7 +14,7 @@
   },
   "Hero": {
     "title": "Trouvez votre prochain emploi. Simple. <marker>Sûr</marker>. Rapide.",
-    "subtitle": "gjej-pune connecte les demandeurs d'emploi avec des employeurs vérifiés en Albanie, en Europe et dans le monde entier.",
+    "subtitle": "gjejpune24 connecte les demandeurs d'emploi avec des employeurs vérifiés en Albanie, en Europe et dans le monde entier.",
     "lookingForJob": "Je cherche un emploi",
     "lookingForEmployees": "Je cherche des employés",
     "cityPlaceholder": "Ville ou région",
@@ -37,7 +37,7 @@
     "step2Link": "Nos conditions",
     "step3Title": "Choisir le bon candidat",
     "step3Desc": "Trouvez le match parfait pour votre équipe et commencez votre voyage ensemble.",
-    "step3Link": "Comment gjej-pune fonctionne",
+    "step3Link": "Comment gjejpune24 fonctionne",
     "moreInfo": "En savoir plus"
   },
   "PlatformOffer": {
@@ -102,34 +102,34 @@
   },
   "InfoCarousel": {
     "title": "Plus d'informations",
-    "slide1_card1_title": "Comment fonctionne gjej-pune ?",
+    "slide1_card1_title": "Comment fonctionne gjejpune24 ?",
     "slide1_card2_title": "Combien coûte un emploi ou un poste ?",
-    "slide1_card3_title": "Qu'est-ce qui rend gjej-pune spécial ?",
+    "slide1_card3_title": "Qu'est-ce qui rend gjejpune24 spécial ?",
     "slide2_card1_title": "Temps plein, temps partiel ou freelance - quelle est la différence ?",
     "slide2_card2_title": "Comment recruter un employé ?",
-    "slide2_card3_title": "Comment garantissons-nous la sécurité sur gjej-pune ?"
+    "slide2_card3_title": "Comment garantissons-nous la sécurité sur gjejpune24 ?"
   },
   "TrustAndSafety": {
     "title": "Sûr et fiable",
-    "description": "Nous voulons que les demandeurs d'emploi et les employeurs se sentent à l'aise avec gjej-pune. C'est pourquoi nous vérifions chaque nouveau profil et notre service client fiable est toujours disponible pour vous.",
-    "securityLink": "Comment garantissons-nous la sécurité sur gjej-pune ?",
+    "description": "Nous voulons que les demandeurs d'emploi et les employeurs se sentent à l'aise avec gjejpune24. C'est pourquoi nous vérifions chaque nouveau profil et notre service client fiable est toujours disponible pour vous.",
+    "securityLink": "Comment garantissons-nous la sécurité sur gjejpune24 ?",
     "feature1": "Profils détaillés avec photo, références et CV.",
     "feature2": "Fonction de messagerie sécurisée pour le premier contact au sein de la plateforme.",
     "feature4": "Avis détaillés d'autres utilisateurs."
   },
   "FAQ": {
     "title": "Souhaitez-vous en savoir plus ?",
-    "q1": "Qu'est-ce que gjej-pune et comment ça fonctionne ?",
-    "a1": "gjej-pune est une plateforme d'emploi professionnelle qui connecte les demandeurs d'emploi avec des employeurs vérifiés en Albanie, en Europe et dans le monde entier. Vous pouvez créer un profil gratuit, parcourir les offres d'emploi et postuler. Des options Premium sont disponibles pour des fonctionnalités avancées comme la lecture de messages complets.",
-    "q2": "Quels sont les avantages de gjej-pune par rapport aux autres fournisseurs ?",
-    "a2": "gjej-pune offre des profils vérifiés, des fonctions de messagerie sécurisées, des avis détaillés et un service client fiable. Notre plateforme connecte avec succès les talents aux entreprises dans toute la Suisse depuis plus de 5 ans.",
+    "q1": "Qu'est-ce que gjejpune24 et comment ça fonctionne ?",
+    "a1": "gjejpune24 est une plateforme d'emploi professionnelle qui connecte les demandeurs d'emploi avec des employeurs vérifiés en Albanie, en Europe et dans le monde entier. Vous pouvez créer un profil gratuit, parcourir les offres d'emploi et postuler. Des options Premium sont disponibles pour des fonctionnalités avancées comme la lecture de messages complets.",
+    "q2": "Quels sont les avantages de gjejpune24 par rapport aux autres fournisseurs ?",
+    "a2": "gjejpune24 offre des profils vérifiés, des fonctions de messagerie sécurisées, des avis détaillés et un service client fiable. Notre plateforme connecte avec succès les talents aux entreprises dans toute la Suisse depuis plus de 5 ans.",
     "q3": "Quelle est la différence entre temps plein, temps partiel et freelance ?",
     "a3": "Le temps plein signifie généralement une semaine de travail de 40 heures avec un salaire fixe. Le temps partiel offre des horaires de travail flexibles avec des heures réduites. Le freelance signifie un travail indépendant avec des missions basées sur des projets et une gestion flexible du temps.",
     "q4": "Combien coûte un emploi ou un poste ?",
     "a4": "Les coûts varient selon le poste, l'industrie et le niveau d'expérience. Les employeurs peuvent publier des offres d'emploi gratuitement. Des fonctionnalités Premium comme une visibilité accrue et l'accès à plus de candidats sont disponibles via divers forfaits. Les prix exacts se trouvent sur notre page de tarification.",
     "q5": "Obtenez-je de l'aide pour l'embauche et l'assurance d'un employé ?",
     "a5": "Oui, nous fournissons un soutien complet pour l'embauche, y compris des conseils sur les contrats, l'assurance et les aspects juridiques. Notre service client est toujours disponible pour répondre aux questions et vous guider tout au long du processus.",
-    "q6": "Comment gjej-pune garantit-il la sécurité ?",
+    "q6": "Comment gjejpune24 garantit-il la sécurité ?",
     "a6": "Nous vérifions chaque nouveau profil, offrons des fonctions de messagerie sécurisées au sein de la plateforme et permettons des avis détaillés d'autres utilisateurs. De plus, nous avons une équipe de service client fiable disponible pour aider avec toute question ou préoccupation."
   },
   "CTASection": {
@@ -221,9 +221,9 @@
     "date": "Date",
     "showMoreFilters": "Afficher plus de filtres",
     "jobsInSwitzerland": "Emplois en Suisse",
-    "pageTitle": "Emplois en Suisse | gjej-pune",
-    "pageTitleWithLocation": "Emplois à {location} | gjej-pune",
-    "pageTitleWithKeyword": "Emplois {keyword} | gjej-pune",
+    "pageTitle": "Emplois en Suisse | gjejpune24",
+    "pageTitleWithLocation": "Emplois à {location} | gjejpune24",
+    "pageTitleWithKeyword": "Emplois {keyword} | gjejpune24",
     "pageDescription": "Parcourez les offres d'emploi en Suisse.",
     "pageDescriptionSearch": "Emplois correspondant à votre recherche en Suisse.",
     "relaxFilters": "Assouplir les filtres ou effacer la recherche",
@@ -1529,7 +1529,7 @@
   },
   "auth": {
     "common": {
-      "brand": "gjej-pune",
+      "brand": "gjejpune24",
       "loading": "Chargement…"
     },
     "roles": {

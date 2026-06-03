@@ -13,11 +13,11 @@ const DISMISS_KEY = 'gjp:app-banner-dismissed';
 const DISMISS_TTL_DAYS = 7;
 
 const COPY = {
-  de: { title: 'gjej-pune App', subtitle: 'Im App Store laden', open: 'Öffnen', close: 'Schließen' },
-  en: { title: 'gjej-pune App', subtitle: 'Open in the App Store', open: 'Open', close: 'Close' },
-  fr: { title: 'App gjej-pune', subtitle: 'Ouvrir dans App Store', open: 'Ouvrir', close: 'Fermer' },
-  it: { title: 'App gjej-pune', subtitle: 'Apri nell\'App Store', open: 'Apri', close: 'Chiudi' },
-  sq: { title: 'Aplikacioni gjej-pune', subtitle: 'Hap në App Store', open: 'Hap', close: 'Mbyll' },
+  de: { title: 'gjejpune24 App', subtitle: 'Im App Store laden', open: 'Öffnen', close: 'Schließen' },
+  en: { title: 'gjejpune24 App', subtitle: 'Open in the App Store', open: 'Open', close: 'Close' },
+  fr: { title: 'App gjejpune24', subtitle: 'Ouvrir dans App Store', open: 'Ouvrir', close: 'Fermer' },
+  it: { title: 'App gjejpune24', subtitle: 'Apri nell\'App Store', open: 'Apri', close: 'Chiudi' },
+  sq: { title: 'Aplikacioni gjejpune24', subtitle: 'Hap në App Store', open: 'Hap', close: 'Mbyll' },
 } as const;
 
 type Platform = 'ios' | 'android' | null;

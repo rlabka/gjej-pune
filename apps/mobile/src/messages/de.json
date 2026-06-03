@@ -14,7 +14,7 @@
   },
   "Hero": {
     "title": "Finde deinen nächsten Job. Einfach. <marker>Sicher</marker>. Schnell.",
-    "subtitle": "gjej-pune verbindet Arbeitssuchende mit geprüften Arbeitgebern in Albanien, Europa und auf der ganzen Welt.",
+    "subtitle": "gjejpune24 verbindet Arbeitssuchende mit geprüften Arbeitgebern in Albanien, Europa und auf der ganzen Welt.",
     "lookingForJob": "Ich suche einen Job",
     "lookingForEmployees": "Ich suche Mitarbeiter",
     "cityPlaceholder": "Stadt oder Region",
@@ -37,7 +37,7 @@
     "step2Link": "Unsere Konditionen",
     "step3Title": "Passenden Kandidaten wählen",
     "step3Desc": "Finden Sie den perfekten Match für Ihr Team und starten Sie gemeinsam durch.",
-    "step3Link": "Wie gjej-pune funktioniert",
+    "step3Link": "Wie gjejpune24 funktioniert",
     "moreInfo": "Mehr erfahren"
   },
   "PlatformOffer": {
@@ -102,34 +102,34 @@
   },
   "InfoCarousel": {
     "title": "Weitere Informationen",
-    "slide1_card1_title": "Wie funktioniert gjej-pune?",
+    "slide1_card1_title": "Wie funktioniert gjejpune24?",
     "slide1_card2_title": "Was kostet ein Job oder eine Stelle?",
-    "slide1_card3_title": "Was macht gjej-pune besonders?",
+    "slide1_card3_title": "Was macht gjejpune24 besonders?",
     "slide2_card1_title": "Vollzeit, Teilzeit oder Freelance - was ist der Unterschied?",
     "slide2_card2_title": "Wie stelle ich einen Mitarbeiter ein?",
-    "slide2_card3_title": "Wie gewährleisten wir Sicherheit auf gjej-pune?"
+    "slide2_card3_title": "Wie gewährleisten wir Sicherheit auf gjejpune24?"
   },
   "TrustAndSafety": {
     "title": "Sicher und vertrauenswürdig",
-    "description": "Wir möchten, dass sich Arbeitssuchende und Arbeitgeber auf gjej-pune wohlfühlen. Deshalb überprüfen wir jedes neue Profil und unser zuverlässiger Kundenservice ist immer für Sie da.",
-    "securityLink": "Wie gewährleisten wir Sicherheit auf gjej-pune?",
+    "description": "Wir möchten, dass sich Arbeitssuchende und Arbeitgeber auf gjejpune24 wohlfühlen. Deshalb überprüfen wir jedes neue Profil und unser zuverlässiger Kundenservice ist immer für Sie da.",
+    "securityLink": "Wie gewährleisten wir Sicherheit auf gjejpune24?",
     "feature1": "Detaillierte Profile mit Foto, Referenzen und Lebenslauf.",
     "feature2": "Sichere Messaging-Funktion für den Erstkontakt.",
     "feature4": "Persönlicher Support bei Fragen und Anliegen."
   },
   "FAQ": {
     "title": "Möchten Sie mehr erfahren?",
-    "q1": "Was ist gjej-pune und wie funktioniert es?",
-    "a1": "gjej-pune ist eine professionelle Job-Plattform, die Arbeitssuchende mit geprüften Arbeitgebern in Albanien, Europa und auf der ganzen Welt verbindet. Sie können kostenlos ein Profil erstellen, Jobs durchsuchen und sich bewerben. Für erweiterte Funktionen wie das Lesen vollständiger Nachrichten stehen Premium-Optionen zur Verfügung.",
-    "q2": "Was sind die Vorteile von gjej-pune im Vergleich zu anderen Anbietern?",
-    "a2": "gjej-pune bietet geprüfte Profile, sichere Messaging-Funktionen, detaillierte Bewertungen und einen zuverlässigen Kundenservice. Unsere Plattform verbindet seit über 5 Jahren erfolgreich Talente mit Unternehmen in ganz Europa.",
+    "q1": "Was ist gjejpune24 und wie funktioniert es?",
+    "a1": "gjejpune24 ist eine professionelle Job-Plattform, die Arbeitssuchende mit geprüften Arbeitgebern in Albanien, Europa und auf der ganzen Welt verbindet. Sie können kostenlos ein Profil erstellen, Jobs durchsuchen und sich bewerben. Für erweiterte Funktionen wie das Lesen vollständiger Nachrichten stehen Premium-Optionen zur Verfügung.",
+    "q2": "Was sind die Vorteile von gjejpune24 im Vergleich zu anderen Anbietern?",
+    "a2": "gjejpune24 bietet geprüfte Profile, sichere Messaging-Funktionen, detaillierte Bewertungen und einen zuverlässigen Kundenservice. Unsere Plattform verbindet seit über 5 Jahren erfolgreich Talente mit Unternehmen in ganz Europa.",
     "q3": "Was ist der Unterschied zwischen Vollzeit, Teilzeit und Freelance?",
     "a3": "Vollzeit bedeutet in der Regel eine 40-Stunden-Woche mit festem Gehalt. Teilzeit bietet flexible Arbeitszeiten mit reduzierten Stunden. Freelance bedeutet selbstständige Arbeit mit projektbasierten Aufträgen und flexibler Zeiteinteilung.",
     "q4": "Wie viel kostet ein Job oder eine Stelle?",
     "a4": "Die Kosten variieren je nach Position, Branche und Erfahrung. Arbeitgeber können kostenlos Stellenangebote veröffentlichen. Für Premium-Funktionen wie erweiterte Sichtbarkeit und Zugang zu mehr Bewerbern stehen verschiedene Pakete zur Verfügung. Die genauen Preise finden Sie auf unserer Preisseite.",
     "q5": "Bekomme ich Hilfe bei der Einstellung und Versicherung eines Mitarbeiters?",
     "a5": "Ja, wir bieten umfassende Unterstützung bei der Einstellung, einschließlich Beratung zu Verträgen, Versicherungen und rechtlichen Aspekten. Unser Kundenservice steht Ihnen jederzeit zur Verfügung, um Fragen zu beantworten und Sie durch den Prozess zu führen.",
-    "q6": "Wie gewährleistet gjej-pune Sicherheit?",
+    "q6": "Wie gewährleistet gjejpune24 Sicherheit?",
     "a6": "Wir überprüfen jedes neue Profil, bieten sichere Messaging-Funktionen innerhalb der Plattform und ermöglichen detaillierte Bewertungen von anderen Nutzern. Zusätzlich haben wir einen zuverlässigen Kundenservice, der bei Fragen oder Problemen zur Verfügung steht."
   },
   "CTASection": {
@@ -221,9 +221,9 @@
     "date": "Datum",
     "showMoreFilters": "Weitere Filter anzeigen",
     "jobsInSwitzerland": "Jobs in Europa",
-    "pageTitle": "Jobs in Europa | gjej-pune",
-    "pageTitleWithLocation": "Jobs in {location} | gjej-pune",
-    "pageTitleWithKeyword": "{keyword} Jobs | gjej-pune",
+    "pageTitle": "Jobs in Europa | gjejpune24",
+    "pageTitleWithLocation": "Jobs in {location} | gjejpune24",
+    "pageTitleWithKeyword": "{keyword} Jobs | gjejpune24",
     "pageDescription": "Stellenangebote in Europa durchsuchen.",
     "pageDescriptionSearch": "Jobs passend zu Ihrer Suche in Europa.",
     "relaxFilters": "Filter lockern oder Suche zurücksetzen",
@@ -1529,7 +1529,7 @@
   },
   "auth": {
     "common": {
-      "brand": "gjej-pune",
+      "brand": "gjejpune24",
       "loading": "Wird geladen…"
     },
     "roles": {
