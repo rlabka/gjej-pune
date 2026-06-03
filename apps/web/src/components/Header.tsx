@@ -307,14 +307,14 @@ export default function Header() {
         : 'bg-white border-slate-200 shadow-none'
     )}>
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
           <div className="flex items-center min-w-0 shrink">
             <Link href="/" className="flex items-center group">
               <img
                 src={logoUrl || '/logo.png'}
                 alt={siteName}
-                className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
               />
             </Link>
           </div>
