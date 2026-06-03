@@ -167,7 +167,7 @@ export default function ChatListScreen() {
           <View style={{ width: 60 }} />
           <Image
             source={LOGO_IMAGE}
-            style={{ height: 28, width: 110 }}
+            style={{ height: 32, width: 110 }}
             resizeMode="contain"
           />
           <LanguageSwitcher variant="light" />

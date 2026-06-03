@@ -80,11 +80,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-block bg-white px-4 py-2 rounded-xl group mb-6">
+            {/* Logo: the new wordmark ships with its own yellow brand block,
+                so no white wrapper is needed against the navy footer. */}
+            <Link href="/" className="inline-block group mb-6">
               <img
                 src={logoUrl}
                 alt={siteName}
-                className="h-9 w-auto object-contain"
+                className="h-11 w-auto object-contain rounded-lg"
               />
             </Link>
             <p className="text-white/70 text-sm leading-relaxed max-w-sm mb-8">
