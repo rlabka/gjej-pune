@@ -191,7 +191,7 @@ export default function BrowseScreen() {
       {/* Top bar with logo — matches login/register/profile */}
       <SafeAreaView edges={['top']} className="bg-white">
         <View
-          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-3"
+          className="flex-row items-center justify-between border-b border-slate-200/70 bg-white px-4 py-1"
           style={{
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
@@ -203,7 +203,7 @@ export default function BrowseScreen() {
           <View style={{ width: 60 }} />
           <Image
             source={LOGO_IMAGE}
-            style={{ height: 32, width: 110 }}
+            style={{ height: 56, width: 180 }}
             resizeMode="contain"
           />
           <LanguageSwitcher variant="light" />
