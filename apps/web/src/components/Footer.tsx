@@ -61,7 +61,8 @@ export default function Footer() {
   }, []);
 
   const siteName = theme.siteName || 'gjej-pune.com';
-  const logoUrl = theme.logoUrl || '/logo.png';
+  // Footer hat dunklen Navy-Hintergrund -> eigenes, freigestelltes Dunkel-Logo
+  const logoUrl = '/logo-footer.png';
 
   const socialItems = [
     { key: 'facebook', url: social.facebook, icon: Facebook, label: 'Facebook' },
